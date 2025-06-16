@@ -1,0 +1,190 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Infrastructure/ProjectManagementTool.Infrastructure.csproj": {}
+  },
+  "projects": {
+    "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Application/ProjectManagementTool.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Application/ProjectManagementTool.Application.csproj",
+        "projectName": "ProjectManagementTool.Application",
+        "projectPath": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Application/ProjectManagementTool.Application.csproj",
+        "packagesPath": "/home/vikasgoudar/.nuget/packages/",
+        "outputPath": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Application/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/vikasgoudar/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Domain/ProjectManagementTool.Domain.csproj": {
+                "projectPath": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Domain/ProjectManagementTool.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/8.0.116/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Domain/ProjectManagementTool.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Domain/ProjectManagementTool.Domain.csproj",
+        "projectName": "ProjectManagementTool.Domain",
+        "projectPath": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Domain/ProjectManagementTool.Domain.csproj",
+        "packagesPath": "/home/vikasgoudar/.nuget/packages/",
+        "outputPath": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Domain/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/vikasgoudar/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/8.0.116/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Infrastructure/ProjectManagementTool.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Infrastructure/ProjectManagementTool.Infrastructure.csproj",
+        "projectName": "ProjectManagementTool.Infrastructure",
+        "projectPath": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Infrastructure/ProjectManagementTool.Infrastructure.csproj",
+        "packagesPath": "/home/vikasgoudar/.nuget/packages/",
+        "outputPath": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Infrastructure/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/vikasgoudar/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Application/ProjectManagementTool.Application.csproj": {
+                "projectPath": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Application/ProjectManagementTool.Application.csproj"
+              },
+              "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Domain/ProjectManagementTool.Domain.csproj": {
+                "projectPath": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Domain/ProjectManagementTool.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.6, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[9.0.6, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/8.0.116/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
