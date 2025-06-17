@@ -1,6 +1,6 @@
-namespace ProjectManagementTool.Domain.Enums
+namespace ProjectManagementTool.Domain.Enums.TaskItem
 {
-    public enum TaskStatus
+    public enum TaskItemStatus
     {
         NotStarted,
         InProgress,

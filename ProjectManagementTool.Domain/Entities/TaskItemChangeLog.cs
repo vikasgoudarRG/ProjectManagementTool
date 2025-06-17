@@ -1,6 +1,6 @@
 namespace ProjectManagementTool.Domain.Entities
 {
-    public class TaskChangeLog
+    public class TaskItemChangeLog
     {
         public Guid Id { get; set; }
 

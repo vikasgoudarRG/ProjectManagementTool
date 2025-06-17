@@ -1,6 +1,6 @@
 namespace ProjectManagementTool.Domain.Entities
 {
-    public class UserNotification
+    public class Notification
     {
         public Guid Id { get; set; }
 

@@ -1,4 +1,4 @@
-namespace ProjectManagementTool.Domain.Enums
+namespace ProjectManagementTool.Domain.Enums.User
 {
     public enum UserRole
     {
