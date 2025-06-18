@@ -13,6 +13,6 @@ namespace ProjectManagementTool.Application.DTOs.TaskItem
 
         public DateTime? Deadline { get; set; }
 
-        public ICollection<string>? Tags { get; set; }
+        public ICollection<Guid>? Tags { get; set; }
     }
 }

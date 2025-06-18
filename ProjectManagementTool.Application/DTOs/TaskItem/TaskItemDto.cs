@@ -1,3 +1,5 @@
+using ProjectManagementTool.Application.DTOs.Tag;
+
 namespace ProjectManagementTool.Application.DTOs.TaskItem
 {
     public class TaskItemDto
@@ -18,7 +20,7 @@ namespace ProjectManagementTool.Application.DTOs.TaskItem
         public DateTime CreatedAt { get; set; }
         public DateTime? Deadline { get; set; }
 
-        public ICollection<string> Tags { get; set; } = new List<string>();
+        public ICollection<TagDto> Tags { get; set; } = new List<TagDto>();
 
     }
 }

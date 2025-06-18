@@ -4,6 +4,6 @@ namespace ProjectManagementTool.Domain.Entities
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
-        public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
+        public ICollection<TaskItem> TaskItems { get; set; } = new List<TaskItem>();
     }
 }
