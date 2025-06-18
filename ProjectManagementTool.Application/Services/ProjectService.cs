@@ -17,10 +17,13 @@ namespace ProjectManagementTool.Application.Services
         }
         public async Task<Guid> CreateProjectAsync(CreateProjectRequestDto dto)
         {
-            User manager = await _userRepository.GetByIdAsync(dto.ManagerId) ?? throw new Exception("Manager not found");
+            User manager = await _userRepository.GetByIdAsync(dto.ManagerId) ?? throw new Exception($"ManagerId {dto.ManagerId} not found");
 
             ICollection<User> developers = new List<User>();
-            developers.Add(manager);
+            if (!developers.Contains(manager))
+            {
+                developers.Add(manager);
+            }
 
             foreach (Guid devId in dto.DeveloperIds)
             {
@@ -31,7 +34,7 @@ namespace ProjectManagementTool.Application.Services
                 }
                 else
                 {
-                    throw new Exception("Developer not found");
+                    throw new Exception($"DeveloperId {devId} not found");
                 }
             }
 
@@ -51,7 +54,7 @@ namespace ProjectManagementTool.Application.Services
         }
         public async Task UpdateProjectAsync(UpdateProjectRequestDto dto)
         {
-            Project? project = await _projectRepository.GetByIdAsync(dto.Id) ?? throw new Exception("Project not found");
+            Project? project = await _projectRepository.GetByIdAsync(dto.Id) ?? throw new Exception($"ProjectId {dto.Id} not found");
 
             if (!string.IsNullOrEmpty(dto.Title))
             {
@@ -63,14 +66,14 @@ namespace ProjectManagementTool.Application.Services
             }
             if (dto.ManagerId != null)
             {
-                project.Manager = await _userRepository.GetByIdAsync((Guid)dto.ManagerId) ?? throw new Exception("Manager not found");
+                project.Manager = await _userRepository.GetByIdAsync((Guid)dto.ManagerId) ?? throw new Exception($"ManagerId {dto.ManagerId} not found");
             }
             if (!string.IsNullOrEmpty(dto.Status))
             {
 
                 if (!Enum.TryParse<ProjectStatus>(dto.Status, ignoreCase: true, out var status))
                 {
-                    throw new Exception("Status is invalid");
+                    throw new Exception($"Status {dto.Status} is invalid");
                 }
                 project.Status = status;
 
@@ -80,17 +83,17 @@ namespace ProjectManagementTool.Application.Services
         }
         public async Task DeleteProjectAsync(Guid projectId)
         {
-            Project project = await _projectRepository.GetByIdAsync(projectId) ?? throw new Exception("Project not found");
+            Project project = await _projectRepository.GetByIdAsync(projectId) ?? throw new Exception($"ProjectId {projectId} not found");
 
             await _projectRepository.DeleteAsync(project);
             await _projectRepository.SaveChangesAsync();
         }
         public async Task AssignUsersToProjectAsync(AssignProjectDevelopers dto)
         {
-            Project project = await _projectRepository.GetByIdAsync(dto.ProjectId) ?? throw new Exception("Project not found");
+            Project project = await _projectRepository.GetByIdAsync(dto.ProjectId) ?? throw new Exception($"ProjectId {dto.ProjectId} not found");
             foreach (Guid developerId in dto.DeveloperIds)
             {
-                User developer = await _userRepository.GetByIdAsync(developerId) ?? throw new Exception("User not found");
+                User developer = await _userRepository.GetByIdAsync(developerId) ?? throw new Exception($"UserId {developerId} not found");
                 project.Developers.Add(developer);
             }
             await _projectRepository.UpdateAsync(project);
@@ -98,7 +101,7 @@ namespace ProjectManagementTool.Application.Services
         }
         public async Task<ProjectDto> GetProjectByIdAsync(Guid projectId)
         {
-            Project project = await _projectRepository.GetByIdAsync(projectId) ?? throw new Exception("Project not found");
+            Project project = await _projectRepository.GetByIdAsync(projectId) ?? throw new Exception($"ProjectTd {projectId} not found");
             return new ProjectDto
             {
                 Id = project.Id,
@@ -112,7 +115,7 @@ namespace ProjectManagementTool.Application.Services
         }
         public async Task<ICollection<ProjectDto>> GetProjectsForUserAsync(Guid userId)
         {
-            ICollection<Project> projects = await _projectRepository.GetByUserIdAsync(userId) ?? throw new Exception("User not found");
+            ICollection<Project> projects = await _projectRepository.GetByUserIdAsync(userId) ?? throw new Exception($"User {userId} not found");
 
             return projects.Select(
                 p => new ProjectDto
@@ -142,7 +145,7 @@ namespace ProjectManagementTool.Application.Services
 
         public async Task<ProjectSummaryDto> GetProjectSummaryAsync(Guid projectId)
         {
-            Project project = await _projectRepository.GetByIdAsync(projectId) ?? throw new Exception("Project not found");
+            Project project = await _projectRepository.GetByIdAsync(projectId) ?? throw new Exception($"Project {projectId} not found");
 
             int totalTasks = project.TaskItems.Count;
             IDictionary<string,int> taskCountByType = project.TaskItems
