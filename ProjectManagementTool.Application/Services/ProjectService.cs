@@ -20,10 +20,11 @@ namespace ProjectManagementTool.Application.Services
             User manager = await _userRepository.GetByIdAsync(dto.ManagerId) ?? throw new Exception($"ManagerId {dto.ManagerId} not found");
 
             ICollection<User> developers = new List<User>();
-            if (!developers.Contains(manager))
-            {
-                developers.Add(manager);
-            }
+
+            dto.DeveloperIds = dto.DeveloperIds
+                .Append(dto.ManagerId)
+                .Distinct()
+                .ToList();
 
             foreach (Guid devId in dto.DeveloperIds)
             {
@@ -124,6 +125,7 @@ namespace ProjectManagementTool.Application.Services
                     Title = p.Title,
                     Description = p.Description,
                     ManagerName = p.Manager.Username,
+                    Status = p.Status.ToString(),
                     DeveloperUsernames = p.Developers.Select(d => d.Username).ToList()
                 }
             ).ToList();

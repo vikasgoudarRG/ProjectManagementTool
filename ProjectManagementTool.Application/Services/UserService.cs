@@ -37,6 +37,39 @@ namespace ProjectManagementTool.Application.Services
             return user.Id;
         }
 
+        public async Task UpdateUserAsync(UpdateUserRequestDto dto)
+        {
+            User user = await _userRepository.GetByIdAsync(dto.Id) ?? throw new Exception($"UserId {dto.Id} not found");
+            if (!string.IsNullOrWhiteSpace(dto.Username))
+            {
+                user.Username = dto.Username;
+            }
+            if (!string.IsNullOrWhiteSpace(dto.Email))
+            {
+                user.Email = dto.Email;
+            }
 
+            await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
+        }
+
+        public async Task DeleteUserAsync(Guid userId)
+        {
+            User user = await _userRepository.GetByIdAsync(userId) ?? throw new Exception($"UserId {userId} not found");
+
+            await _userRepository.DeleteAsync(user);
+            await _userRepository.SaveChangesAsync();
+        }
+
+        public async Task<UserDto> GetUserByIdAsync(Guid userId)
+        {
+            User user = await _userRepository.GetByIdAsync(userId) ?? throw new Exception($"UserId {userId} not found");
+            return new UserDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email
+            };
+        }
     }
 }
