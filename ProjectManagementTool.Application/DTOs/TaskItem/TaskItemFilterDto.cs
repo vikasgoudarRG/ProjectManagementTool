@@ -1,6 +1,6 @@
 namespace ProjectManagementTool.Application.DTOs.TaskItem
 {
-    public class TaskItemFilterRequestDto
+    public class TaskItemFilterDto
     {
         public Guid? ProjectId { get; set; }
         public Guid? AssignedUserId { get; set; }

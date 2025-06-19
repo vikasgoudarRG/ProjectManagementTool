@@ -24,6 +24,8 @@ namespace ProjectManagementTool.Domain.Entities
         public User Manager { get; set; } = null!;
         public ProjectStatus Status { get; set; }
 
+        public DateTime CreatedOn { get; init; }
+
         public ICollection<User> Developers { get; set; } = new List<User>();
         public ICollection<TaskItem> TaskItems { get; set; } = new List<TaskItem>();
 
@@ -36,6 +38,7 @@ namespace ProjectManagementTool.Domain.Entities
             Description = description;
             ManagerId = managerId;
             Status = status;
+            CreatedOn = DateTime.UtcNow;
             if (developers != null)
             {
                 Developers = developers.ToList<User>();

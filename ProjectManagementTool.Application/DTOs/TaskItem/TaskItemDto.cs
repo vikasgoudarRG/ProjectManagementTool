@@ -1,4 +1,5 @@
 using ProjectManagementTool.Application.DTOs.Tag;
+using ProjectManagementTool.Application.DTOs.User;
 
 namespace ProjectManagementTool.Application.DTOs.TaskItem
 {
@@ -14,8 +15,7 @@ namespace ProjectManagementTool.Application.DTOs.TaskItem
         public Guid ProjectId { get; set; }
         public string ProjectName { get; set; } = null!;
 
-        public Guid? AssignedUser { get; set; }
-        public string? AssignedUsername { get; set; }
+        public UserDto? AssignedUser { get; set; }
 
         public DateTime CreatedAt { get; set; }
         public DateTime? Deadline { get; set; }

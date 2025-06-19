@@ -10,7 +10,7 @@ namespace ProjectManagementTool.Application.Interfaces.Repositories
 
         Task<TaskItem?> GetByIdAsync(Guid taskItemId);
         Task<IEnumerable<TaskItem>> GetAllByProjectId(Guid projectId);
-        Task<IEnumerable<TaskItem>> GetAllTaskItemsByFilter(TaskItemFilterQM queryModel);
+        Task<IEnumerable<TaskItem>> GetAllTaskItemsByFilter(TaskItemFilterQueryModel queryModel);
 
         Task UpdateAsync(TaskItem taskItem);
         

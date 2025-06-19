@@ -21,7 +21,7 @@ namespace ProjectManagementTool.Infrastructure.Repository
             }
         }
 
-        public async Task AddManyAsync(ICollection<Tag> tags)
+        public async Task AddRangeAsync(IEnumerable<Tag> tags)
         {
             foreach (Tag tag in tags)
             {
@@ -29,40 +29,39 @@ namespace ProjectManagementTool.Infrastructure.Repository
             }
         }
 
-        public async Task<ICollection<Tag>> GetAllAsync()
+        public async Task<IEnumerable<Tag>> GetAllAsync()
         {
-            return await _context.Tags.ToListAsync();
+            return await _context.Tags
+            .Include(t => t.TaskItems)
+            .ToListAsync();
         }
 
         public async Task<Tag?> GetByNameAsync(string name)
         {
-            return await _context.Tags.FirstOrDefaultAsync(t => t.Name == name);
+            return await _context.Tags
+            .Include(t => t.TaskItems)
+            .FirstOrDefaultAsync(t => t.Name == name);
         }
 
-        public async Task<Tag> GetOrCreateAsync(string name)
+        public Task UpdateAsync(Tag tag)
         {
-            Tag? existing = await GetByNameAsync(name);
-            if (existing != null)
-                return (Tag) existing;
-
-            Tag tag = new Tag
-            {
-                Id = Guid.NewGuid(),
-                Name = name
-            };
-
-            await _context.Tags.AddAsync(tag);
-            return tag;
+            _context.Tags.Update(tag);
+            return Task.CompletedTask;
         }
 
-        public async Task<ICollection<Tag>> GetOrCreateManyAsync(ICollection<string> names)
+        public Task DeleteAsync(Tag tag)
         {
-            ICollection<Tag> tags = new List<Tag>();
-            foreach (string name in names)
+            _context.Tags.Remove(tag);
+            return Task.CompletedTask;
+        }
+
+        public Task DeleteRangeAsync(IEnumerable<Tag> tags)
+        {
+            foreach (Tag tag in tags)
             {
-                tags.Add(await GetOrCreateAsync(name));
+                DeleteAsync(tag);
             }
-            return tags;
+            return Task.CompletedTask;
         }
 
         public async Task SaveChangesAsync()

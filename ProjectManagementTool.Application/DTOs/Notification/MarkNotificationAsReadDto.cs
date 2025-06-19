@@ -1,8 +1,7 @@
 namespace ProjectManagementTool.Application.DTOs.Notification
 {
-    public class CreateNotificationRequestDto
+    public class MarkNotificationAsReadDto
     {
         public Guid UserID { get; set; }
-        public string Message { get; set; } = null!;
     }
 }

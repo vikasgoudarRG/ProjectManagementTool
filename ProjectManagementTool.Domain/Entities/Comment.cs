@@ -11,7 +11,7 @@ namespace ProjectManagementTool.Domain.Entities
         public User Author { get; private set; } = null!;
 
         public string Content { get; set; } = null!;
-        public DateTime CreatedAt { get; init; }
+        public DateTime CreatedOn { get; init; }
 
         private Comment() { }
 
@@ -21,7 +21,7 @@ namespace ProjectManagementTool.Domain.Entities
             TaskItemId = taskItemId;
             AuthorId = authorId;
             Content = Content;
-            CreatedAt = DateTime.UtcNow;
+            CreatedOn = DateTime.UtcNow;
         }
     }
 }

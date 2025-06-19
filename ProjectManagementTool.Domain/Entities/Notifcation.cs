@@ -13,20 +13,23 @@ namespace ProjectManagementTool.Domain.Entities
             get => _message;
             private set => _message = IsValidMessage(value) ? value : throw new Exception($"Notification Message - {value} is invalid");
         }
+        public Guid? ProjectId { get; set; }
+        public Guid? TaskItemId { get; set; }
         public bool IsRead { get; set; }
         public DateTime CreatedAt { get; init; }
 
         private Notification() { }
 
-        public Notification(Guid userId, string message)
+        public Notification(Guid userId, string message, Guid? projectId = null, Guid? taskItemId = null)
         {
             Id = Guid.NewGuid();
             UserId = userId;
             Message = message;
             IsRead = false;
             CreatedAt = DateTime.UtcNow;
+            ProjectId = projectId;
+            TaskItemId = taskItemId;
         }
-
         private static bool IsValidMessage(string message)
         {
             return string.IsNullOrWhiteSpace(message) ? false : true;

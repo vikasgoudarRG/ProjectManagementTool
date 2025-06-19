@@ -5,7 +5,9 @@ namespace ProjectManagementTool.Application.Interfaces.Repositories
     public interface IChangeLogRepository
     {
         Task AddAsync(TaskItemChangeLog log);
-        Task<ICollection<TaskItemChangeLog>> GetByTaskItemId(Guid taskItemId);
+        Task<IEnumerable<TaskItemChangeLog>> GetAllByTaskItemId(Guid taskItemId);
+        Task UpdateAsync(TaskItemChangeLog taskItemChangeLog);
+        Task DeleteAsync(TaskItemChangeLog taskItemChangelog);
 
         Task SaveChangesAsync();
     }

@@ -18,12 +18,26 @@ namespace ProjectManagementTool.Infrastructure.Repository
             await _context.TaskItemChangeLogs.AddAsync(log);
         }
 
-        public async Task<ICollection<TaskItemChangeLog>> GetByTaskItemId(Guid taskItemId)
+        public async Task<IEnumerable<TaskItemChangeLog>> GetAllByTaskItemId(Guid taskItemId)
         {
             return await _context.TaskItemChangeLogs
+                .Include(l => l.TaskItem)
+                .Include(l => l.ChangedByUser)
                 .Where(l => l.TaskItemId == taskItemId)
-                .OrderByDescending(l => l.ChangedAt)
+                .OrderByDescending(l => l.CreatedOn)
                 .ToListAsync();
+        }
+
+        public Task UpdateAsync(TaskItemChangeLog taskItemChangeLog)
+        {
+            _context.TaskItemChangeLogs.Update(taskItemChangeLog);
+            return Task.CompletedTask;
+        }
+
+        public Task DeleteAsync(TaskItemChangeLog taskItemChangeLog)
+        {
+            _context.TaskItemChangeLogs.Remove(taskItemChangeLog);
+            return Task.CompletedTask;
         }
 
         public async Task SaveChangesAsync()

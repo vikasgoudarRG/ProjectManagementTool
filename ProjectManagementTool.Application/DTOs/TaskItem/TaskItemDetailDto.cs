@@ -1,11 +1,15 @@
 using ProjectManagementTool.Application.DTOs.Comment;
 using ProjectManagementTool.Application.DTOs.TaskItemChangeLog;
+using ProjectManagementTool.Application.DTOs.User;
 
 namespace ProjectManagementTool.Application.DTOs.TaskItem
 {
-    public class TaskItemDetailDto : TaskItemDto
+    public class TaskItemDetailDto : TaskItemSummaryDto
     {
-        public ICollection<CommentDto> Comments { get; set; } = new List<CommentDto>();
-        public ICollection<TaskItemChangeLogDto> ChangeLogs { get; set; } = new List<TaskItemChangeLogDto>();
+        public string Description { get; set; } = null!;
+        public Guid ProjectId { get; set; }
+        public UserDto? AssignedUserId { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public ICollection<string> Tags = new List<string>();
     }
 }

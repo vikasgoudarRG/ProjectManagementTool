@@ -1,6 +1,6 @@
 namespace ProjectManagementTool.Application.DTOs.Tag
 {
-    public class CreateTagRequestDto
+    public class CreateTagtDto
     {
         public string Name { get; set; } = null!;
     }

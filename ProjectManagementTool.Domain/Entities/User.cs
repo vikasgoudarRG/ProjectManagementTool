@@ -24,6 +24,8 @@ namespace ProjectManagementTool.Domain.Entities
         public ICollection<Project> ManagedProjects { get; set; } = new List<Project>();
 
         public ICollection<TaskItem> AssignedTasks { get; set; } = new List<TaskItem>();
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        public ICollection<TaskItemChangeLog> TaskItemChangeLogs { get; set; } = new List<TaskItemChangeLog>();
         public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
         public static bool IsValidUsername(string username)

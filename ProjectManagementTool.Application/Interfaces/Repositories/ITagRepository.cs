@@ -6,15 +6,14 @@ namespace ProjectManagementTool.Application.Interfaces.Repositories
     {
         Task AddAsync(Tag tag);
 
-        Task AddManyAsync(IEnumerable<Tag> tags);
+        Task AddRangeAsync(IEnumerable<Tag> tags);
         Task<IEnumerable<Tag>> GetAllAsync();
         Task<Tag?> GetByNameAsync(string name);
-        // Task<Tag> GetOrCreateAsync(string name);
-        // Task<IEnumerable<Tag>> GetOrCreateManyAsync(IEnumerable<string> names);
 
         Task UpdateAsync(Tag tag);
 
         Task DeleteAsync(Tag tag);
+        Task DeleteRangeAsync(IEnumerable<Tag> tags);
 
         Task SaveChangesAsync();
     }

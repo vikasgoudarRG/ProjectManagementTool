@@ -18,19 +18,6 @@ namespace ProjectManagementTool.Infrastructure.Repository
         {
             await _context.TaskItems.AddAsync(taskItem);
         }
-
-        public Task UpdateAsync(TaskItem taskItem)
-        {
-            _context.TaskItems.Update(taskItem);
-            return Task.CompletedTask;
-        }
-
-        public Task DeleteAsync(TaskItem taskItem)
-        {
-            _context.TaskItems.Remove(taskItem);
-            return Task.CompletedTask;
-        }
-
         public async Task<TaskItem?> GetByIdAsync(Guid taskItemId)
         {
             return await _context.TaskItems
@@ -41,7 +28,7 @@ namespace ProjectManagementTool.Infrastructure.Repository
                 .FirstOrDefaultAsync(t => t.Id == taskItemId);
         }
 
-        public async Task<ICollection<TaskItem>> GetAllByProjectId(Guid projectId)
+        public async Task<IEnumerable<TaskItem>> GetAllByProjectId(Guid projectId)
         {
             return await _context.TaskItems
                 .Where(t => t.ProjectId == projectId)
@@ -52,7 +39,7 @@ namespace ProjectManagementTool.Infrastructure.Repository
                 .ToListAsync();
         }
 
-        public async Task<ICollection<TaskItem>> GetAllTaskItemsByFilter(TaskItemFilterQM queryModel)
+        public async Task<IEnumerable<TaskItem>> GetAllTaskItemsByFilter(TaskItemFilterQueryModel queryModel)
         {
             IQueryable<TaskItem> query = _context.TaskItems
                 .Include(t => t.AssignedUser)
@@ -85,10 +72,11 @@ namespace ProjectManagementTool.Infrastructure.Repository
                 query = query.Where(t => t.Status == queryModel.Status);
             }
 
-            if (queryModel.Tags != null)
-            {
-                query = query.Where(t => t.Tags.All(tag => queryModel.Tags.Contains(tag)));
-            }
+            if (queryModel.TagIds != null && queryModel.TagIds.Any())
+{
+    query = query.Where(t => t.Tags.Any(tag => queryModel.TagIds.Contains(tag.Id)));
+}
+
 
             if (queryModel.DeadlineBefore != null)
             {
@@ -101,6 +89,17 @@ namespace ProjectManagementTool.Infrastructure.Repository
             }
 
             return await query.ToListAsync();
+        }
+
+        public Task UpdateAsync(TaskItem taskItem)
+        {
+            _context.TaskItems.Update(taskItem);
+            return Task.CompletedTask;
+        }
+        public Task DeleteAsync(TaskItem taskItem)
+        {
+            _context.TaskItems.Remove(taskItem);
+            return Task.CompletedTask;
         }
 
         public async Task SaveChangesAsync()

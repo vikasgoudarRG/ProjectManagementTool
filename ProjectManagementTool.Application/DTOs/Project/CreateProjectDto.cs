@@ -1,10 +1,11 @@
 namespace ProjectManagementTool.Application.DTOs.Project
 {
-    public class CreateProjectRequestDto
+    public class CreateProjectDto
     {
         public string Title { get; set; } = null!;
         public string Description { get; set; } = null!;
-        public Guid ManagerId { get; set; }
-        public ICollection<Guid> DeveloperIds { get; set; } = new List<Guid>();
+        // ManagerId is set from the authenticated user (creator)
+
+        public ICollection<Guid>? DeveloperIds { get; set; }
     }
 }

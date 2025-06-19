@@ -13,7 +13,7 @@ namespace ProjectManagementTool.Domain.Entities
         public string PropertyChanged { get; private set; } = null!;
         public string? OldValue { get; private set; }
         public string? NewValue { get; private set; }
-        public DateTime ChangedAt { get; init; }
+        public DateTime CreatedOn { get; init; }
 
         private TaskItemChangeLog() { }
 
@@ -25,7 +25,7 @@ namespace ProjectManagementTool.Domain.Entities
             PropertyChanged = propertyChanged;
             OldValue = oldValue;
             NewValue = newValue;
-            ChangedAt = DateTime.UtcNow;
+            CreatedOn = DateTime.UtcNow;
         }
     }
 }

@@ -18,22 +18,24 @@ namespace ProjectManagementTool.Infrastructure.Repository
             await _context.Notifications.AddAsync(notification);
         }
 
-        public async Task<ICollection<Notification>> GetUnseenByUserIdAsync(Guid userId)
+        public async Task<IEnumerable<Notification>> GetAllUnseenByUserIdAsync(Guid userId)
         {
             return await _context.Notifications
+                .Include(n => n.User)
                 .Where(n => n.UserId == userId && !n.IsRead)
                 .OrderByDescending(n => n.CreatedAt)
                 .ToListAsync();
         }
 
-        public Task MarkAsSeenAsync(ICollection<Notification> notifications)
+        public Task UpdateAsync(Notification notification)
         {
-            foreach (var notification in notifications)
-            {
-                notification.IsRead = true;
-            }
-            _context.Notifications.UpdateRange(notifications);
+            _context.Notifications.Update(notification);
+            return Task.CompletedTask;
+        }
 
+        public Task DeleteAsync(Notification notiication)
+        {
+            _context.Notifications.Remove(notiication);
             return Task.CompletedTask;
         }
 
