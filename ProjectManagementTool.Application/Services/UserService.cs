@@ -27,7 +27,7 @@ namespace ProjectManagementTool.Application.Services
             User user = new User
             {
                 Id = Guid.NewGuid(),
-                Username = dto.Username,
+                Username = dto.Username,okay 
                 Email = dto.Email,
             };
 
