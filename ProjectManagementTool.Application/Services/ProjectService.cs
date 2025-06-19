@@ -17,10 +17,6 @@ namespace ProjectManagementTool.Application.Services
         }
         public async Task<Guid> CreateProjectAsync(CreateProjectRequestDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Title))
-            {
-                throw new Exception("Title cannot be empty");
-            }
             User manager = await _userRepository.GetByIdAsync(dto.ManagerId) ?? throw new Exception($"ManagerId {dto.ManagerId} not found");
 
             ICollection<User> developers = new List<User>();
@@ -43,13 +39,9 @@ namespace ProjectManagementTool.Application.Services
                 }
             }
 
-            Project project = new Project
+            Project project = new Project(dto.Title, dto.Description, dto.ManagerId)
             {
-                Id = Guid.NewGuid(),
-                Title = dto.Title,
-                Description = dto.Description,
                 ManagerId = dto.ManagerId,
-                Status = Domain.Enums.Project.ProjectStatus.Active,
                 Developers = developers
             };
             await _projectRepository.AddAsync(project);

@@ -12,7 +12,7 @@ namespace ProjectManagementTool.Application.DTOs.TaskItem
         public string Status { get; set; } = null!;
 
         public Guid ProjectId { get; set; }
-        public string ProjectName { get; set; } = null!;
+        public string ProjectTitle { get; set; } = null!;
 
         public Guid? AssignedUser { get; set; }
         public string? AssignedUsername { get; set; }
