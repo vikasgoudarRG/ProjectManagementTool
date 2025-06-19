@@ -13,8 +13,18 @@ namespace ProjectManagementTool.Infrastructure.Repository
             _context = context;
         }
 
-        public async Task AddAsync(Tag tag)
+        public async Task AddAsync(string name)
         {
+            Tag? existing = await GetByNameAsync(name);
+            if (existing != null)
+                return;
+
+            Tag tag = new Tag
+            {
+                Id = Guid.NewGuid(),
+                Name = name
+            };
+
             await _context.Tags.AddAsync(tag);
         }
 
@@ -26,6 +36,22 @@ namespace ProjectManagementTool.Infrastructure.Repository
         public async Task<Tag?> GetByNameAsync(string name)
         {
             return await _context.Tags.FirstOrDefaultAsync(t => t.Name == name);
+        }
+
+        public async Task<Tag> GetOrCreateAsync(string name)
+        {
+            Tag? existing = await GetByNameAsync(name);
+            if (existing != null)
+                return (Tag) existing;
+
+            Tag tag = new Tag
+            {
+                Id = Guid.NewGuid(),
+                Name = name
+            };
+
+            await _context.Tags.AddAsync(tag);
+            return tag;
         }
 
         public async Task SaveChangesAsync()

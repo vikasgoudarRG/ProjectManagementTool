@@ -10,7 +10,7 @@ namespace ProjectManagementTool.Application.Interfaces.Services
     {
         Task<Guid> CreateTaskItemAsync(CreateTaskItemRequestDto dto);
         Task UpdateTaskItemAsync(UpdateTaskItemRequestDto dto);
-        Task DeleteTaskItemAsync(Guid taskItem);
+        Task DeleteTaskItemAsync(Guid taskItemId);
         Task<TaskItem?> GetTaskItemById(Guid taskItemId);
         Task<ICollection<TaskItem>> GetAllTaskItemsByProjectId(Guid projectId);
         Task<ICollection<TaskItem>> GetAllTaskItemsByFiler(TaskItemFilterRequestDto dto);

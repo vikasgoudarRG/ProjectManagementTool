@@ -17,6 +17,10 @@ namespace ProjectManagementTool.Application.Services
         }
         public async Task<Guid> CreateProjectAsync(CreateProjectRequestDto dto)
         {
+            if (string.IsNullOrWhiteSpace(dto.Title))
+            {
+                throw new Exception("Title cannot be empty");
+            }
             User manager = await _userRepository.GetByIdAsync(dto.ManagerId) ?? throw new Exception($"ManagerId {dto.ManagerId} not found");
 
             ICollection<User> developers = new List<User>();
@@ -57,7 +61,7 @@ namespace ProjectManagementTool.Application.Services
         {
             Project? project = await _projectRepository.GetByIdAsync(dto.Id) ?? throw new Exception($"ProjectId {dto.Id} not found");
 
-            if (!string.IsNullOrEmpty(dto.Title))
+            if (!string.IsNullOrWhiteSpace(dto.Title))
             {
                 project.Title = dto.Title;
             }
@@ -69,7 +73,7 @@ namespace ProjectManagementTool.Application.Services
             {
                 project.Manager = await _userRepository.GetByIdAsync((Guid)dto.ManagerId) ?? throw new Exception($"ManagerId {dto.ManagerId} not found");
             }
-            if (!string.IsNullOrEmpty(dto.Status))
+            if (!string.IsNullOrWhiteSpace(dto.Status))
             {
 
                 if (!Enum.TryParse<ProjectStatus>(dto.Status, ignoreCase: true, out var status))

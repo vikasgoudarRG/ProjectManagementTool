@@ -9,6 +9,6 @@ namespace ProjectManagementTool.Application.DTOs.TaskItem
         public Guid ProjectId { get; set; }
         public Guid? AssignedUserId { get; set; }
         public DateTime? Deadline { get; set; }
-        public ICollection<Guid> TagIds { get; set; } = new List<Guid>();
+        public ICollection<string> Tags { get; set; } = new List<string>();
     }
 }

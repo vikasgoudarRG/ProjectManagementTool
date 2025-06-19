@@ -4,9 +4,10 @@ namespace ProjectManagementTool.Application.Interfaces.Repositories
 {
     public interface ITagRepository
     {
-        Task AddAsync(Tag tag);
+        Task AddAsync(string name);
         Task<ICollection<Tag>> GetAllAsync();
         Task<Tag?> GetByNameAsync(string name);
+        Task<Tag> GetOrCreateAsync(string name);
 
         Task SaveChangesAsync();
     }

@@ -9,10 +9,10 @@ namespace ProjectManagementTool.Application.DTOs.TaskItem
         public string? Priority { get; set; }
         public string? Status { get; set; }
 
-        public Guid? AsigneeId { get; set; }
+        public Guid? AssignedUserId { get; set; }
 
         public DateTime? Deadline { get; set; }
 
-        public ICollection<Guid>? Tags { get; set; }
+        public ICollection<string>? Tags { get; set; }
     }
 }
