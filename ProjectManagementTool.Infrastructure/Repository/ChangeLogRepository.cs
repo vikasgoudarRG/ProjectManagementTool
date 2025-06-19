@@ -5,10 +5,10 @@ using ProjectManagementTool.Infrastructure.Contexts;
 
 namespace ProjectManagementTool.Infrastructure.Repository
 {
-    public class TaskItemChangeLogRepository : ITaskItemChangeLogRepository
+    public class ChangeLogRepository : IChangeLogRepository
     {
         private readonly AppDbContext _context;
-        public TaskItemChangeLogRepository(AppDbContext context)
+        public ChangeLogRepository(AppDbContext context)
         {
             _context = context;
         }

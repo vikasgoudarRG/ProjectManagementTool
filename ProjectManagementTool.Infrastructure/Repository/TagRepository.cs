@@ -1,4 +1,3 @@
-using System.Collections;
 using Microsoft.EntityFrameworkCore;
 using ProjectManagementTool.Application.Interfaces.Repositories;
 using ProjectManagementTool.Domain.Entities;
@@ -14,22 +13,19 @@ namespace ProjectManagementTool.Infrastructure.Repository
             _context = context;
         }
 
-        public async Task AddAsync(Tag tag)
+        public async Task AddAsync(string name)
         {
-            bool existing = _context.Tags.Any(t => t.Name == tag.Name);
+            Tag? existing = await GetByNameAsync(name);
+            if (existing != null)
+                return;
 
-            if (existing == false)
+            Tag tag = new Tag
             {
-                await _context.Tags.AddAsync(tag);
-            }
-        }
+                Id = Guid.NewGuid(),
+                Name = name
+            };
 
-        public async Task AddManyAsync(ICollection<Tag> tags)
-        {
-            foreach (Tag tag in tags)
-            {
-                await AddAsync(tag);
-            }
+            await _context.Tags.AddAsync(tag);
         }
 
         public async Task<ICollection<Tag>> GetAllAsync()
@@ -57,18 +53,6 @@ namespace ProjectManagementTool.Infrastructure.Repository
             await _context.Tags.AddAsync(tag);
             return tag;
         }
-
-        public async Task<ICollection<Tag>> GetOrCreateManyAsync(ICollection<string> names)
-        {
-            ICollection<Tag> tags = new List<Tag>();
-            foreach (string name in names)
-            {
-                tags.Add(await GetOrCreateAsync(name));
-
-            }
-            return tags;
-        }
-
 
         public async Task SaveChangesAsync()
         {

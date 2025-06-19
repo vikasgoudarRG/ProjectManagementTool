@@ -15,9 +15,22 @@ namespace ProjectManagementTool.Application.Services
 
         public async Task<Guid> CreateUserAsync(CreateUserRequestDto dto)
         {
+            if (string.IsNullOrWhiteSpace(dto.Username))
+            {
+                throw new Exception("Username is invalid");
+            }
+            if (string.IsNullOrWhiteSpace(dto.Email))
+            {
+                throw new Exception("Email is invalid");
+            }
 
-            User user = new User(dto.Username, dto.Email);
-            
+            User user = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = dto.Username,
+                Email = dto.Email,
+            };
+
             await _userRepository.AddAsync(user);
             await _userRepository.SaveChangesAsync();
 
@@ -29,11 +42,11 @@ namespace ProjectManagementTool.Application.Services
             User user = await _userRepository.GetByIdAsync(dto.Id) ?? throw new Exception($"UserId {dto.Id} not found");
             if (!string.IsNullOrWhiteSpace(dto.Username))
             {
-                user.SetUsername(dto.Username);
+                user.Username = dto.Username;
             }
             if (!string.IsNullOrWhiteSpace(dto.Email))
             {
-                user.SetEmail(dto.Email);
+                user.Email = dto.Email;
             }
 
             await _userRepository.UpdateAsync(user);
