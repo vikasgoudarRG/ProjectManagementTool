@@ -5,7 +5,7 @@ namespace ProjectManagementTool.Domain.Entities
 {
     public class Project
     {
-        // Fields
+        #region Fields
         public Guid Id { get; init; }
 
         private string _title = null!;
@@ -29,8 +29,9 @@ namespace ProjectManagementTool.Domain.Entities
         public DateTime CreatedOn { get; init; }
         public ICollection<User> Developers { get; set; } = new List<User>();
         public ICollection<TaskItem> TaskItems { get; set; } = new List<TaskItem>();
+        #endregion Fields
 
-        // Constructors
+        #region Constructors
         private Project() { }
 
         public Project(string title, string description, Guid managerId)
@@ -42,9 +43,9 @@ namespace ProjectManagementTool.Domain.Entities
             Status = ProjectStatus.Active;
             CreatedOn = DateTime.UtcNow;
         }
+        #endregion Constructors
 
-
-        // Static Methods
+        #region Static Methods
         private static bool IsValidTitle(string title)
         {
             return !string.IsNullOrWhiteSpace(title);
@@ -54,5 +55,6 @@ namespace ProjectManagementTool.Domain.Entities
         {
             return !string.IsNullOrWhiteSpace(description);
         }
+        #endregion Static Methods
     }
 }

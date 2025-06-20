@@ -2,7 +2,7 @@ namespace ProjectManagementTool.Domain.Entities
 {
     public class TaskItemChangeLog
     {
-        // Fields
+        #region Fields
         public Guid Id { get; init; }
 
         public Guid TaskItemId { get; private set; }
@@ -15,8 +15,9 @@ namespace ProjectManagementTool.Domain.Entities
         public string? OldValue { get; private set; }
         public string? NewValue { get; private set; }
         public DateTime CreatedOn { get; init; }
+        #endregion Fields
 
-        // Constructors
+        #region Constructors
         private TaskItemChangeLog() { }
 
         public TaskItemChangeLog(Guid taskItemId, Guid changedByUserId, string propertyChanged, string? oldValue, string? newValue)
@@ -29,5 +30,6 @@ namespace ProjectManagementTool.Domain.Entities
             NewValue = newValue;
             CreatedOn = DateTime.UtcNow;
         }
+        #endregion Constructors
     }
 }

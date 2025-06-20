@@ -4,7 +4,7 @@ namespace ProjectManagementTool.Domain.Entities
 {
     public class User
     {
-        // Fields
+        #region Fields
         public Guid Id { get; init; }
 
         private string _username = null!;
@@ -27,8 +27,9 @@ namespace ProjectManagementTool.Domain.Entities
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
         public ICollection<TaskItemChangeLog> TaskItemChangeLogs { get; set; } = new List<TaskItemChangeLog>();
         public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+        #endregion Fields
 
-        // Constructors
+        #region Constructors
         private User() { }
 
         public User(string username, string email)
@@ -37,8 +38,9 @@ namespace ProjectManagementTool.Domain.Entities
             Username = username;
             Email = email;
         }
+        #endregion Constructors
 
-        // Static Methods
+        #region Static Methods
         public static bool IsValidUsername(string username)
         {
             return string.IsNullOrWhiteSpace(username) ? false : true;
@@ -48,5 +50,6 @@ namespace ProjectManagementTool.Domain.Entities
         {
             return string.IsNullOrWhiteSpace(email) ? false : true;
         }
+        #endregion Constructors
     }
 }

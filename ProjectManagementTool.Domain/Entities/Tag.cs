@@ -2,7 +2,7 @@ namespace ProjectManagementTool.Domain.Entities
 {
     public class Tag
     {
-        // Fields
+        #region Fields
         public Guid Id { get; init; }
 
         private string _name = null!;
@@ -13,8 +13,9 @@ namespace ProjectManagementTool.Domain.Entities
         }
 
         public ICollection<TaskItem> TaskItems { get; set; } = new List<TaskItem>();
+        #endregion Fields
 
-        // Constructors 
+        #region Constructors
         private Tag() { }
 
         public Tag(string name)
@@ -22,11 +23,13 @@ namespace ProjectManagementTool.Domain.Entities
             Id = Guid.NewGuid();
             Name = name;
         }
+        #endregion Constructors
 
-        // Static Methods
+        #region Static Methods
         private static bool IsValidName(string name)
         {
             return string.IsNullOrWhiteSpace(name) ? false : true;
         }
+        #endregion Constructors
     }
 }

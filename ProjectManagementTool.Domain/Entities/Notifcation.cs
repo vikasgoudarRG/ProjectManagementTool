@@ -2,7 +2,7 @@ namespace ProjectManagementTool.Domain.Entities
 {
     public class Notification
     {
-        // Fields
+        #region Fields
         public Guid Id { get; init; }
 
         public Guid UserId { get; private set; }
@@ -19,8 +19,9 @@ namespace ProjectManagementTool.Domain.Entities
         public Guid TaskItemId { get; set; }
         public bool IsRead { get; set; }
         public DateTime CreatedOn { get; init; }
+        #endregion Fields
 
-        // Constructors
+        #region Constructors
         private Notification() { }
 
         public Notification(Guid userId, string message, Guid projectId, Guid taskItemId)
@@ -33,11 +34,13 @@ namespace ProjectManagementTool.Domain.Entities
             ProjectId = projectId;
             TaskItemId = taskItemId;
         }
+        #endregion Constructors
 
-        // Static Methods
+        #region Static Methods
         private static bool IsValidMessage(string message)
         {
             return string.IsNullOrWhiteSpace(message) ? false : true;
         }
+        #endregion Static Methods
     }
 }

@@ -4,7 +4,7 @@ namespace ProjectManagementTool.Domain.Entities
 {
     public class TaskItem
     {
-        // Fields
+        #region Fields
         public Guid Id { get; init; }
 
         private string _title = null!;
@@ -36,8 +36,9 @@ namespace ProjectManagementTool.Domain.Entities
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
         public ICollection<Tag> Tags { get; set; } = new List<Tag>();
         public ICollection<TaskItemChangeLog> ChangeLogs { get; set; } = new List<TaskItemChangeLog>();
+        #endregion Fields
 
-        // Constructors
+        #region Constructors        
         private TaskItem() { }
 
         public TaskItem(string title, string description, TaskItemType type, TaskItemPriority priority, TaskItemStatus status, Guid projectId, Guid? assignedUserId, DateTime? deadline)
@@ -52,9 +53,10 @@ namespace ProjectManagementTool.Domain.Entities
             AssignedUserId = assignedUserId;
             CreatedAt = DateTime.UtcNow;
             Deadline = deadline;
-        }   
+        }
+        #endregion Constructors   
 
-        // Static Methods
+        #region Static Methods
         private static bool IsValidTitle(string title)
         {
             return string.IsNullOrWhiteSpace(title) ? false : true;
@@ -64,5 +66,6 @@ namespace ProjectManagementTool.Domain.Entities
         {
             return string.IsNullOrWhiteSpace(description) ? false : true;
         }
+        #endregion Constructors
     }
 }
