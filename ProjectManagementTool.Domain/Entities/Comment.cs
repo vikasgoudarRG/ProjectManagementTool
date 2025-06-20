@@ -26,7 +26,6 @@ namespace ProjectManagementTool.Domain.Entities
             Content = content;
             CreatedOn = DateTime.UtcNow;
         }
-
         #endregion Constructors
     }
 }

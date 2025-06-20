@@ -56,7 +56,7 @@ namespace ProjectManagementTool.Domain.Entities
         }
         #endregion Constructors   
 
-        #region Static Methods
+        #region Methods
         private static bool IsValidTitle(string title)
         {
             return string.IsNullOrWhiteSpace(title) ? false : true;
@@ -66,6 +66,6 @@ namespace ProjectManagementTool.Domain.Entities
         {
             return string.IsNullOrWhiteSpace(description) ? false : true;
         }
-        #endregion Constructors
+        #endregion Methods
     }
 }

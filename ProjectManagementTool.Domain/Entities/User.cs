@@ -40,7 +40,7 @@ namespace ProjectManagementTool.Domain.Entities
         }
         #endregion Constructors
 
-        #region Static Methods
+        #region Methods
         public static bool IsValidUsername(string username)
         {
             return string.IsNullOrWhiteSpace(username) ? false : true;
@@ -50,6 +50,6 @@ namespace ProjectManagementTool.Domain.Entities
         {
             return string.IsNullOrWhiteSpace(email) ? false : true;
         }
-        #endregion Constructors
+        #endregion Methods
     }
 }

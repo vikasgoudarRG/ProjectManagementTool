@@ -36,11 +36,11 @@ namespace ProjectManagementTool.Domain.Entities
         }
         #endregion Constructors
 
-        #region Static Methods
+        #region Methods
         private static bool IsValidMessage(string message)
         {
             return string.IsNullOrWhiteSpace(message) ? false : true;
         }
-        #endregion Static Methods
+        #endregion Methods
     }
 }
