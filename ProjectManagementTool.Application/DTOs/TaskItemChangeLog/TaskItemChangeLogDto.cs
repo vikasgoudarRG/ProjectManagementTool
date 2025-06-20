@@ -8,8 +8,8 @@ namespace ProjectManagementTool.Application.DTOs.TaskItemChangeLog
         public Guid TaskItemId { get; set; }
         public UserDto ChangedByUserDto { get; set; } = null!;
         public string PropertyChanged { get; set; } = null!;
-        public string OldValue { get; set; } = null!;
-        public string NewValue { get; set; } = null!;
-        public DateTime ChangedAt { get; set; }
+        public string? OldValue { get; set; } 
+        public string? NewValue { get; set; } 
+        public DateTime CreatedOn { get; set; }
     }  
 }

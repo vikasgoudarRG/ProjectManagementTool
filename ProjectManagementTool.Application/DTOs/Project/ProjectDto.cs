@@ -10,7 +10,8 @@ namespace ProjectManagementTool.Application.DTOs.Project
         public string Status { get; set; } = null!;
         public DateTime CreatedOn { get; set; }
 
-        public UserDto Manager { get; set; } = null!;
-        public ICollection<UserDto> Developers { get; set; } = new List<UserDto>();
+        public Guid ManagerId { get; set; }
+        public string ManagerUsername { get; set; } = null!;
+        public ICollection<SimpleUserDto> Developers { get; set; } = new List<SimpleUserDto>();
     }
 }

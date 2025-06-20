@@ -8,7 +8,9 @@ namespace ProjectManagementTool.Application.DTOs.TaskItem
     {
         public string Description { get; set; } = null!;
         public Guid ProjectId { get; set; }
-        public UserDto? AssignedUserId { get; set; }
+        public Guid? AssignedUserId { get; set; }
+        public string? AssignedUsername { get; set; }
+
         public DateTime CreatedOn { get; set; }
         public ICollection<string> Tags = new List<string>();
     }

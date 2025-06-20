@@ -15,7 +15,8 @@ namespace ProjectManagementTool.Application.DTOs.TaskItem
         public Guid ProjectId { get; set; }
         public string ProjectName { get; set; } = null!;
 
-        public UserDto? AssignedUser { get; set; }
+        public Guid? AssignedUserId { get; set; }
+        public string? AssignedUsername { get; set; }
 
         public DateTime CreatedAt { get; set; }
         public DateTime? Deadline { get; set; }
