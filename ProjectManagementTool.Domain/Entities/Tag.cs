@@ -2,6 +2,7 @@ namespace ProjectManagementTool.Domain.Entities
 {
     public class Tag
     {
+        // Fields
         public Guid Id { get; init; }
 
         private string _name = null!;
@@ -10,8 +11,10 @@ namespace ProjectManagementTool.Domain.Entities
             get => _name;
             private set => _name = IsValidName(value) ? value : throw new Exception($"Tag Name - {value} is invalid");
         }
+
         public ICollection<TaskItem> TaskItems { get; set; } = new List<TaskItem>();
 
+        // Constructors 
         private Tag() { }
 
         public Tag(string name)
@@ -20,6 +23,7 @@ namespace ProjectManagementTool.Domain.Entities
             Name = name;
         }
 
+        // Static Methods
         private static bool IsValidName(string name)
         {
             return string.IsNullOrWhiteSpace(name) ? false : true;

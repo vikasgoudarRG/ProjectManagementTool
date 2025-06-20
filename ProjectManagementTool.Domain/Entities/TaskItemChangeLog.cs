@@ -2,6 +2,7 @@ namespace ProjectManagementTool.Domain.Entities
 {
     public class TaskItemChangeLog
     {
+        // Fields
         public Guid Id { get; init; }
 
         public Guid TaskItemId { get; private set; }
@@ -15,6 +16,7 @@ namespace ProjectManagementTool.Domain.Entities
         public string? NewValue { get; private set; }
         public DateTime CreatedOn { get; init; }
 
+        // Constructors
         private TaskItemChangeLog() { }
 
         public TaskItemChangeLog(Guid taskItemId, Guid changedByUserId, string propertyChanged, string? oldValue, string? newValue)

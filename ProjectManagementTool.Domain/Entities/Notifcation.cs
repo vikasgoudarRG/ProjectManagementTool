@@ -2,6 +2,7 @@ namespace ProjectManagementTool.Domain.Entities
 {
     public class Notification
     {
+        // Fields
         public Guid Id { get; init; }
 
         public Guid UserId { get; private set; }
@@ -13,23 +14,27 @@ namespace ProjectManagementTool.Domain.Entities
             get => _message;
             private set => _message = IsValidMessage(value) ? value : throw new Exception($"Notification Message - {value} is invalid");
         }
-        public Guid? ProjectId { get; set; }
-        public Guid? TaskItemId { get; set; }
-        public bool IsRead { get; set; }
-        public DateTime CreatedAt { get; init; }
 
+        public Guid ProjectId { get; set; }
+        public Guid TaskItemId { get; set; }
+        public bool IsRead { get; set; }
+        public DateTime CreatedOn { get; init; }
+
+        // Constructors
         private Notification() { }
 
-        public Notification(Guid userId, string message, Guid? projectId = null, Guid? taskItemId = null)
+        public Notification(Guid userId, string message, Guid projectId, Guid taskItemId)
         {
             Id = Guid.NewGuid();
             UserId = userId;
             Message = message;
             IsRead = false;
-            CreatedAt = DateTime.UtcNow;
+            CreatedOn = DateTime.UtcNow;
             ProjectId = projectId;
             TaskItemId = taskItemId;
         }
+
+        // Static Methods
         private static bool IsValidMessage(string message)
         {
             return string.IsNullOrWhiteSpace(message) ? false : true;

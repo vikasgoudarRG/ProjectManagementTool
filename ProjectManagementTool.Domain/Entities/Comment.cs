@@ -2,6 +2,7 @@ namespace ProjectManagementTool.Domain.Entities
 {
     public class Comment
     {
+        // Fields
         public Guid Id { get; init; }
 
         public Guid TaskItemId { get; private set; }
@@ -13,6 +14,7 @@ namespace ProjectManagementTool.Domain.Entities
         public string Content { get; set; } = null!;
         public DateTime CreatedOn { get; init; }
 
+        // Constructors
         private Comment() { }
 
         public Comment(Guid taskItemId, Guid authorId, string content)
@@ -20,7 +22,7 @@ namespace ProjectManagementTool.Domain.Entities
             Id = Guid.NewGuid();
             TaskItemId = taskItemId;
             AuthorId = authorId;
-            Content = Content;
+            Content = content;
             CreatedOn = DateTime.UtcNow;
         }
     }
