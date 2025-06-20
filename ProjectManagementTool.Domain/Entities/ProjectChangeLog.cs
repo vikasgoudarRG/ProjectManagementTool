@@ -1,12 +1,12 @@
 namespace ProjectManagementTool.Domain.Entities
 {
-    public class TaskItemChangeLog
+    public class ProjectChangeLog
     {
         #region Fields
         public Guid Id { get; init; }
 
-        public Guid TaskItemId { get; private set; }
-        public TaskItem TaskItem { get; private set; } = null!;
+        public Guid ProjectId { get; private set; }
+        public Project Project { get; private set; } = null!;
 
         public Guid ChangedByUserId { get; private set; }
         public User ChangedByUser { get; private set; } = null!;
@@ -19,12 +19,12 @@ namespace ProjectManagementTool.Domain.Entities
         #endregion Fields
 
         #region Constructors
-        private TaskItemChangeLog() { }
+        private ProjectChangeLog() { }
 
-        public TaskItemChangeLog(Guid taskItemId, Guid changedByUserId,string changeType, string propertyChanged, string oldValue, string newValue)
+        public ProjectChangeLog(Guid projectId, Guid changedByUserId,string changeType, string propertyChanged, string oldValue, string newValue)
         {
             Id = Guid.NewGuid();
-            TaskItemId = taskItemId;
+            ProjectId = projectId;
             ChangedByUserId = changedByUserId;
             ChangeType = changeType;
             PropertyChanged = propertyChanged;

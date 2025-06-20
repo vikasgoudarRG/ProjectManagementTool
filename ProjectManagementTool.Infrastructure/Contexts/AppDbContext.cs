@@ -14,6 +14,7 @@ namespace ProjectManagementTool.Infrastructure.Contexts
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<TaskItemChangeLog> TaskItemChangeLogs { get; set; }
+        public DbSet<ProjectChangeLog> ProjectChangeLogs { get; set; }
         public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

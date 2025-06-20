@@ -5,10 +5,10 @@ using ProjectManagementTool.Infrastructure.Contexts;
 
 namespace ProjectManagementTool.Infrastructure.Repository
 {
-    public class ChangeLogRepository : IChangeLogRepository
+    public class TaskItemChangeLogRepository : ITaskItemChangeLogRepository
     {
         private readonly AppDbContext _context;
-        public ChangeLogRepository(AppDbContext context)
+        public TaskItemChangeLogRepository(AppDbContext context)
         {
             _context = context;
         }
@@ -16,6 +16,12 @@ namespace ProjectManagementTool.Infrastructure.Repository
         public async Task AddAsync(TaskItemChangeLog log)
         {
             await _context.TaskItemChangeLogs.AddAsync(log);
+        }
+
+        public async Task<TaskItemChangeLog?> GetById(Guid id)
+        {
+            return await _context.TaskItemChangeLogs.Include(l => l.ChangedByUser)
+                                                    .FirstOrDefaultAsync(l => l.Id == id);
         }
 
         public async Task<IEnumerable<TaskItemChangeLog>> GetAllByTaskItemId(Guid taskItemId)
@@ -42,6 +48,11 @@ namespace ProjectManagementTool.Infrastructure.Repository
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
+        }
+
+        Task<ProjectChangeLog?> ITaskItemChangeLogRepository.GetById(Guid id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

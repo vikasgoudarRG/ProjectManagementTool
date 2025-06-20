@@ -2,9 +2,10 @@ using ProjectManagementTool.Domain.Entities;
 
 namespace ProjectManagementTool.Application.Interfaces.Repositories
 {
-    public interface IChangeLogRepository
+    public interface ITaskItemChangeLogRepository
     {
         Task AddAsync(TaskItemChangeLog log);
+        Task<ProjectChangeLog?> GetById(Guid id);
         Task<IEnumerable<TaskItemChangeLog>> GetAllByTaskItemId(Guid taskItemId);
         Task UpdateAsync(TaskItemChangeLog taskItemChangeLog);
         Task DeleteAsync(TaskItemChangeLog taskItemChangelog);
