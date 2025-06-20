@@ -5,13 +5,14 @@ namespace ProjectManagementTool.Application.Mappers
 {
     public static class ProjectChangeLogMapper
     {
-        public static ProjectChangeLogDto ToDto(TaskItemChangeLog changeLog)
+        public static ProjectChangeLogDto ToDto(ProjectChangeLog changeLog)
         {
             return new ProjectChangeLogDto
             {
                 Id = changeLog.Id,
-                ProjectId = changeLog.TaskItemId,
+                ProjectId = changeLog.ProjectId,
                 ChangedByUserDto = UserMapper.ToDto(changeLog.ChangedByUser),
+                ChangeType = changeLog.ChangeType,
                 PropertyChanged = changeLog.PropertyChanged,
                 OldValue = changeLog.OldValue,
                 NewValue = changeLog.NewValue,
@@ -19,7 +20,7 @@ namespace ProjectManagementTool.Application.Mappers
             };
         }
 
-        public static IEnumerable<ProjectChangeLogDto> ToDtoRange(IEnumerable<TaskItemChangeLog> changeLogs)
+        public static IEnumerable<ProjectChangeLogDto> ToDtoRange(IEnumerable<ProjectChangeLog> changeLogs)
         {
             return changeLogs.Select(l => ToDto(l)).ToList();
         }

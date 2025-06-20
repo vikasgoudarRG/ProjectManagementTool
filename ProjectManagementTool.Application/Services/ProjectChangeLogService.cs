@@ -1,6 +1,8 @@
 using System.Xml;
+using ProjectManagementTool.Application.DTOs.ProjectChangeLog;
 using ProjectManagementTool.Application.Interfaces.Repositories;
 using ProjectManagementTool.Application.Interfaces.Services;
+using ProjectManagementTool.Application.Mappers;
 using ProjectManagementTool.Domain.Entities;
 
 namespace ProjectManagementTool.Application.Services
@@ -36,8 +38,12 @@ namespace ProjectManagementTool.Application.Services
         public async Task<ProjectChangeLogDto> GetChangeLogById(Guid id)
         {
             ProjectChangeLog? changeLog = await _changeLogRepository.GetById(id);
-            return changeLog != null ? ProjectChangeLog
+            return changeLog != null ? ProjectChangeLogMapper.ToDto(changeLog) : throw new Exception($"ProjectChangeLogId {id} not found");
         }
-        Task<IEnumerable<ProjectChangeLogDto>> GetChangeLogsByProjectIdAsync(Guid projectId);
+        public async Task<IEnumerable<ProjectChangeLogDto>> GetChangeLogsByProjectIdAsync(Guid projectId)
+        {
+            IEnumerable<ProjectChangeLog> changeLogs = await _changeLogRepository.GetAllByProjectId(projectId);
+            return ProjectChangeLogMapper.ToDtoRange(changeLogs);
+        }
     }
 }

@@ -14,6 +14,7 @@ namespace ProjectManagementTool.Application.Mappers
                 Id = changeLog.Id,
                 TaskItemId = changeLog.TaskItemId,
                 ChangedByUserDto = UserMapper.ToDto(changeLog.ChangedByUser),
+                ChangeType = changeLog.ChangeType,
                 PropertyChanged = changeLog.PropertyChanged,
                 OldValue = changeLog.OldValue,
                 NewValue = changeLog.NewValue,
