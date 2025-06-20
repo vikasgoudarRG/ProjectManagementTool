@@ -3,7 +3,7 @@ using ProjectManagementTool.Application.Interfaces.Services;
 
 namespace ProjectManagementTool.Application.Services
 {
-    public class ChangeLogService : IChangeLogService
+    public class TaskItemChangeLogService : ITaskItemChangeLogService
     {
         #region Fields
         private readonly IChangeLogRepository _changeLogRepository;
@@ -17,7 +17,6 @@ namespace ProjectManagementTool.Application.Services
         #endregion Constructors
 
         #region Methods
-            
         #endregion Methods
     }
 }
