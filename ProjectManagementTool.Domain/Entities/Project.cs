@@ -31,13 +31,13 @@ namespace ProjectManagementTool.Domain.Entities
 
         private Project() { }
 
-        public Project(string title, string description, Guid managerId, ProjectStatus status, IEnumerable<User>? developers = null)
+        public Project(string title, string description, Guid managerId, IEnumerable<User>? developers = null)
         {
             Id = Guid.NewGuid();
             Title = title;
             Description = description;
             ManagerId = managerId;
-            Status = status;
+            Status = ProjectStatus.Active;
             CreatedOn = DateTime.UtcNow;
             if (developers != null)
             {

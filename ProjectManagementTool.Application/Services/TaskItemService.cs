@@ -1,6 +1,7 @@
 using ProjectManagementTool.Application.DTOs.TaskItem;
 using ProjectManagementTool.Application.Interfaces.Repositories;
 using ProjectManagementTool.Application.Interfaces.Services;
+using ProjectManagementTool.Application.Mappers;
 using ProjectManagementTool.Application.QueryModels;
 using ProjectManagementTool.Domain.Entities;
 using ProjectManagementTool.Domain.Enums.TaskItem;
@@ -12,53 +13,79 @@ namespace ProjectManagementTool.Application.Services
         private readonly ITaskItemRepository _taskItemRepository;
         private readonly ITagRepository _tagRepository;
         private readonly IUserRepository _userRepository;
-        public TaskItemService(ITaskItemRepository taskItemRepository, ITagRepository tagRepository, IUserRepository userRepository)
+        private readonly IChangeLogRepository _changeLogRespository;
+        public TaskItemService(ITaskItemRepository taskItemRepository, ITagRepository tagRepository, IUserRepository userRepository, IChangeLogRepository changeLogRepository)
         {
             _taskItemRepository = taskItemRepository;
             _tagRepository = tagRepository;
             _userRepository = userRepository;
+            _changeLogRespository = changeLogRepository;
         }
 
-        public async Task<Guid> CreateTaskItemAsync(CreateTaskItemRequestDto dto)
+        public async Task<TaskItemDto> CreateTaskItemAsync(CreateTaskItemDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Title))
+            User? user = dto.AssignedUserId != null
+                ? await _userRepository.GetByIdAsync((Guid) dto.AssignedUserId)
+                    ?? throw new Exception($"UserId {dto.AssignedUserId} not found")
+                : null;
+
+            ICollection <Tag> tags = new List<Tag>();
+            if (dto.Tags != null)
             {
-                throw new Exception("Title cannot be empty");
-            }
-            if (!Enum.TryParse<TaskItemType>(dto.Type, out TaskItemType taskItemType))
-            {
-                throw new Exception("Type is invalid");
-            }
-            if (!Enum.TryParse<TaskItemPriority>(dto.Priority, out TaskItemPriority priority))
-            {
-                throw new Exception("Priority is invalid");
+                // check if tag exists before adding
+                foreach (string tagName in dto.Tags)
+                {
+                    Tag? tag = await _tagRepository.GetByNameAsync(tagName);
+
+                    if (tag == null)
+                    {
+                        tag = new Tag(tagName);
+                        await _tagRepository.AddAsync(tag);
+                    }
+                    tags.Add(tag);
+                }
+                await _tagRepository.SaveChangesAsync();  
             }
 
-            ICollection<Tag> tags = new List<Tag>();
-            foreach (string string_tag in dto.Tags)
-            {
-                await _tagRepository.AddAsync(string_tag);
-                await _tagRepository.SaveChangesAsync();
-            }
 
-            TaskItem taskItem = new TaskItem
-            {
-                Id = Guid.NewGuid(),
-                Title = dto.Title,
-                Description = dto.Description,
-                Type = taskItemType,
-                Priority = priority,
-                Status = TaskItemStatus.NotStarted,
-                ProjectId = dto.ProjectId,
-                AssignedUserId = dto.AssignedUserId,
-                CreatedAt = DateTime.UtcNow,
-                Deadline = dto.Deadline,
-                Tags = tags,
-            };
+            TaskItem taskItem = new TaskItem(
+                title: dto.Title,
+                description: dto.Description, 
+                type: Enum.TryParse<TaskItemType>(dto.Type, ignoreCase: true, out TaskItemType type) ? type : throw new Exception($"TaskItemType {dto.Type} is invalid"),
+                priority: Enum.TryParse<TaskItemPriority>(dto.Priority, ignoreCase: true, out TaskItemPriority priority) ? priority : throw new Exception($"TaskItemPriority {dto.Priority} is invalid"),
+                status: Enum.TryParse<TaskItemStatus>(dto.Status, ignoreCase: true, out TaskItemStatus status) ? status : throw new Exception($"TaskItemStatus {dto.Status} is invalid"),
+                projectId: dto.ProjectId,
+                assignedUserId: dto.AssignedUserId,
+                deadline: dto.Deadline,
+                tags: tags
+            );
+
             await _taskItemRepository.AddAsync(taskItem);
             await _taskItemRepository.SaveChangesAsync();
 
-            return taskItem.Id;
+            return TaskItemMapper.ToDto(taskItem);
+        }
+
+        public async Task<TaskItemDto> GetTaskItemById(Guid taskItemId)
+        {
+            TaskItem taskItem = (TaskItem)(await _taskItemRepository.GetByIdAsync(taskItemId) ?? throw new Exception($"TaskId {taskItemId} not found"));
+            return TaskItemMapper.ToDto(taskItem);
+        }
+
+        public async Task<IEnumerable<TaskItemDto>> GetAllTaskItemsByProject(Guid projectId)
+        {
+            IEnumerable<TaskItem> taskItems = await _taskItemRepository.GetAllByProjectId(projectId) ?? throw new Exception($"TaskId {projectId} not found");
+            return taskItems.Select(t => TaskItemMapper.ToDto(t));
+        }
+
+        public async Task<IEnumerable<TaskItemDto>> GetAllTaskItemsByFilter(FilterTaskItemDto dto) {
+            TaskItemFilterQueryModel filterQuery = TaskItemMapper.ToFilterQueryModel(dto);
+            IEnumerable<TaskItem> taskItems = await _taskItemRepository.GetAllTaskItemsByFilter(filterQuery);
+            return taskItems.Select(t => TaskItemMapper.ToDto(t));
+        }
+
+        public async Task<IEnumerable<Comment>> GetChangeLogs(Guid taskItemId) {
+            
         }
 
         public async Task UpdateTaskItemAsync(UpdateTaskItemRequestDto dto)
@@ -133,15 +160,9 @@ namespace ProjectManagementTool.Application.Services
             await _taskItemRepository.SaveChangesAsync();
         }
 
-        public async Task<TaskItem?> GetTaskItemById(Guid taskItemId)
-        {
-            return await _taskItemRepository.GetByIdAsync(taskItemId) ?? throw new Exception($"TaskId {taskItemId} not found");
-        }
+       
 
-        public async Task<ICollection<TaskItem>> GetAllTaskItemsByProjectId(Guid projectId)
-        {
-            return await _taskItemRepository.GetAllByProjectId(projectId) ?? throw new Exception($"TaskId {projectId} not found");
-        }
+  
 
         public async Task<ICollection<TaskItem>> GetAllTaskItemsByFiler(TaskItemFilterRequestDto dto)
         {

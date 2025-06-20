@@ -21,7 +21,7 @@ namespace ProjectManagementTool.Application.DTOs.TaskItem
         public DateTime CreatedAt { get; set; }
         public DateTime? Deadline { get; set; }
 
-        public ICollection<TagDto> Tags { get; set; } = new List<TagDto>();
+        public IEnumerable<TagDto> Tags { get; set; } = new List<TagDto>();
 
     }
 }

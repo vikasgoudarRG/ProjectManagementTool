@@ -21,7 +21,6 @@ namespace ProjectManagementTool.Infrastructure.Repository
         public async Task<IEnumerable<TaskItemChangeLog>> GetAllByTaskItemId(Guid taskItemId)
         {
             return await _context.TaskItemChangeLogs
-                .Include(l => l.TaskItem)
                 .Include(l => l.ChangedByUser)
                 .Where(l => l.TaskItemId == taskItemId)
                 .OrderByDescending(l => l.CreatedOn)

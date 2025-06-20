@@ -12,6 +12,6 @@ namespace ProjectManagementTool.Application.DTOs.Project
 
         public Guid ManagerId { get; set; }
         public string ManagerUsername { get; set; } = null!;
-        public ICollection<SimpleUserDto> Developers { get; set; } = new List<SimpleUserDto>();
+        public IEnumerable<SimpleUserDto> Developers { get; set; } = new List<SimpleUserDto>();
     }
 }

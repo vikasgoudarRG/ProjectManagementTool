@@ -23,7 +23,6 @@ namespace ProjectManagementTool.Infrastructure.Repository
         {
             return await _context.Comments
                 .Include(c => c.Author)
-                .Include(c => c.TaskItem)
                 .Where(c => c.TaskItemId == taskItemId)
                 .OrderByDescending(c => c.CreatedOn)
                 .ToListAsync();
@@ -32,7 +31,6 @@ namespace ProjectManagementTool.Infrastructure.Repository
         public async Task<IEnumerable<Comment>> GetAllByUserIdAsync(Guid userId)
         {
             return await _context.Comments
-                .Include(c => c.Author)
                 .Include(c => c.TaskItem)
                 .Where(c => c.AuthorId == userId)
                 .OrderByDescending(c => c.CreatedOn)

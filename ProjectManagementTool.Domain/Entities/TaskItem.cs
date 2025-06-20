@@ -65,5 +65,11 @@ namespace ProjectManagementTool.Domain.Entities
         {
             return string.IsNullOrWhiteSpace(description) ? false : true;
         }
+
+        public static explicit operator TaskItem(Task<TaskItem?> v)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

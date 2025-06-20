@@ -14,5 +14,13 @@ namespace ProjectManagementTool.Application.Mappers
                 Email = user.Email
             };
         }
+        public static SimpleUserDto ToSimpleDto(User user)
+        {
+            return new SimpleUserDto
+            {
+                Id = user.Id,
+                Username = user.Username
+            };
+        }
     }
 }

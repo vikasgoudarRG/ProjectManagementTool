@@ -5,7 +5,8 @@ namespace ProjectManagementTool.Application.Interfaces.Services
 {
     public interface ITagService
     {
-        Task<TagDto> GetOrCreateIfNotExists(string tagName);
-        Task<ICollection<TagDto>> GetAllTagsAsync();
+        // Task<TagDto> CreateTagAsync(string tagName);
+        Task<IEnumerable<TagDto>> CreateTagsIfNotExistAsync(IEnumerable<string> tagNames);
+        
     }
 }

@@ -1,6 +1,7 @@
 using ProjectManagementTool.Application.DTOs.User;
 using ProjectManagementTool.Application.Interfaces.Repositories;
 using ProjectManagementTool.Application.Interfaces.Services;
+using ProjectManagementTool.Application.Mappers;
 using ProjectManagementTool.Domain.Entities;
 
 namespace ProjectManagementTool.Application.Services
@@ -8,38 +9,49 @@ namespace ProjectManagementTool.Application.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        public UserService(IUserRepository userRepository)
+        private readonly IProjectRepository _projectRepository;
+        public UserService(IUserRepository userRepository, IProjectRepository projectRepository)
         {
             _userRepository = userRepository;
+            _projectRepository = projectRepository;
         }
 
-        public async Task<Guid> CreateUserAsync(CreateUserRequestDto dto)
+        public async Task<UserDto> CreateUserAsync(CreateUserDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Username))
-            {
-                throw new Exception("Username is invalid");
-            }
-            if (string.IsNullOrWhiteSpace(dto.Email))
-            {
-                throw new Exception("Email is invalid");
-            }
-
-            User user = new User
-            {
-                Id = Guid.NewGuid(),
-                Username = dto.Username,okay 
-                Email = dto.Email,
-            };
+            User user = new User(dto.Username, dto.Email);
 
             await _userRepository.AddAsync(user);
             await _userRepository.SaveChangesAsync();
 
-            return user.Id;
+            return UserMapper.ToDto(user);
         }
 
-        public async Task UpdateUserAsync(UpdateUserRequestDto dto)
+        public async Task<UserDto> GetUserByIdAsync(Guid userId)
         {
-            User user = await _userRepository.GetByIdAsync(dto.Id) ?? throw new Exception($"UserId {dto.Id} not found");
+            User user = await _userRepository.GetByIdAsync(userId) ?? throw new Exception($"UserId {userId} not found");
+            return UserMapper.ToDto(user);
+        }
+
+        public async Task<IEnumerable<UserDto>> GetAllUsersForManagerAsync(Guid managerId)
+        {
+            IEnumerable<Project> allProjects = await _projectRepository.GetAllAsync();
+            IEnumerable<User> users = allProjects.Where(p => p.ManagerId == managerId)
+                                                 .SelectMany(p => p.Developers.Append(p.Manager))
+                                                 .DistinctBy(u => u.Id);
+            return users.Select(u => UserMapper.ToDto(u));
+        }
+
+        public async Task<IEnumerable<UserDto>> GetUsersInProjectAsync(Guid projectId)
+        {
+            Project project = await _projectRepository.GetByIdAsync(projectId) ?? throw new Exception($"ProjectId {projectId} not found");
+            IEnumerable<User> users = project.Developers.Append(project.Manager).DistinctBy(u => u.Id);
+
+            return users.Select(u => UserMapper.ToDto(u));
+        }
+
+        public async Task UpdateUserAsync(Guid userId, UpdateUserDto dto)
+        {
+            User user = await _userRepository.GetByIdAsync(userId) ?? throw new Exception($"UserId {userId} not found");
             if (!string.IsNullOrWhiteSpace(dto.Username))
             {
                 user.Username = dto.Username;
@@ -61,15 +73,5 @@ namespace ProjectManagementTool.Application.Services
             await _userRepository.SaveChangesAsync();
         }
 
-        public async Task<UserDto> GetUserByIdAsync(Guid userId)
-        {
-            User user = await _userRepository.GetByIdAsync(userId) ?? throw new Exception($"UserId {userId} not found");
-            return new UserDto
-            {
-                Id = user.Id,
-                Username = user.Username,
-                Email = user.Email
-            };
-        }
     }
 }

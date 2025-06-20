@@ -17,7 +17,7 @@ namespace ProjectManagementTool.Application.DTOs.Project
         public IDictionary<string, int> TaskItemCountByPriority { get; set; } = new Dictionary<string, int>();
 
 
-        public ICollection<SimpleUserDto> Developers { get; set; } = new List<SimpleUserDto>();
+        public IEnumerable<SimpleUserDto> Developers { get; set; } = new List<SimpleUserDto>();
 
     }
 }

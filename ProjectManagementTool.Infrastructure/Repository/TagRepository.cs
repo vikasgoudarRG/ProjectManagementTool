@@ -15,10 +15,7 @@ namespace ProjectManagementTool.Infrastructure.Repository
 
         public async Task AddAsync(Tag tag)
         {
-            if (!_context.Tags.Any(t => t.Name == tag.Name))
-            {
-                await _context.Tags.AddAsync(tag);
-            }
+            await _context.Tags.AddAsync(tag);
         }
 
         public async Task AddRangeAsync(IEnumerable<Tag> tags)
@@ -32,14 +29,12 @@ namespace ProjectManagementTool.Infrastructure.Repository
         public async Task<IEnumerable<Tag>> GetAllAsync()
         {
             return await _context.Tags
-            .Include(t => t.TaskItems)
             .ToListAsync();
         }
 
         public async Task<Tag?> GetByNameAsync(string name)
         {
             return await _context.Tags
-            .Include(t => t.TaskItems)
             .FirstOrDefaultAsync(t => t.Name == name);
         }
 
