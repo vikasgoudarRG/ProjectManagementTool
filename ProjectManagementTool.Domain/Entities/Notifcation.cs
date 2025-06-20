@@ -12,7 +12,7 @@ namespace ProjectManagementTool.Domain.Entities
         public string Message
         {
             get => _message;
-            private set => _message = IsValidMessage(value) ? value : throw new Exception($"Notification Message - {value} is invalid");
+            private set => _message = IsValidMessage(value) ? value : throw new Exception($"Invalid Notification message: {value}");
         }
 
         public Guid ProjectId { get; set; }
@@ -29,17 +29,17 @@ namespace ProjectManagementTool.Domain.Entities
             Id = Guid.NewGuid();
             UserId = userId;
             Message = message;
-            IsRead = false;
-            CreatedOn = DateTime.UtcNow;
             ProjectId = projectId;
             TaskItemId = taskItemId;
+            IsRead = false;
+            CreatedOn = DateTime.UtcNow;
         }
         #endregion Constructors
 
         #region Methods
         private static bool IsValidMessage(string message)
         {
-            return string.IsNullOrWhiteSpace(message) ? false : true;
+            return !string.IsNullOrWhiteSpace(message);
         }
         #endregion Methods
     }

@@ -1,4 +1,3 @@
-using System.Net.Mail;
 using ProjectManagementTool.Domain.Enums.Project;
 
 namespace ProjectManagementTool.Domain.Entities
@@ -12,14 +11,14 @@ namespace ProjectManagementTool.Domain.Entities
         public string Title
         {
             get => _title;
-            set => _title = IsValidTitle(value) ? value : throw new Exception($"Project Title - {value} is invalid");
+            private set => _title = IsValidTitle(value) ? value : throw new Exception($"Invalid Project Title: {value}");
         }
 
         private string _description = null!;
         public string Description
         {
             get => _description;
-            set => _description = IsValidDescription(value) ? value : throw new Exception($"Project Description - {value} is invalid");
+            private set => _description = IsValidDescription(value) ? value : throw new Exception($"Invalid Project Description: {value}");
         }
 
         public Guid ManagerId { get; set; }
