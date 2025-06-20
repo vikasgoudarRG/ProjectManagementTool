@@ -7,13 +7,10 @@ namespace ProjectManagementTool.Application.Interfaces.Repositories
     {
         Task AddAsync(Project project);
         Task<Project?> GetByIdAsync(Guid projectId);
-        Task<IEnumerable<Project>> GetAllAsync();
         Task<IEnumerable<Project>> GetAllByUserIdAsync(Guid userId);
         Task<IEnumerable<Project>> GetAllByFilterAsync(ProjectFilterQueryModel queryModel);
         Task UpdateAsync(Project project);
         Task DeleteAsync(Project project);
-        
-
         Task SaveChangesAsync();
     }
 }

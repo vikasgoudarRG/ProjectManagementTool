@@ -9,11 +9,18 @@ namespace ProjectManagementTool.Infrastructure.Repository
 {
     public class TaskItemRepository : ITaskItemRepository
     {
+        #region Fields
         private readonly AppDbContext _context;
+        #endregion Fields
+
+        #region Constructors
         public TaskItemRepository(AppDbContext context)
         {
             _context = context;
         }
+        #endregion Constructors
+
+        #region Methods
         public async Task AddAsync(TaskItem taskItem)
         {
             await _context.TaskItems.AddAsync(taskItem);
@@ -33,6 +40,15 @@ namespace ProjectManagementTool.Infrastructure.Repository
             return await _context.TaskItems
                 .Where(t => t.ProjectId == projectId)
                 .Include(t => t.AssignedUser)
+                .Include(t => t.Tags)
+                .Include(t => t.ChangeLogs)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<TaskItem>> GetAllByUserId(Guid userId)
+        {
+            return await _context.TaskItems
+                .Where(t => t.AssignedUserId == userId)
                 .Include(t => t.Project)
                 .Include(t => t.Tags)
                 .Include(t => t.ChangeLogs)
@@ -73,9 +89,9 @@ namespace ProjectManagementTool.Infrastructure.Repository
             }
 
             if (queryModel.TagIds != null && queryModel.TagIds.Any())
-{
-    query = query.Where(t => t.Tags.Any(tag => queryModel.TagIds.Contains(tag.Id)));
-}
+            {
+                query = query.Where(t => t.Tags.Any(tag => queryModel.TagIds.Contains(tag.Id)));
+            }
 
 
             if (queryModel.DeadlineBefore != null)
@@ -106,5 +122,6 @@ namespace ProjectManagementTool.Infrastructure.Repository
         {
             await _context.SaveChangesAsync();
         }
+        #endregion Methods
     }
 }

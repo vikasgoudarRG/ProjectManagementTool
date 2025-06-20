@@ -8,7 +8,6 @@ namespace ProjectManagementTool.Application.Interfaces.Repositories
         Task<IEnumerable<TaskItemChangeLog>> GetAllByTaskItemId(Guid taskItemId);
         Task UpdateAsync(TaskItemChangeLog taskItemChangeLog);
         Task DeleteAsync(TaskItemChangeLog taskItemChangelog);
-
         Task SaveChangesAsync();
     }
 }

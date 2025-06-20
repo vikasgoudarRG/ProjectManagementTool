@@ -7,12 +7,18 @@ namespace ProjectManagementTool.Infrastructure.Repository
 {
     public class TagRepository : ITagRepository
     {
+        #region Fields
         private readonly AppDbContext _context;
+        #endregion Fields
+
+        #region Constructors
         public TagRepository(AppDbContext context)
         {
             _context = context;
         }
+        #endregion Constructors
 
+        #region Methods
         public async Task AddAsync(Tag tag)
         {
             await _context.Tags.AddAsync(tag);
@@ -20,22 +26,17 @@ namespace ProjectManagementTool.Infrastructure.Repository
 
         public async Task AddRangeAsync(IEnumerable<Tag> tags)
         {
-            foreach (Tag tag in tags)
-            {
-                await AddAsync(tag);
-            }
+            await _context.Tags.AddRangeAsync(tags);
         }
 
         public async Task<IEnumerable<Tag>> GetAllAsync()
         {
-            return await _context.Tags
-            .ToListAsync();
+            return await _context.Tags.ToListAsync();
         }
 
         public async Task<Tag?> GetByNameAsync(string name)
         {
-            return await _context.Tags
-            .FirstOrDefaultAsync(t => t.Name == name);
+            return await _context.Tags.FirstOrDefaultAsync(t => t.Name == name);
         }
 
         public Task UpdateAsync(Tag tag)
@@ -52,10 +53,7 @@ namespace ProjectManagementTool.Infrastructure.Repository
 
         public Task DeleteRangeAsync(IEnumerable<Tag> tags)
         {
-            foreach (Tag tag in tags)
-            {
-                DeleteAsync(tag);
-            }
+            _context.RemoveRange(tags);
             return Task.CompletedTask;
         }
 
@@ -63,5 +61,6 @@ namespace ProjectManagementTool.Infrastructure.Repository
         {
             await _context.SaveChangesAsync();
         }
+        #endregion Methods
     }
 }

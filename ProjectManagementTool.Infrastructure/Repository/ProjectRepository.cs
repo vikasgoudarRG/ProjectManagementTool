@@ -9,12 +9,18 @@ namespace ProjectManagementTool.Infrastructure.Repository
 {
     public class ProjectRepository : IProjectRepository
     {
+        #region Fields
         private readonly AppDbContext _context;
+        #endregion Fields
+
+        #region Constructors
         public ProjectRepository(AppDbContext context)
         {
             _context = context;
         }
+        #endregion Constructors
 
+        #region Methods
         public async Task AddAsync(Project project)
         {
             await _context.Projects.AddAsync(project);
@@ -29,14 +35,6 @@ namespace ProjectManagementTool.Infrastructure.Repository
                 .FirstOrDefaultAsync(p => p.Id == projectId);
         }
 
-        public async Task<IEnumerable<Project>> GetAllAsync()
-        {
-            return await _context.Projects
-                .Include(p => p.Manager)
-                .Include(p => p.Developers)
-                .Include(p => p.TaskItems)
-                .ToListAsync();
-        }
         public async Task<IEnumerable<Project>> GetAllByUserIdAsync(Guid userId)
         {
             return await _context.Projects
@@ -72,7 +70,7 @@ namespace ProjectManagementTool.Infrastructure.Repository
             if (queryModel.DeveloperIds != null && queryModel.DeveloperIds.Any())
             {
                 query = query.Where(p => p.Developers.Any(d => queryModel.DeveloperIds.Contains(d.Id)));
-                
+
             }
 
             if (queryModel.CreatedBefore != null)
@@ -87,19 +85,23 @@ namespace ProjectManagementTool.Infrastructure.Repository
 
             return await query.ToListAsync();
         }
+
         public Task UpdateAsync(Project project)
         {
             _context.Projects.Update(project);
             return Task.CompletedTask;
         }
+
         public Task DeleteAsync(Project project)
         {
             _context.Projects.Remove(project);
             return Task.CompletedTask;
         }
+
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
         }
+        #endregion Methods
     }
 }

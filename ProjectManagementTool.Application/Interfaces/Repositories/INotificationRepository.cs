@@ -8,7 +8,6 @@ namespace ProjectManagementTool.Application.Interfaces.Repositories
         Task<IEnumerable<Notification>> GetAllUnseenByUserIdAsync(Guid userId);
         Task UpdateAsync(Notification notifications);
         Task DeleteAsync(Notification notifications);
-
         Task SaveChangesAsync();
     }
 }

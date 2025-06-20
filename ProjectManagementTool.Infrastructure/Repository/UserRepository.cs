@@ -7,12 +7,18 @@ namespace ProjectManagementTool.Infrastructure.Repository
 {
     public class UserRepository : IUserRepository
     {
+        #region Fields
         private readonly AppDbContext _context;
+        #endregion Fields
+
+        #region Constructors
         public UserRepository(AppDbContext context)
         {
             _context = context;
         }
+        #endregion Constructors
 
+        #region Methods
         public async Task AddAsync(User user)
         {
             await _context.Users.AddAsync(user);
@@ -40,5 +46,6 @@ namespace ProjectManagementTool.Infrastructure.Repository
         {
             await _context.SaveChangesAsync();
         }
+        #endregion Methods
     }
 }
