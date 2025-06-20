@@ -49,10 +49,5 @@ namespace ProjectManagementTool.Infrastructure.Repository
         {
             await _context.SaveChangesAsync();
         }
-
-        Task<ProjectChangeLog?> ITaskItemChangeLogRepository.GetById(Guid id)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
