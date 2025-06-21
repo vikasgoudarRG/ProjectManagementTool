@@ -7,47 +7,48 @@ namespace ProjectManagementTool.Domain.Entities
         #region Fields
         public Guid Id { get; init; }
 
-        private string _title = null!;
-        public string Title
+        public Guid ProjectLeadId { get; init; }
+        public User ProjectLead { get; private set; } = null!;
+
+        private string _name = null!;
+        public string Name
         {
-            get => _title;
-            private set => _title = IsValidTitle(value) ? value : throw new Exception($"Invalid Project Title: {value}");
+            get => _name;
+            set => _name = IsValidName(value) ? value : throw new Exception($"Invalid Project Name: {value}");
         }
 
         private string _description = null!;
         public string Description
         {
             get => _description;
-            private set => _description = IsValidDescription(value) ? value : throw new Exception($"Invalid Project Description: {value}");
+            set => _description = IsValidDescription(value) ? value : throw new Exception($"Invalid Project Description: {value}");
         }
-
-        public Guid ManagerId { get; set; }
-        public User Manager { get; set; } = null!;
 
         public ProjectStatus Status { get; set; }
         public DateTime CreatedOn { get; init; }
+
+        public ICollection<Team> Teams { get; set; } = new List<Team>();
         public ICollection<User> Developers { get; set; } = new List<User>();
-        public ICollection<TaskItem> TaskItems { get; set; } = new List<TaskItem>();
         #endregion Fields
 
         #region Constructors
         private Project() { }
 
-        public Project(string title, string description, Guid managerId)
+        public Project(string name, string description, Guid projectLeadId)
         {
             Id = Guid.NewGuid();
-            Title = title;
+            ProjectLeadId = projectLeadId;
+            Name = name;
             Description = description;
-            ManagerId = managerId;
             Status = ProjectStatus.Active;
             CreatedOn = DateTime.UtcNow;
         }
         #endregion Constructors
 
         #region Methods
-        private static bool IsValidTitle(string title)
+        private static bool IsValidName(string name)
         {
-            return !string.IsNullOrWhiteSpace(title);
+            return !string.IsNullOrWhiteSpace(name);
         }
 
         private static bool IsValidDescription(string description)

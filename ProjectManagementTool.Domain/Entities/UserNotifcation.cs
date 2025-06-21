@@ -1,12 +1,11 @@
 namespace ProjectManagementTool.Domain.Entities
 {
-    public class Notification
+    public class UserNotification
     {
         #region Fields
         public Guid Id { get; init; }
 
         public Guid UserId { get; private set; }
-        public User User { get; private set; } = null!;
 
         private string _message = null!;
         public string Message
@@ -14,23 +13,18 @@ namespace ProjectManagementTool.Domain.Entities
             get => _message;
             private set => _message = IsValidMessage(value) ? value : throw new Exception($"Invalid Notification message: {value}");
         }
-
-        public Guid ProjectId { get; set; }
-        public Guid TaskItemId { get; set; }
-        public bool IsRead { get; set; }
+        public bool IsRead { get; private set; }
         public DateTime CreatedOn { get; init; }
         #endregion Fields
 
         #region Constructors
-        private Notification() { }
+        private UserNotification() { }
 
-        public Notification(Guid userId, string message, Guid projectId, Guid taskItemId)
+        public UserNotification(Guid userId, string message)
         {
             Id = Guid.NewGuid();
             UserId = userId;
             Message = message;
-            ProjectId = projectId;
-            TaskItemId = taskItemId;
             IsRead = false;
             CreatedOn = DateTime.UtcNow;
         }
@@ -40,6 +34,14 @@ namespace ProjectManagementTool.Domain.Entities
         private static bool IsValidMessage(string message)
         {
             return !string.IsNullOrWhiteSpace(message);
+        }
+
+        public void MarkAsRead()
+        {
+            if (!IsRead)
+            {
+                IsRead = true;
+            }
         }
         #endregion Methods
     }

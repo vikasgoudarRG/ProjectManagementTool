@@ -9,7 +9,7 @@ namespace ProjectManagementTool.Domain.Entities
         public string Name
         {
             get => _name;
-            private set => _name = IsValidName(value) ? value : throw new Exception($"Tag Name - {value} is invalid");
+            private set => _name = IsValidName(value) ? value : throw new Exception($"Invalid Tag Name - {value}");
         }
 
         public ICollection<TaskItem> TaskItems { get; set; } = new List<TaskItem>();
@@ -28,7 +28,7 @@ namespace ProjectManagementTool.Domain.Entities
         #region Methods
         private static bool IsValidName(string name)
         {
-            return string.IsNullOrWhiteSpace(name) ? false : true;
+            return !string.IsNullOrWhiteSpace(name);
         }
         #endregion Methods
     }

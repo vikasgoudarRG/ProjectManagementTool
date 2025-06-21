@@ -7,11 +7,11 @@ namespace ProjectManagementTool.Domain.Entities
         #region Fields
         public Guid Id { get; init; }
 
-        private string _username = null!;
-        public string Username
+        private string _name = null!;
+        public string Name
         {
-            get => _username;
-            set => _username = IsValidUsername(value) ? value : throw new Exception($"User Username - {value} is invalid");
+            get => _name;
+            set => _name = IsValidName(value) ? value : throw new Exception($"User Name - {value} is invalid");
         }
 
         private string _email = null!;
@@ -22,7 +22,9 @@ namespace ProjectManagementTool.Domain.Entities
         }
 
         public ICollection<Project> Projects { get; set; } = new List<Project>();
-        public ICollection<Project> ManagedProjects { get; set; } = new List<Project>();
+        public ICollection<Team> Teams { get; set; } = new List<Team>();
+        public ICollection<Project> LeadOfProejects { get; set; } = new List<Project>();
+        public ICollection<Team> LeadOfTeams { get; set; } = new List<Team>();
         public ICollection<TaskItem> AssignedTasks { get; set; } = new List<TaskItem>();
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
         public ICollection<TaskItemChangeLog> TaskItemChangeLogs { get; set; } = new List<TaskItemChangeLog>();
@@ -32,18 +34,18 @@ namespace ProjectManagementTool.Domain.Entities
         #region Constructors
         private User() { }
 
-        public User(string username, string email)
+        public User(string name, string email)
         {
             Id = Guid.NewGuid();
-            Username = username;
+            Name = name;
             Email = email;
         }
         #endregion Constructors
 
         #region Methods
-        public static bool IsValidUsername(string username)
+        public static bool IsValidName(string name)
         {
-            return string.IsNullOrWhiteSpace(username) ? false : true;
+            return string.IsNullOrWhiteSpace(name) ? false : true;
         }
 
         private static bool IsValidEmail(string email)
