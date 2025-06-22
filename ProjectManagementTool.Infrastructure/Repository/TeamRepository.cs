@@ -10,12 +10,19 @@ namespace ProjectManagementTool.Infrastructure.Repository
 {
     public class TeamRepository : ITeamRepository
     {
+        #region Fields
         private readonly AppDbContext _context;
+        #endregion Fields
+
+        #region Constructors
         public TeamRepository(AppDbContext context)
         {
             _context = context;
         }
+        #endregion Constructors
 
+        #region Methods
+        // Team Operations
         public async Task AddAsync(Team team)
         {
             await _context.Teams.AddAsync(team);
@@ -23,12 +30,15 @@ namespace ProjectManagementTool.Infrastructure.Repository
 
         public async Task<Team?> GetByIdAsync(Guid teamId)
         {
-            return await _context.Teams.FindAsync(teamId);
+            return await _context.Teams
+                .Include(t => t.TeamMembers)
+                .FirstOrDefaultAsync(t => t.Id == teamId);
         }
 
         public async Task<Team?> GetByNameAsync(string name, Guid projectId)
         {
             return await _context.Teams
+                .Include(t => t.TeamMembers)
                 .FirstOrDefaultAsync(t => t.Name == name && t.ProjectId == projectId);
         }
 
@@ -36,14 +46,15 @@ namespace ProjectManagementTool.Infrastructure.Repository
         {
             return await _context.Teams
                 .Where(t => t.ProjectId == projectId)
+                .Include(t => t.TeamMembers)
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<Team>> GetAllByProjectIdAndUserIdAsync(Guid projectId, Guid userId)
         {
             return await _context.Teams
-                .Include(t => t.TeamMembers)
                 .Where(t => t.ProjectId == projectId && t.TeamMembers.Any(m => m.UserId == userId))
+                .Include(t => t.TeamMembers)
                 .ToListAsync();
         }
 
@@ -51,6 +62,11 @@ namespace ProjectManagementTool.Infrastructure.Repository
         {
             return await _context.Teams
                 .AnyAsync(t => t.Id == teamId && t.TeamMembers.Any(m => m.UserId == userId));
+        }
+
+        public async Task<bool> ExistsTeamByNameAsync(string teamName, Guid projectId)
+        {
+            return await _context.Teams.AnyAsync(t => t.Name == teamName && t.ProjectId == projectId);
         }
 
         public Task UpdateAsync(Team team)
@@ -66,7 +82,7 @@ namespace ProjectManagementTool.Infrastructure.Repository
         }
 
 
-
+        // Team Member Operations
         public async Task AddMemberAsync(Guid teamId, Guid userId, TeamMemberRole role)
         {
             TeamMember teamMember = new TeamMember
@@ -81,13 +97,16 @@ namespace ProjectManagementTool.Infrastructure.Repository
         public async Task<TeamMember?> GetMemberAsync(Guid teamId, Guid userId)
         {
             return await _context.TeamMembers
-                .FirstOrDefaultAsync(tm => tm.TeamId == teamId && tm.UserId == userId);
+            .Include(tm => tm.User)
+            .Include(tm => tm.Team)
+            .FirstOrDefaultAsync(tm => tm.TeamId == teamId && tm.UserId == userId);
         }
 
         public async Task<IEnumerable<TeamMember>> GetAllMembersAsync(Guid teamId)
         {
             return await _context.TeamMembers
                 .Where(tm => tm.TeamId == teamId)
+                .Include(tm => tm.User)
                 .ToListAsync();
         }
 
@@ -102,7 +121,6 @@ namespace ProjectManagementTool.Infrastructure.Repository
             _context.TeamMembers.Remove(teamMember);
             return Task.CompletedTask;
         }
-
-
     }
+    #endregion Methods
 }

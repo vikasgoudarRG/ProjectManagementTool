@@ -1,6 +1,6 @@
 using ProjectManagementTool.Domain.Entities;
 
-namespace ProjectManageMentTool.Application.Interfaces.Repositories
+namespace ProjectManagementTool.Application.Interfaces.Repositories
 {
     public interface ITeamChangeLogRepository
     {
