@@ -6,8 +6,8 @@ namespace ProjectManagementTool.Domain.Entities
     {
         #region Fields
         public Guid Id { get; init; }
-
         public Guid ProjectLeadId { get; init; }
+        public User ProjectLead { get; private set; } = null!;
 
         private string _name = null!;
         public string Name

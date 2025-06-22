@@ -24,32 +24,21 @@ namespace ProjectManagementTool.Infrastructure.Repository
             await _context.ProjectChangeLogs.AddAsync(log);
         }
 
-        public async Task<ProjectChangeLog?> GetById(Guid id)
-        {
-            return await _context.ProjectChangeLogs.Include(l => l.ChangedByUser)
-                                                   .FirstOrDefaultAsync(l => l.Id == id);
-        }
-        public async Task<IEnumerable<ProjectChangeLog>> GetAllByProjectId(Guid projectId)
+        public async Task<ProjectChangeLog?> GetByIdAsync(Guid id)
         {
             return await _context.ProjectChangeLogs
-                .Include(l => l.ChangedByUser)
+                    .Include(l => l.Project)
+                    .Include(l => l.ChangedByUser)
+                    .FirstOrDefaultAsync(l => l.Id == id);
+        }
+        public async Task<IEnumerable<ProjectChangeLog>> GetAllByProjectIdAsync(Guid projectId)
+        {
+            return await _context.ProjectChangeLogs
                 .Where(l => l.ProjectId == projectId)
+                .Include(l => l.Project)
+                .Include(l => l.ChangedByUser)
                 .OrderByDescending(l => l.CreatedOn)
                 .ToListAsync(); 
-        }
-        public Task UpdateAsync(ProjectChangeLog projectChangeLog)
-        {
-            _context.ProjectChangeLogs.Update(projectChangeLog);
-            return Task.CompletedTask;
-        }
-        public Task DeleteAsync(ProjectChangeLog projectChangeLog)
-        {
-            _context.ProjectChangeLogs.Remove(projectChangeLog);
-            return Task.CompletedTask;
-        }
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
         }
         #endregion Methods
     }
