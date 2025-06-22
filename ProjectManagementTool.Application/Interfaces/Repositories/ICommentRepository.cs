@@ -4,11 +4,14 @@ namespace ProjectManagementTool.Application.Interfaces.Repositories
 {
     public interface ICommentRepository
     {
-        Task AddAsync(Comment comment);
-        Task<IEnumerable<Comment>> GetAllByTaskIdAsync(Guid taskItemId);
-        Task<IEnumerable<Comment>> GetAllByUserIdAsync(Guid userId);
-        Task UpdateAsync(Comment comment);
-        Task DeleteAsync(Comment comment);
-        Task SaveChangesAsync();
+        Task AddAsync(TaskItemComment comment);
+
+        Task<TaskItemComment?> GetByIdAsync(Guid commentId);
+        Task<IEnumerable<TaskItemComment>> GetAllByTaskIdAsync(Guid taskItemId);
+        Task<IEnumerable<TaskItemComment>> GetAllByUserIdAsync(Guid userId);
+
+        Task UpdateAsync(TaskItemComment comment);
+
+        Task DeleteAsync(TaskItemComment comment);
     }
 }

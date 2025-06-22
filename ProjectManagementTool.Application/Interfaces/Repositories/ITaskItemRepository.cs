@@ -6,13 +6,17 @@ namespace ProjectManagementTool.Application.Interfaces.Repositories
 {
     public interface ITaskItemRepository
     {
+        // TaskIteam Operations
         Task AddAsync(TaskItem taskItem);
+
         Task<TaskItem?> GetByIdAsync(Guid taskItemId);
-        Task<IEnumerable<TaskItem>> GetAllByProjectId(Guid projectId);
-        Task<IEnumerable<TaskItem>> GetAllByUserId(Guid userId);
+        Task<IEnumerable<TaskItem>> GetAllByProjectId(Guid projectId); // for project leads
+        Task<IEnumerable<TaskItem>> GetAllByTeamId(Guid teamId); // for project leads and team memebers
+        Task<IEnumerable<TaskItem>> GetAllByAssignedUserId(Guid userId);
         Task<IEnumerable<TaskItem>> GetAllTaskItemsByFilter(TaskItemFilterQueryModel queryModel);
+
         Task UpdateAsync(TaskItem taskItem);
+
         Task DeleteAsync(TaskItem taskItem);
-        Task SaveChangesAsync();
     }
 }
