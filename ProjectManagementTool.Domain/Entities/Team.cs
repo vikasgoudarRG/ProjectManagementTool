@@ -1,29 +1,31 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace ProjectManagementTool.Domain.Entities
 {
     public class Team
     {
         #region Fields
         public Guid Id { get; init; }
-
         public Guid ProjectId { get; init; }
-        public Project Project { get; private set; } = null!;
 
         private string _name = null!;
         public string Name
         {
             get => _name;
-            set => _name = IsValidName(value) ? value : throw new ArgumentException($"Invalid Team Name: {value}");
+            set => _name = ValidateName(value);
         }
 
-        private readonly List<User> _leads = new List<User>();
+        // Navigation property to Project 
+        public Project Project { get; private set; } = null!;
+
+        // Navigation properties to Leads
+        private readonly List<User> _leads = new();
         public IReadOnlyCollection<User> Leads => _leads.AsReadOnly();
 
-        private readonly List<User> _developers = new List<User>();
+        // Navigation properties to Developers
+        private readonly List<User> _developers = new();
         public IReadOnlyCollection<User> Developers => _developers.AsReadOnly();
 
-        private readonly List<TaskItem> _taskItems = new List<TaskItem>();
+        // Navigation properties to TaskItems
+        private readonly List<TaskItem> _taskItems = new();
         public IReadOnlyCollection<TaskItem> TaskItems => _taskItems.AsReadOnly();
 
         public DateTime CreatedOn { get; init; }
@@ -42,45 +44,50 @@ namespace ProjectManagementTool.Domain.Entities
         #endregion Constructors
 
         #region Methods
-        private static bool IsValidName(string name)
+        private static string ValidateName(string name)
         {
-            return !string.IsNullOrWhiteSpace(name);
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException(nameof(name), "Team name cannot be null or empty");
+            return name.Trim();
         }
 
         public void AddLead(User user)
         {
-            if (user == null) throw new ArgumentNullException(nameof(user), "User cannot be null");
-
-            if (!Leads.Contains(user))
-            {
-                Leads.Add(user);
-            }
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            if (!_leads.Any(u => u.Id == user.Id))
+                _leads.Add(user);
         }
 
         public void RemoveLead(User user)
         {
-            if (user == null) throw new ArgumentNullException(nameof(user), "User cannot be null");
-            if (Leads.Contains(user))
-            {
-                Leads.Remove(user);
-            }
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            _leads.RemoveAll(u => u.Id == user.Id);
         }
 
-        public void AddDeverloper(User user)
+        public void AddDeveloper(User user)
         {
-            if (user == null) throw new ArgumentNullException(nameof(user), "User cannot be null");
-            if (!Developers.Contains(user))
-            {
-                Developers.Add(user);
-            }
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            if (!_developers.Any(u => u.Id == user.Id))
+                _developers.Add(user);
         }
+
         public void RemoveDeveloper(User user)
         {
-            if (user == null) throw new ArgumentNullException(nameof(user), "User cannot be null");
-            if (Developers.Contains(user))
-            {
-                Developers.Remove(user);
-            }
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            _developers.RemoveAll(u => u.Id == user.Id);
+        }
+
+        public void AddTaskItem(TaskItem taskItem)
+        {
+            if (taskItem == null) throw new ArgumentNullException(nameof(taskItem));
+            if (!_taskItems.Any(t => t.Id == taskItem.Id))
+                _taskItems.Add(taskItem);
+        }
+
+        public void RemoveTaskItem(TaskItem taskItem)
+        {
+            if (taskItem == null) throw new ArgumentNullException(nameof(taskItem));
+            _taskItems.RemoveAll(t => t.Id == taskItem.Id);
         }
         #endregion Methods
     }

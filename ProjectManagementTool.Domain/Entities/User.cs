@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace ProjectManagementTool.Domain.Entities
 {
     public class User
@@ -11,27 +9,18 @@ namespace ProjectManagementTool.Domain.Entities
         public string Name
         {
             get => _name;
-            set => _name = IsValidName(value) ? value : throw new Exception($"User Name - {value} is invalid");
+            set => _name = ValidateName(value);
         }
 
         private string _email = null!;
         public string Email
         {
             get => _email;
-            set => _email = IsValidEmail(value) ? value : throw new Exception($"User Email - {value} is invalid");
+            set => _email = ValidateEmail(value);
         }
-
-        public ICollection<Project> Projects { get; set; } = new List<Project>();
-        public ICollection<Team> Teams { get; set; } = new List<Team>();
-        public ICollection<Project> LeadOfProejects { get; set; } = new List<Project>();
-        public ICollection<Team> LeadOfTeams { get; set; } = new List<Team>();
-        public ICollection<TaskItem> AssignedTasks { get; set; } = new List<TaskItem>();
-        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
-        public ICollection<TaskItemChangeLog> TaskItemChangeLogs { get; set; } = new List<TaskItemChangeLog>();
-        public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
         #endregion Fields
 
-        #region Constructors
+            #region Constructors
         private User() { }
 
         public User(string name, string email)
@@ -43,14 +32,14 @@ namespace ProjectManagementTool.Domain.Entities
         #endregion Constructors
 
         #region Methods
-        public static bool IsValidName(string name)
+        public static string ValidateName(string name)
         {
-            return string.IsNullOrWhiteSpace(name) ? false : true;
+            return string.IsNullOrWhiteSpace(name) ? throw new ArgumentException(nameof(name), "Name cannot be null or whitespace") : name;
         }
 
-        private static bool IsValidEmail(string email)
+        private static string ValidateEmail(string email)
         {
-            return string.IsNullOrWhiteSpace(email) ? false : true;
+            return string.IsNullOrWhiteSpace(email) ? throw new ArgumentException(nameof(email), "Email cannot be null or whitespace") : email;
         }
         #endregion Methods
     }

@@ -4,17 +4,17 @@ namespace ProjectManagementTool.Domain.Entities
     {
         #region Fields
         public Guid Id { get; init; }
-
-        public Guid UserId { get; private set; }
+        public Guid UserId { get; init; }
 
         private string _message = null!;
         public string Message
         {
             get => _message;
-            private set => _message = IsValidMessage(value) ? value : throw new Exception($"Invalid Notification message: {value}");
+            private set => _message = ValidateMessage(value);
         }
         public bool IsRead { get; private set; }
         public DateTime CreatedOn { get; init; }
+        public DateTime? ReadOn { get; private set; }
         #endregion Fields
 
         #region Constructors
@@ -31,9 +31,10 @@ namespace ProjectManagementTool.Domain.Entities
         #endregion Constructors
 
         #region Methods
-        private static bool IsValidMessage(string message)
+        private static string ValidateMessage(string message)
         {
-            return !string.IsNullOrWhiteSpace(message);
+            if (string.IsNullOrWhiteSpace(message)) throw new ArgumentException(nameof(message), "Message cannot be null or whitespace");
+            return message;
         }
 
         public void MarkAsRead()
@@ -41,6 +42,7 @@ namespace ProjectManagementTool.Domain.Entities
             if (!IsRead)
             {
                 IsRead = true;
+                ReadOn = DateTime.UtcNow;
             }
         }
         #endregion Methods
