@@ -7,15 +7,18 @@ namespace ProjectManagementTool.Infrastructure.Contexts
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-
-        public DbSet<User> Users { get; set; }
+        
         public DbSet<Project> Projects { get; set; }
-        public DbSet<TaskItem> TaskItems { get; set; }
-        public DbSet<Comment> Comments { get; set; }
-        public DbSet<Tag> Tags { get; set; }
-        public DbSet<TaskItemChangeLog> TaskItemChangeLogs { get; set; }
         public DbSet<ProjectChangeLog> ProjectChangeLogs { get; set; }
-        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Tag> Tag { get; set; }
+        public DbSet<TaskItem> TaskItems { get; set; }
+        public DbSet<TaskItemChangeLog> TaskItemChangeLogs { get; set; }
+        public DbSet<TaskItemComment> TaskItemComments { get; set; }
+        public DbSet<Team> Teams { get; set; }
+        public DbSet<TeamChangeLog> TeamChangeLogs { get; set; }
+        public DbSet<TeamMember> TeamMembers { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<UserNotification> UserNotifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

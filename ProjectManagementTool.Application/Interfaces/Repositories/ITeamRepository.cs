@@ -12,6 +12,7 @@ namespace ProjectManageMentTool.Application.Interfaces.Repositories
         Task<Team?> GetByNameAsync(string teamName, Guid projectId);
         Task<IEnumerable<Team>> GetAllByProjectIdAsync(Guid projectId); // for project leads
         Task<IEnumerable<Team>> GetAllByProjectIdAndUserIdAsync(Guid projectId, Guid userId); // for team members
+        Task<bool> IsUserInTeamAsync(Guid teamId, Guid userId);
 
         Task UpdateAsync(Team team);
 

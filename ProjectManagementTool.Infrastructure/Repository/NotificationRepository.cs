@@ -5,7 +5,7 @@ using ProjectManagementTool.Infrastructure.Contexts;
 
 namespace ProjectManagementTool.Infrastructure.Repository
 {
-    public class NotificationRepository : INotificationRepository
+    public class NotificationRepository : IUserNotificationRepository
     {
         #region Fields
         private readonly AppDbContext _context;
@@ -19,34 +19,29 @@ namespace ProjectManagementTool.Infrastructure.Repository
         #endregion Constructor
 
         #region Methods
-        public async Task AddAsync(Notification notification)
+        public async Task AddAsync(UserNotification notification)
         {
-            await _context.Notifications.AddAsync(notification);
+            await _context.UserNotifications.AddAsync(notification);
         }
 
-        public async Task<IEnumerable<Notification>> GetAllUnseenByUserIdAsync(Guid userId)
+        public async Task<UserNotification?> GetByIdAsync(Guid notificationId)
         {
-            return await _context.Notifications
-                .Where(n => n.UserId == userId && !n.IsRead)
+            return await _context.UserNotifications
+                .FirstOrDefaultAsync(n => n.Id == notificationId);
+        }
+
+        public async Task<IEnumerable<UserNotification>> GetAllByUserIdAsync(Guid userId)
+        {
+            return await _context.UserNotifications
+                .Where(n => n.UserId == userId)
                 .OrderByDescending(n => n.CreatedOn)
                 .ToListAsync();
         }
 
-        public Task UpdateAsync(Notification notification)
+        public Task DeleteAsync(UserNotification notiication)
         {
-            _context.Notifications.Update(notification);
+            _context.UserNotifications.Remove(notiication);
             return Task.CompletedTask;
-        }
-
-        public Task DeleteAsync(Notification notiication)
-        {
-            _context.Notifications.Remove(notiication);
-            return Task.CompletedTask;
-        }
-
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
         }
         #endregion Methods
     }

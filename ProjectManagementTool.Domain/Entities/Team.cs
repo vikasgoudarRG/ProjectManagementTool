@@ -5,12 +5,16 @@ namespace ProjectManagementTool.Domain.Entities
         #region Fields
         public Guid Id { get; init; }
         public Guid ProjectId { get; init; }
+        public Project Project { get; private set; } = null!;
         private string _name = null!;
         public string Name
         {
             get => _name;
             set => _name = ValidateName(value);
         }
+
+        private readonly List<TeamMember> _members = new List<TeamMember>();
+        public IReadOnlyCollection<TeamMember> TeamMembers => _members.AsReadOnly();
 
         public DateTime CreatedOn { get; init; }
         #endregion Fields
@@ -19,7 +23,7 @@ namespace ProjectManagementTool.Domain.Entities
         private Team() { }
 
         public Team(string name, Guid projectId)
-        {
+        {                               
             Id = Guid.NewGuid();
             Name = name;
             ProjectId = projectId;

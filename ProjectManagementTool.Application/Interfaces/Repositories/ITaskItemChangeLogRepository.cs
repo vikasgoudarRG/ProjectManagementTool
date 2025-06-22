@@ -6,7 +6,7 @@ namespace ProjectManagementTool.Application.Interfaces.Repositories
     {
         Task AddAsync(TaskItemChangeLog log);
 
-        Task<TaskItemChangeLog?> GetById(Guid id);
-        Task<IEnumerable<TaskItemChangeLog>> GetAllByTaskItemId(Guid taskItemId);
+        Task<TaskItemChangeLog?> GetByIdAsync(Guid id);
+        Task<IEnumerable<TaskItemChangeLog>> GetAllByTaskItemIdAsync(Guid taskItemId);
     }
 }

@@ -1,4 +1,4 @@
-namespace ProjectManageMentTool.Application.Interfaces.Common
+namespace ProjectManagementTool.Application.Interfaces.Common
 {
     public interface IUnitOfWork
     {

@@ -28,83 +28,60 @@ namespace ProjectManagementTool.Infrastructure.Repository
         public async Task<TaskItem?> GetByIdAsync(Guid taskItemId)
         {
             return await _context.TaskItems
+                .Include(t => t.Team.Project)
+                .Include(t => t.Team)
                 .Include(t => t.AssignedUser)
-                .Include(t => t.Project)
-                .Include(t => t.Tags)
-                .Include(t => t.ChangeLogs)
+                .Include(t => t.Tags)       
+                .Include(t => t.Comments)
                 .FirstOrDefaultAsync(t => t.Id == taskItemId);
         }
 
         public async Task<IEnumerable<TaskItem>> GetAllByProjectId(Guid projectId)
         {
             return await _context.TaskItems
-                .Where(t => t.ProjectId == projectId)
+                .Where(t => t.Team.ProjectId == projectId)
+                .Include(t => t.Team.Project)
                 .Include(t => t.AssignedUser)
+                .Include(t => t.Team)
                 .Include(t => t.Tags)
-                .Include(t => t.ChangeLogs)
+                .Include(t => t.Comments)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<TaskItem>> GetAllByUserId(Guid userId)
+        public async Task<IEnumerable<TaskItem>> GetAllByTeamId(Guid teamId)
+        {
+            return await _context.TaskItems
+                .Where(t => t.TeamId == teamId)
+                .Include(t => t.Team.Project)
+                .Include(t => t.AssignedUser)
+                .Include(t => t.Team)
+                .Include(t => t.Tags)
+                .Include(t => t.Comments)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<TaskItem>> GetAllByAssignedUserId(Guid userId)
         {
             return await _context.TaskItems
                 .Where(t => t.AssignedUserId == userId)
-                .Include(t => t.Project)
+                .Include(t => t.Team.Project)
+                .Include(t => t.AssignedUser)
+                .Include(t => t.Team)
                 .Include(t => t.Tags)
-                .Include(t => t.ChangeLogs)
+                .Include(t => t.Comments)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<TaskItem>> GetAllTaskItemsByFilter(TaskItemFilterQueryModel queryModel)
+        public async Task<IEnumerable<TaskItem>> GetAllByProjectIdAndUserId(Guid projectId, Guid userId)
         {
-            IQueryable<TaskItem> query = _context.TaskItems
+            return await _context.TaskItems
+                .Where(t => t.Team.ProjectId == projectId && t.AssignedUserId == userId)
+                .Include(t => t.Team.Project)
                 .Include(t => t.AssignedUser)
-                .Include(t => t.Project)
+                .Include(t => t.Team)
                 .Include(t => t.Tags)
-                .Include(t => t.ChangeLogs);
-
-            if (queryModel.ProjectId != null)
-            {
-                query = query.Where(t => t.ProjectId == queryModel.ProjectId);
-            }
-
-            if (queryModel.AssignedUserId != null)
-            {
-                query = query.Where(t => t.AssignedUserId == queryModel.AssignedUserId);
-            }
-
-            if (queryModel.Type != null)
-            {
-                query = query.Where(t => t.Type == queryModel.Type);
-            }
-
-            if (queryModel.Priority != null)
-            {
-                query = query.Where(t => t.Priority == queryModel.Priority);
-            }
-
-            if (queryModel.Status != null)
-            {
-                query = query.Where(t => t.Status == queryModel.Status);
-            }
-
-            if (queryModel.TagIds != null && queryModel.TagIds.Any())
-            {
-                query = query.Where(t => t.Tags.Any(tag => queryModel.TagIds.Contains(tag.Id)));
-            }
-
-
-            if (queryModel.DeadlineBefore != null)
-            {
-                query = query.Where(t => (t.Deadline != null) && t.Deadline < queryModel.DeadlineBefore);
-            }
-
-            if (queryModel.DeadlineAfter != null)
-            {
-                query = query.Where(t => (t.Deadline != null) && t.Deadline > queryModel.DeadlineAfter);
-            }
-
-            return await query.ToListAsync();
+                .Include(t => t.Comments)
+                .ToListAsync();
         }
 
         public Task UpdateAsync(TaskItem taskItem)
@@ -116,11 +93,6 @@ namespace ProjectManagementTool.Infrastructure.Repository
         {
             _context.TaskItems.Remove(taskItem);
             return Task.CompletedTask;
-        }
-
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
         }
         #endregion Methods
     }

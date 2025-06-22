@@ -24,8 +24,8 @@ namespace ProjectManagementTool.Domain.Entities
         public TaskItemPriority Priority { get; set; }
         public TaskItemStatus Status { get; set; }
 
-        public Guid ProjectId { get; init; }
-        public Project Project { get; init; } = null!;
+        public Guid TeamId { get; init; }
+        public Team Team { get; init; } = null!;
 
         public Guid? AssignedUserId { get; set; }
         public User? AssignedUser { get; set; }

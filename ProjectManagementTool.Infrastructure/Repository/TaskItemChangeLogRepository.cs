@@ -18,36 +18,22 @@ namespace ProjectManagementTool.Infrastructure.Repository
             await _context.TaskItemChangeLogs.AddAsync(log);
         }
 
-        public async Task<TaskItemChangeLog?> GetById(Guid id)
-        {
-            return await _context.TaskItemChangeLogs.Include(l => l.ChangedByUser)
-                                                    .FirstOrDefaultAsync(l => l.Id == id);
-        }
-
-        public async Task<IEnumerable<TaskItemChangeLog>> GetAllByTaskItemId(Guid taskItemId)
+        public async Task<TaskItemChangeLog?> GetByIdAsync(Guid logId)
         {
             return await _context.TaskItemChangeLogs
-                .Include(l => l.ChangedByUser)
+                    .Include(l => l.ChangedByUser)
+                    .Include(l => l.TaskItem)
+                    .FirstOrDefaultAsync(l => l.Id == logId);
+        }
+
+        public async Task<IEnumerable<TaskItemChangeLog>> GetAllByTaskItemIdAsync(Guid taskItemId)
+        {
+            return await _context.TaskItemChangeLogs
                 .Where(l => l.TaskItemId == taskItemId)
+                .Include(l => l.ChangedByUser)
+                .Include(l => l.TaskItem)
                 .OrderByDescending(l => l.CreatedOn)
                 .ToListAsync();
-        }
-
-        public Task UpdateAsync(TaskItemChangeLog taskItemChangeLog)
-        {
-            _context.TaskItemChangeLogs.Update(taskItemChangeLog);
-            return Task.CompletedTask;
-        }
-
-        public Task DeleteAsync(TaskItemChangeLog taskItemChangeLog)
-        {
-            _context.TaskItemChangeLogs.Remove(taskItemChangeLog);
-            return Task.CompletedTask;
-        }
-
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
         }
     }
 }
