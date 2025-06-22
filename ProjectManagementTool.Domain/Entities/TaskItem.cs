@@ -11,31 +11,33 @@ namespace ProjectManagementTool.Domain.Entities
         public string Title
         {
             get => _title;
-            set => _title = IsValidTitle(value) ? value : throw new Exception($"TaskItem Title - {value} is invalid");
+            set => _title = ValidateTitle(value);
         }
 
         private string _description = null!;
         public string Description
         {
             get => _description;
-            set => _description = IsValidDescription(value) ? value : throw new Exception($"TaskItem Description - {value} is invalid");
+            set => _description = ValidateDescription(value);
         }
         public TaskItemType Type { get; set; }
         public TaskItemPriority Priority { get; set; }
         public TaskItemStatus Status { get; set; }
 
-        public Guid ProjectId { get; set; }
-        public Project Project { get; set; } = null!;
+        public Guid ProjectId { get; init; }
+        public Project Project { get; init; } = null!;
 
         public Guid? AssignedUserId { get; set; }
         public User? AssignedUser { get; set; }
 
         public DateTime CreatedAt { get; init; }
         public DateTime? Deadline { get; set; }
+        public DateTime? CompletedAt { get; set; }
 
-        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        private readonly List<TaskItemComment> _comments = new List<TaskItemComment>();
+        public IReadOnlyCollection<TaskItemComment> Comments => _comments.AsReadOnly();
+
         public ICollection<Tag> Tags { get; set; } = new List<Tag>();
-        public ICollection<TaskItemChangeLog> ChangeLogs { get; set; } = new List<TaskItemChangeLog>();
         #endregion Fields
 
         #region Constructors        
@@ -57,14 +59,41 @@ namespace ProjectManagementTool.Domain.Entities
         #endregion Constructors   
 
         #region Methods
-        private static bool IsValidTitle(string title)
+        private static string ValidateTitle(string title)
         {
-            return string.IsNullOrWhiteSpace(title) ? false : true;
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                throw new ArgumentException(nameof(title), "TaskItem TItle cannot be null or empty");
+            }
+            return title;
         }
 
-        private static bool IsValidDescription(string description)
+        private static string ValidateDescription(string description)
         {
-            return string.IsNullOrWhiteSpace(description) ? false : true;
+            if (string.IsNullOrWhiteSpace(description))
+            {
+                throw new ArgumentException(nameof(description), "TaskItem Description cannot be null or empty");
+            }
+            return description;
+        }
+
+        public void AddComment(TaskItemComment comment)
+        {
+            if (comment == null) throw new ArgumentNullException(nameof(comment), "Comment cannot be null");
+            if (comment.TaskItemId != Id) throw new InvalidOperationException(nameof(comment) + "Comment does not belong to this TaskItem");
+            if (!_comments.Any(c => c.Id == comment.Id))
+            {
+                _comments.Add(comment);
+            }
+        }
+        public void RemoveComment(TaskItemComment comment)
+        {
+            if (comment == null) throw new ArgumentNullException(nameof(comment), "Comment cannot be null");
+            if (comment.TaskItemId != Id) throw new InvalidOperationException(nameof(comment) + "Comment does not belong to this TaskItem");
+            if (_comments.Any(c => c.Id == comment.Id))
+            {
+                _comments.Remove(comment);
+            }
         }
         #endregion Methods
     }

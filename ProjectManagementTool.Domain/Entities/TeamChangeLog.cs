@@ -2,31 +2,31 @@ using ProjectManagementTool.Domain.Enums.ChangeLog;
 
 namespace ProjectManagementTool.Domain.Entities
 {
-    public class TaskItemChangeLog
+    public class TeamChangeLog
     {
         #region Fields
         public Guid Id { get; init; }
+        public Guid TeamId { get; init; }
+        public Team Team { get; private set; } = null!;
+        public Guid ProjectId { get; init; }
 
-        public Guid TaskItemId { get; init; }
-        public TaskItem TaskItem { get; private set; } = null!;
-
+        public ChangeType ChangeType { get; init; }
+        public TeamPropertyType PropertyChanged { get; private set; }
         public Guid ChangedByUserId { get; init; }
         public User ChangedByUser { get; private set; } = null!;
 
-        public ChangeType ChangeType { get; init; }
-        public TaskItemPropertyType PropertyChanged { get; private set; }
-        public string? OldValue { get; init; } 
+        public string? OldValue { get; init; }
         public string? NewValue { get; init; }
         public DateTime CreatedOn { get; init; }
         #endregion Fields
 
         #region Constructors
-        private TaskItemChangeLog() { }
+        private TeamChangeLog() { }
 
-        public TaskItemChangeLog(Guid taskItemId, Guid changedByUserId,ChangeType changeType, TaskItemPropertyType propertyChanged, string? oldValue, string? newValue)
+        public TeamChangeLog(Guid teamId, Guid changedByUserId, ChangeType changeType, TeamPropertyType propertyChanged, string? oldValue, string? newValue)
         {
             Id = Guid.NewGuid();
-            TaskItemId = taskItemId;
+            TeamId = teamId;
             ChangedByUserId = changedByUserId;
             ChangeType = changeType;
             PropertyChanged = propertyChanged;

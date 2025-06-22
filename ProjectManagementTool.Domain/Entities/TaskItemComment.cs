@@ -5,22 +5,20 @@ namespace ProjectManagementTool.Domain.Entities
         #region Fields
         public Guid Id { get; init; }
 
-        public Guid AuthorId { get; private set; }
-        public User Author { get; private set; } = null!;
+        public Guid AuthorId { get; init; }
 
-        public Guid TaskItemId { get; private set; }
-        public TaskItem TaskItem { get; private set; } = null!;
+        public Guid TaskItemId { get; init; }
 
         private string _text = null!;
         public string Text
         {
             get => _text;
-            set => _text = IsValidCommentText(value) ? value : throw new Exception($"Invalid Comment text: {value}");
+            private set => _text = ValidateText(value);
         }
 
         public DateTime CreatedOn { get; init; }
 
-        public bool Edited { get; set; }
+        public bool Edited { get; private set; }
         public DateTime? LastEditedOn { get; private set; }
         #endregion Fields
 
@@ -39,9 +37,12 @@ namespace ProjectManagementTool.Domain.Entities
         #endregion Constructors
 
         #region Methods
-        private static bool IsValidCommentText(string text)
+        private static string ValidateText(string text)
         {
-            return !string.IsNullOrWhiteSpace(text);
+            if (string.IsNullOrWhiteSpace(text))
+                throw new ArgumentException(nameof(text), "Task Item Comment text cannot be null or whitespace");
+
+            return text;
         }
         public void Edit(string newText)
         {

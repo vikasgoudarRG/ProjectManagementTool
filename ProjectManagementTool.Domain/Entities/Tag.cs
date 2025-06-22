@@ -11,8 +11,6 @@ namespace ProjectManagementTool.Domain.Entities
             get => _name;
             private set => _name = IsValidName(value) ? value : throw new Exception($"Invalid Tag Name - {value}");
         }
-
-        public ICollection<TaskItem> TaskItems { get; set; } = new List<TaskItem>();
         #endregion Fields
 
         #region Constructors
