@@ -33,5 +33,22 @@ namespace ProjectManagementTool.Application.Services
             var comments = await _commentRepository.GetAllByTaskItemIdAsync(taskId);
             return comments.Select(c => new TaskItemCommentDTO(c.Id, c.AuthorId, c.TaskItemId, c.Content, c.CreatedOn));
         }
+
+        public async Task UpdateCommentAsync(Guid commentId, Guid authorId, string updatedContent)
+        {
+            var comment = await _commentRepository.GetByIdAsync(commentId) ?? throw new ArgumentException("Comment not found");
+            if (comment.AuthorId != authorId) throw new UnauthorizedAccessException("Only the comment author can update the comment");
+
+            comment.Edit(updatedContent);
+            await _commentRepository.UpdateAsync(comment);
+        }
+
+        public async Task DeleteCommentAsync(Guid commentId, Guid authorId)
+        {
+            var comment = await _commentRepository.GetByIdAsync(commentId) ?? throw new ArgumentException("Comment not found");
+            if (comment.AuthorId != authorId) throw new UnauthorizedAccessException("Only the comment author can delete the comment");
+
+            await _commentRepository.DeleteAsync(comment);
+        }
     }
 }
