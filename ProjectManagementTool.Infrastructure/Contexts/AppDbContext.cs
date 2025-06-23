@@ -8,69 +8,124 @@ namespace ProjectManagementTool.Infrastructure.Contexts
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         
-        public DbSet<Project> Projects { get; set; }
-        public DbSet<ProjectChangeLog> ProjectChangeLogs { get; set; }
-        public DbSet<Tag> Tags { get; set; }
-        public DbSet<TaskItem> TaskItems { get; set; }
-        public DbSet<TaskItemChangeLog> TaskItemChangeLogs { get; set; }
-        public DbSet<TaskItemComment> TaskItemComments { get; set; }
-        public DbSet<Team> Teams { get; set; }
-        public DbSet<TeamChangeLog> TeamChangeLogs { get; set; }
-        public DbSet<TeamMember> TeamMembers { get; set; }
-        public DbSet<User> Users { get; set; }
-        public DbSet<UserNotification> UserNotifications { get; set; }
+        // DbSets
+        public DbSet<User> Users => Set<User>();
+        public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
+
+        public DbSet<Project> Projects => Set<Project>();
+        public DbSet<ProjectChangeLog> ProjectChangeLogs => Set<ProjectChangeLog>();
+
+        public DbSet<Team> Teams => Set<Team>();
+        public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
+        public DbSet<TeamChangeLog> TeamChangeLogs => Set<TeamChangeLog>();
+
+        public DbSet<TaskItem> TaskItems => Set<TaskItem>();
+        public DbSet<TaskItemChangeLog> TaskItemChangeLogs => Set<TaskItemChangeLog>();
+        public DbSet<TaskItemComment> TaskItemComments => Set<TaskItemComment>();
+
+        public DbSet<Tag> Tags => Set<Tag>();
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // One User <-> Many TaskItems
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.AssignedTasks)
-                .WithOne(t => t.AssignedUser)
+            // Composite Key for TeamMember
+            modelBuilder.Entity<TeamMember>()
+                .HasKey(tm => new { tm.TeamId, tm.UserId });
+
+            // Relationships
+            modelBuilder.Entity<Project>()
+                .HasOne(p => p.ProjectLead)
+                .WithMany()
+                .HasForeignKey(p => p.ProjectLeadId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Team>()
+                .HasOne(t => t.Project)
+                .WithMany()
+                .HasForeignKey(t => t.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TeamMember>()
+                .HasOne(tm => tm.Team)
+                .WithMany()
+                .HasForeignKey(tm => tm.TeamId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TeamMember>()
+                .HasOne(tm => tm.User)
+                .WithMany()
+                .HasForeignKey(tm => tm.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TaskItem>()
+                .HasOne(t => t.Team)
+                .WithMany()
+                .HasForeignKey(t => t.TeamId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TaskItem>()
+                .HasOne(t => t.AssignedUser)
+                .WithMany()
                 .HasForeignKey(t => t.AssignedUserId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // One Project <-> Many TaskItems
-            modelBuilder.Entity<Project>()
-                .HasMany(p => p.TaskItems)
-                .WithOne(t => t.Project)
-                .HasForeignKey(t => t.ProjectId);
-
-            // Many Developers <-> Many Projects
-            modelBuilder.Entity<Project>()
-                .HasMany(p => p.Developers)
-                .WithMany(u => u.Projects);
-
-            // One Manager <-> Many Projects
-            modelBuilder.Entity<Project>()
-                .HasOne(p => p.Manager)
-                .WithMany(u => u.ManagedProjects)
-                .HasForeignKey(p => p.ManagerId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Many TaskItems <-> Many Tags
             modelBuilder.Entity<TaskItem>()
                 .HasMany(t => t.Tags)
-                .WithMany(tg => tg.TaskItems);
+                .WithMany()
+                .UsingEntity(j => j.ToTable("TaskItemTags"));
 
-            // One TaskItems <-> Many Comments
-            modelBuilder.Entity<TaskItem>()
-                .HasMany(t => t.Comments)
-                .WithOne(c => c.TaskItem)
-                .HasForeignKey(c => c.TaskItemId);
+            modelBuilder.Entity<TaskItemComment>()
+                .HasOne(c => c.Author)
+                .WithMany()
+                .HasForeignKey(c => c.AuthorId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            //  One TaskItem <-> Many TaskItemChangeLogs
-            modelBuilder.Entity<TaskItem>()
-                .HasMany(t => t.ChangeLogs)
-                .WithOne(cl => cl.TaskItem)
-                .HasForeignKey(cl => cl.TaskItemId);
+            modelBuilder.Entity<TaskItemComment>()
+                .HasOne(c => c.TaskItem)
+                .WithMany()
+                .HasForeignKey(c => c.TaskItemId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // One User <-> Many Notifications
-            modelBuilder.Entity<Notification>()
-                .HasOne(n => n.User)
-                .WithMany(u => u.Notifications)
-                .HasForeignKey(n => n.UserId);
-        }       
+            modelBuilder.Entity<TaskItemChangeLog>()
+                .HasOne(c => c.TaskItem)
+                .WithMany()
+                .HasForeignKey(c => c.TaskItemId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TaskItemChangeLog>()
+                .HasOne(c => c.ChangedByUser)
+                .WithMany()
+                .HasForeignKey(c => c.ChangedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProjectChangeLog>()
+                .HasOne(c => c.Project)
+                .WithMany()
+                .HasForeignKey(c => c.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProjectChangeLog>()
+                .HasOne(c => c.ChangedByUser)
+                .WithMany()
+                .HasForeignKey(c => c.ChangedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<TeamChangeLog>()
+                .HasOne(c => c.Team)
+                .WithMany()
+                .HasForeignKey(c => c.TeamId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TeamChangeLog>()
+                .HasOne(c => c.ChangedByUser)
+                .WithMany()
+                .HasForeignKey(c => c.ChangedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<UserNotification>()
+                .HasKey(n => n.Id);
+        }
     }
 }

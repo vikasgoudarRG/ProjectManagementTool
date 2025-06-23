@@ -1,7 +1,7 @@
 using ProjectManagementTool.Domain.Entities;
 using ProjectManagementTool.Domain.Enums.Team;
 
-namespace ProjectManageMentTool.Application.Interfaces.Repositories
+namespace ProjectManagementTool.Application.Interfaces.Repositories
 {
     public interface ITeamRepository
     {

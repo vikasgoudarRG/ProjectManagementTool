@@ -1,8 +1,8 @@
-using ProjectManagementTool.Application.DTOs.User;
+using ProjectManagementTool.Application.Interfaces.Common;
 using ProjectManagementTool.Application.Interfaces.Repositories;
 using ProjectManagementTool.Application.Interfaces.Services;
-using ProjectManagementTool.Application.Mappers;
 using ProjectManagementTool.Domain.Entities;
+using ProjectManageMentTool.Application.Interfaces.Repositories;
 
 namespace ProjectManagementTool.Application.Services
 {
@@ -10,68 +10,82 @@ namespace ProjectManagementTool.Application.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IProjectRepository _projectRepository;
-        public UserService(IUserRepository userRepository, IProjectRepository projectRepository)
+        private readonly ITeamRepository _teamRepository;
+        private readonly IUnitOfWork _unitOfWork;
+
+        public UserService(
+            IUserRepository userRepository,
+            IProjectRepository projectRepository,
+            ITeamRepository teamRepository,
+            IUnitOfWork unitOfWork)
         {
             _userRepository = userRepository;
             _projectRepository = projectRepository;
+            _teamRepository = teamRepository;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<UserDto> CreateUserAsync(CreateUserDto dto)
+        public async Task AddAsync(User user)
         {
-            User user = new User(dto.Username, dto.Email);
-
             await _userRepository.AddAsync(user);
-            await _userRepository.SaveChangesAsync();
-
-            return UserMapper.ToDto(user);
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<UserDto> GetUserByIdAsync(Guid userId)
+        public async Task<User?> GetByIdAsync(Guid userId)
         {
-            User user = await _userRepository.GetByIdAsync(userId) ?? throw new Exception($"UserId {userId} not found");
-            return UserMapper.ToDto(user);
+            return await _userRepository.GetByIdAsync(userId);
         }
 
-        public async Task<IEnumerable<UserDto>> GetAllUsersForManagerAsync(Guid managerId)
+        public async Task<IEnumerable<User>> GetAllAsync()
         {
-            IEnumerable<Project> allProjects = await _projectRepository.GetAllAsync();
-            IEnumerable<User> users = allProjects.Where(p => p.ManagerId == managerId)
-                                                 .SelectMany(p => p.Developers.Append(p.Manager))
-                                                 .DistinctBy(u => u.Id);
-            return users.Select(u => UserMapper.ToDto(u));
+            return await _userRepository.GetAllAsync();
         }
 
-        public async Task<IEnumerable<UserDto>> GetUsersInProjectAsync(Guid projectId)
+        public async Task<IEnumerable<User>> SearchAsync(string keyword)
         {
-            Project project = await _projectRepository.GetByIdAsync(projectId) ?? throw new Exception($"ProjectId {projectId} not found");
-            IEnumerable<User> users = project.Developers.Append(project.Manager).DistinctBy(u => u.Id);
-
-            return users.Select(u => UserMapper.ToDto(u));
+            return await _userRepository.SearchAsync(keyword);
         }
 
-        public async Task UpdateUserAsync(Guid userId, UpdateUserDto dto)
+        public async Task<IEnumerable<User>> GetAllInProjectAsync(Guid projectId)
         {
-            User user = await _userRepository.GetByIdAsync(userId) ?? throw new Exception($"UserId {userId} not found");
-            if (!string.IsNullOrWhiteSpace(dto.Username))
-            {
-                user.Username = dto.Username;
-            }
-            if (!string.IsNullOrWhiteSpace(dto.Email))
-            {
-                user.Email = dto.Email;
-            }
+            var project = await _projectRepository.GetByIdAsync(projectId);
+            if (project == null)
+                return Enumerable.Empty<User>();
 
+            return project.Developers;
+        }
+
+        public async Task<IEnumerable<User>> GetAllInTeamAsync(Guid teamId)
+        {
+            var teamMembers = await _teamRepository.GetAllMembersAsync(teamId);
+            return teamMembers.Select(tm => tm.User);
+        }
+
+        public async Task<bool> IsUserInProjectAsync(Guid userId, Guid projectId)
+        {
+            var project = await _projectRepository.GetByIdAsync(projectId);
+            if (project == null)
+                return false;
+
+            return project.Developers.Any(u => u.Id == userId);
+        }
+
+        public async Task<bool> IsUserInTeamAsync(Guid userId, Guid teamId)
+        {
+            var teamMember = await _teamRepository.GetMemberAsync(teamId, userId);
+            return teamMember != null;
+        }
+
+        public async Task UpdateAsync(User user)
+        {
             await _userRepository.UpdateAsync(user);
-            await _userRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task DeleteUserAsync(Guid userId)
+        public async Task DeleteAsync(User user)
         {
-            User user = await _userRepository.GetByIdAsync(userId) ?? throw new Exception($"UserId {userId} not found");
-
             await _userRepository.DeleteAsync(user);
-            await _userRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
-
     }
 }

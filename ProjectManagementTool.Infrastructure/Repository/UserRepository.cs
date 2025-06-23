@@ -42,6 +42,20 @@ namespace ProjectManagementTool.Infrastructure.Repository
                 .FirstOrDefaultAsync(u => u.Id == userId);
         }
 
+        public async Task<IEnumerable<User>> GetAllAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
+
+        public async Task<IEnumerable<User>> SearchAsync(string keyword)
+        {
+            return await _context.Users
+                .Where(u =>
+                    u.Name.Contains(keyword) ||
+                    u.Email.Contains(keyword))
+                .ToListAsync();
+        }
+
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();

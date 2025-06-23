@@ -7,6 +7,8 @@ namespace ProjectManagementTool.Application.Interfaces.Repositories
         Task AddAsync(User user);
 
         Task<User?> GetByIdAsync(Guid userId);
+        Task<IEnumerable<User>> GetAllAsync(); 
+        Task<IEnumerable<User>> SearchAsync(string keyword); 
 
         Task UpdateAsync(User user);
 
