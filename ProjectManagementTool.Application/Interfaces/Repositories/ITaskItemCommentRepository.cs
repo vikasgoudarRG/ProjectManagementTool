@@ -2,7 +2,7 @@ using ProjectManagementTool.Domain.Entities;
 
 namespace ProjectManagementTool.Application.Interfaces.Repositories
 {
-    public interface ICommentRepository
+    public interface ITaskItemCommentRepository
     {
         Task AddAsync(TaskItemComment comment);
 

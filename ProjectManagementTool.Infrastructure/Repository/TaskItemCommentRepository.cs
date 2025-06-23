@@ -6,7 +6,7 @@ using ProjectManagementTool.Infrastructure.Contexts;
 
 namespace ProjectManagementTool.Infrastructure.Repository
 {
-    public class CommentRepository : ICommentRepository
+    public class CommentRepository : ITaskItemCommentRepository
     {
         private readonly AppDbContext _context;
         public CommentRepository(AppDbContext context)
@@ -14,38 +14,46 @@ namespace ProjectManagementTool.Infrastructure.Repository
             _context = context;
         }
 
-        public async Task AddAsync(Comment comment)
+        public async Task AddAsync(TaskItemComment comment)
         {
-            await _context.Comments.AddAsync(comment);
+            await _context.TaskItemComments.AddAsync(comment);
         }
 
-        public async Task<IEnumerable<Comment>> GetAllByTaskIdAsync(Guid taskItemId)
+        public async Task<TaskItemComment?> GetByIdAsync(Guid commentId)
         {
-            return await _context.Comments
+            return await _context.TaskItemComments
                 .Include(c => c.Author)
-                .Where(c => c.TaskItemId == taskItemId)
-                .OrderByDescending(c => c.CreatedOn)
-                .ToListAsync();
-        }
-
-        public async Task<IEnumerable<Comment>> GetAllByUserIdAsync(Guid userId)
-        {
-            return await _context.Comments
                 .Include(c => c.TaskItem)
-                .Where(c => c.AuthorId == userId)
+                .FirstOrDefaultAsync(c => c.Id == commentId);
+        }
+
+        public async Task<IEnumerable<TaskItemComment>> GetAllByTaskIdAsync(Guid taskItemId)
+        {
+            return await _context.TaskItemComments
+                .Where(c => c.TaskItemId == taskItemId)
+                .Include(c => c.Author)
                 .OrderByDescending(c => c.CreatedOn)
                 .ToListAsync();
         }
 
-        public Task UpdateAsync(Comment comment)
+        public async Task<IEnumerable<TaskItemComment>> GetAllByUserIdAsync(Guid userId)
         {
-            _context.Comments.Update(comment);
+            return await _context.TaskItemComments
+                .Where(c => c.AuthorId == userId)
+                .Include(c => c.TaskItem)
+                .OrderByDescending(c => c.CreatedOn)
+                .ToListAsync();
+        }
+
+        public Task UpdateAsync(TaskItemComment comment)
+        {
+            _context.TaskItemComments.Update(comment);
             return Task.CompletedTask;
         }
 
-        public Task DeleteAsync(Comment comment)
+        public Task DeleteAsync(TaskItemComment comment)
         {
-            _context.Comments.Remove(comment);
+            _context.TaskItemComments.Remove(comment);
             return Task.CompletedTask;
         }
 

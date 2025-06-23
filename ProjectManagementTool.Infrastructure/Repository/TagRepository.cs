@@ -3,30 +3,35 @@ using ProjectManagementTool.Application.Interfaces.Repositories;
 using ProjectManagementTool.Domain.Entities;
 using ProjectManagementTool.Infrastructure.Contexts;
 
-namespace ProjectManagementTool.Infrastructure.Repository
+namespace ProjectManagementTool.Infrastructure.Repositories
 {
     public class TagRepository : ITagRepository
     {
-        #region Fields
         private readonly AppDbContext _context;
-        #endregion Fields
 
-        #region Constructors
         public TagRepository(AppDbContext context)
         {
             _context = context;
         }
-        #endregion Constructors
 
-        #region Methods
-        public async Task AddAsync(Tag tag)
+        public async Task<Tag> GetOrCreateAsync(string name)
         {
-            await _context.Tags.AddAsync(tag);
+            string cleaned = name.Trim().ToLower();    
+
+            var existingTag = await _context.Tags
+                .FirstOrDefaultAsync(t => t.Name.ToLower() == cleaned);
+
+            if (existingTag != null)
+                return existingTag;
+
+            var newTag = new Tag(name);
+            _context.Tags.Add(newTag);
+            return newTag;
         }
 
-        public async Task AddRangeAsync(IEnumerable<Tag> tags)
+        public async Task<Tag?> GetByIdAsync(Guid tagId)
         {
-            await _context.Tags.AddRangeAsync(tags);
+            return await _context.Tags.FindAsync(tagId);
         }
 
         public async Task<IEnumerable<Tag>> GetAllAsync()
@@ -36,31 +41,15 @@ namespace ProjectManagementTool.Infrastructure.Repository
 
         public async Task<Tag?> GetByNameAsync(string name)
         {
-            return await _context.Tags.FirstOrDefaultAsync(t => t.Name == name);
+            string cleaned = name.Trim().ToLower();    
+            return await _context.Tags
+                .FirstOrDefaultAsync(t => t.Name.ToLower() == cleaned);
         }
 
-        public Task UpdateAsync(Tag tag)
-        {
-            _context.Tags.Update(tag);
-            return Task.CompletedTask;
-        }
-
-        public Task DeleteAsync(Tag tag)
+        public async Task DeleteAsync(Tag tag)
         {
             _context.Tags.Remove(tag);
-            return Task.CompletedTask;
+            await Task.CompletedTask;
         }
-
-        public Task DeleteRangeAsync(IEnumerable<Tag> tags)
-        {
-            _context.RemoveRange(tags);
-            return Task.CompletedTask;
-        }
-
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
-        #endregion Methods
     }
 }

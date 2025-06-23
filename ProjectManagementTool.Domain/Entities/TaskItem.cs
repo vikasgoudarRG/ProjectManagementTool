@@ -43,7 +43,7 @@ namespace ProjectManagementTool.Domain.Entities
         #region Constructors        
         private TaskItem() { }
 
-        public TaskItem(string title, string description, TaskItemType type, TaskItemPriority priority, TaskItemStatus status, Guid projectId, Guid? assignedUserId, DateTime? deadline)
+        public TaskItem(string title, string description, TaskItemType type, TaskItemPriority priority, TaskItemStatus status, Guid? assignedUserId, DateTime? deadline)
         {
             Id = Guid.NewGuid();
             Title = title;
@@ -51,7 +51,6 @@ namespace ProjectManagementTool.Domain.Entities
             Type = type;
             Priority = priority;
             Status = status;
-            ProjectId = projectId;
             AssignedUserId = assignedUserId;
             CreatedAt = DateTime.UtcNow;
             Deadline = deadline;

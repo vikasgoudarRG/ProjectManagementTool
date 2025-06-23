@@ -10,7 +10,7 @@ namespace ProjectManagementTool.Infrastructure.Contexts
         
         public DbSet<Project> Projects { get; set; }
         public DbSet<ProjectChangeLog> ProjectChangeLogs { get; set; }
-        public DbSet<Tag> Tag { get; set; }
+        public DbSet<Tag> Tags { get; set; }
         public DbSet<TaskItem> TaskItems { get; set; }
         public DbSet<TaskItemChangeLog> TaskItemChangeLogs { get; set; }
         public DbSet<TaskItemComment> TaskItemComments { get; set; }

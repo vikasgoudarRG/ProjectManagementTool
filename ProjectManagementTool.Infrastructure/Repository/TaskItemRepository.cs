@@ -25,17 +25,16 @@ namespace ProjectManagementTool.Infrastructure.Repository
         {
             await _context.TaskItems.AddAsync(taskItem);
         }
-        public async Task<TaskItem?> GetByIdAsync(Guid taskItemId)
+         public async Task<TaskItem?> GetByIdAsync(Guid taskItemId)
         {
             return await _context.TaskItems
-                .Include(t => t.Team.Project)
-                .Include(t => t.Team)
                 .Include(t => t.AssignedUser)
-                .Include(t => t.Tags)       
+                .Include(t => t.Team.Project)   
+                .Include(t => t.Team)
+                .Include(t => t.Tags)
                 .Include(t => t.Comments)
                 .FirstOrDefaultAsync(t => t.Id == taskItemId);
         }
-
         public async Task<IEnumerable<TaskItem>> GetAllByProjectId(Guid projectId)
         {
             return await _context.TaskItems
@@ -76,6 +75,18 @@ namespace ProjectManagementTool.Infrastructure.Repository
         {
             return await _context.TaskItems
                 .Where(t => t.Team.ProjectId == projectId && t.AssignedUserId == userId)
+                .Include(t => t.Team.Project)
+                .Include(t => t.AssignedUser)
+                .Include(t => t.Team)
+                .Include(t => t.Tags)
+                .Include(t => t.Comments)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<TaskItem>> GetAllByTeamIdAndUserId(Guid teamId, Guid userId)
+        {
+            return await _context.TaskItems
+                .Where(t => t.TeamId == teamId && t.AssignedUserId == userId)
                 .Include(t => t.Team.Project)
                 .Include(t => t.AssignedUser)
                 .Include(t => t.Team)

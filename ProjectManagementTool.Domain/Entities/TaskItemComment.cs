@@ -6,8 +6,10 @@ namespace ProjectManagementTool.Domain.Entities
         public Guid Id { get; init; }
 
         public Guid AuthorId { get; init; }
+        public User Author { get; private set; } = null!;   
 
         public Guid TaskItemId { get; init; }
+        public TaskItem TaskItem { get; private set; } = null!;
 
         private string _text = null!;
         public string Text
