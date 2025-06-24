@@ -1,27 +1,19 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Microsoft.Identity.Client;
-using ProjectManagementTool.Application.Interfaces.Repositories;
-using ProjectManagementTool.Application.QueryModels;
 using ProjectManagementTool.Domain.Entities;
+using ProjectManagementTool.Domain.Interfaces.Repositories;
 using ProjectManagementTool.Infrastructure.Contexts;
 
-namespace ProjectManagementTool.Infrastructure.Repository
+namespace ProjectManagementTool.Infrastructure.Repositories
 {
     public class ProjectRepository : IProjectRepository
     {
-        #region Fields
         private readonly AppDbContext _context;
-        #endregion Fields
 
-        #region Constructors
         public ProjectRepository(AppDbContext context)
         {
             _context = context;
         }
-        #endregion Constructors
 
-        #region Methods
         public async Task AddAsync(Project project)
         {
             await _context.Projects.AddAsync(project);
@@ -30,25 +22,24 @@ namespace ProjectManagementTool.Infrastructure.Repository
         public async Task<Project?> GetByIdAsync(Guid projectId)
         {
             return await _context.Projects
+                .Include(p => p.ProjectLead)
                 .Include(p => p.Teams)
                 .Include(p => p.Developers)
                 .FirstOrDefaultAsync(p => p.Id == projectId);
         }
 
-        public async Task<Project?> GetByNameAsync(string name)
+        public async Task<Project?> GetByNameAsync(string projectName)
         {
             return await _context.Projects
-                .Include(p => p.Teams)
-                .Include(p => p.Developers)
-                .FirstOrDefaultAsync(p => p.Name == name);
+                .Include(p => p.ProjectLead)
+                .FirstOrDefaultAsync(p => p.Name == projectName);
         }
 
         public async Task<IEnumerable<Project>> GetAllByUserIdAsync(Guid userId)
         {
             return await _context.Projects
+                .Where(p => p.ProjectLeadId == userId)
                 .Include(p => p.Teams)
-                .Include(p => p.Developers)
-                .Where(p => p.ProjectLeadId == userId || p.Developers.Any(d => d.Id == userId))
                 .ToListAsync();
         }
 
@@ -63,6 +54,5 @@ namespace ProjectManagementTool.Infrastructure.Repository
             _context.Projects.Remove(project);
             return Task.CompletedTask;
         }
-        #endregion Methods
     }
 }

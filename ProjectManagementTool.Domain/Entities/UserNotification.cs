@@ -10,7 +10,7 @@ namespace ProjectManagementTool.Domain.Entities
         public string Message
         {
             get => _message;
-            private set => _message = ValidateMessage(value);
+            private set => _message = ValidateAndGetMessage(value);
         }
         public bool IsRead { get; private set; }
         public DateTime CreatedOn { get; init; }
@@ -31,12 +31,14 @@ namespace ProjectManagementTool.Domain.Entities
         #endregion Constructors
 
         #region Methods
-        private static string ValidateMessage(string message)
+        // =============== static methods ===============
+        private static string ValidateAndGetMessage(string message)
         {
-            if (string.IsNullOrWhiteSpace(message)) throw new ArgumentException(nameof(message), "Message cannot be null or whitespace");
+            if (string.IsNullOrWhiteSpace(message)) throw new ArgumentException("Message cannot be null or whitespace", nameof(message));
             return message;
         }
 
+        // =============== methods ===============
         public void MarkAsRead()
         {
             if (!IsRead)

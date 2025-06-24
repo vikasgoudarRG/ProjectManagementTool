@@ -1,49 +1,54 @@
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementTool.Application.Interfaces.Repositories;
-using ProjectManagementTool.Domain.Entities;
+using ProjectManagementTool.Domain.Entities.ChangeLogs;
+using ProjectManagementTool.Domain.Enums.ChangeLog;
+using ProjectManagementTool.Domain.Interfaces.Repositories;
 using ProjectManagementTool.Infrastructure.Contexts;
 
-namespace ProjectManagementToold.Infrastructure.Repository
+namespace ProjectManagementTool.Infrastructure.Repositories
 {
     public class TeamChangeLogRepository : ITeamChangeLogRepository
     {
-        #region Fields
         private readonly AppDbContext _context;
-        #endregion Fields
 
-        #region Constructors
         public TeamChangeLogRepository(AppDbContext context)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context), "AppDbContext cannot be emprty");
+            _context = context;
         }
-        #endregion Constructors
 
-        #region Methods
         public async Task AddAsync(TeamChangeLog log)
         {
-            if (log == null) throw new ArgumentNullException(nameof(log), "TeamChangeLog cannot be null");
             await _context.TeamChangeLogs.AddAsync(log);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<TeamChangeLog?> GetByIdAsync(Guid logId)
         {
             return await _context.TeamChangeLogs
-                .Include(t => t.Team)
-                .Include(t => t.ChangedByUser)
-                .FirstOrDefaultAsync(t => t.Id == logId);
+                .Include(l => l.ChangedByUser)
+                .FirstOrDefaultAsync(l => l.Id == logId);
         }
 
-        public async Task<IEnumerable<TeamChangeLog>> GetAllByTeamIdAsync(Guid teamId)
+        public async Task<IEnumerable<TeamChangeLog>> GetAllByTeamIdAsync(
+            Guid teamId,
+            DateTime? from = null,
+            DateTime? to = null,
+            ChangeType? type = null)
         {
-            return await _context.TeamChangeLogs
-                .Where(t => t.T == teamId)
-                .Include(t => t.Team)
-                .Include(t => t.ChangedByUser)
-                .OrderByDescending(t => t.CreatedOn)
-                .ToListAsync();
-        }
-        
+            var query = _context.TeamChangeLogs
+                .Include(l => l.ChangedByUser)
+                .Where(l => l.TeamId == teamId)
+                .AsQueryable();
 
+            if (from.HasValue)
+                query = query.Where(l => l.CreatedOn >= from.Value);
+
+            if (to.HasValue)
+                query = query.Where(l => l.CreatedOn <= to.Value);
+
+            if (type.HasValue)
+                query = query.Where(l => l.ChangeType == type.Value);
+
+            return await query.ToListAsync();
+        }
     }
 }

@@ -1,4 +1,3 @@
-using System.Reflection.Metadata;
 using ProjectManagementTool.Domain.Enums.TaskItem;
 namespace ProjectManagementTool.Domain.Entities
 {
@@ -25,7 +24,7 @@ namespace ProjectManagementTool.Domain.Entities
         public TaskItemStatus Status { get; set; }
 
         public Guid TeamId { get; init; }
-        public Team Team { get; init; } = null!;
+        public Team Team { get; private set; } = null!;
 
         public Guid? AssignedUserId { get; set; }
         public User? AssignedUser { get; set; }
@@ -35,9 +34,10 @@ namespace ProjectManagementTool.Domain.Entities
         public DateTime? CompletedAt { get; set; }
 
         private readonly List<TaskItemComment> _comments = new List<TaskItemComment>();
-        public IReadOnlyCollection<TaskItemComment> Comments => _comments.AsReadOnly();
+        public IReadOnlyCollection<TaskItemComment> Comments => _comments.AsReadOnly(); // navigation property
 
-        public ICollection<Tag> Tags { get; set; } = new List<Tag>();
+        private readonly List<Tag> _tags = new List<Tag>();
+        public IReadOnlyCollection<Tag> Tags => _tags.AsReadOnly();
         #endregion Fields
 
         #region Constructors        
@@ -58,11 +58,13 @@ namespace ProjectManagementTool.Domain.Entities
         #endregion Constructors   
 
         #region Methods
+        // =============== static methods ===============
         private static string ValidateTitle(string title)
         {
+            title = title.Trim();
             if (string.IsNullOrWhiteSpace(title))
             {
-                throw new ArgumentException(nameof(title), "TaskItem TItle cannot be null or empty");
+                throw new ArgumentException("Title cannot be null or empty", nameof(title));
             }
             return title;
         }
@@ -76,23 +78,47 @@ namespace ProjectManagementTool.Domain.Entities
             return description;
         }
 
+
+        // =============== methods ===============
         public void AddComment(TaskItemComment comment)
         {
-            if (comment == null) throw new ArgumentNullException(nameof(comment), "Comment cannot be null");
-            if (comment.TaskItemId != Id) throw new InvalidOperationException(nameof(comment) + "Comment does not belong to this TaskItem");
+            if (comment == null) throw new ArgumentNullException(nameof(comment));
+            if (comment.TaskItemId != Id) throw new InvalidOperationException("Comment does not belong to this TaskItem");
             if (!_comments.Any(c => c.Id == comment.Id))
             {
                 _comments.Add(comment);
             }
         }
+
+        public void Edit(Guid commentId, string text)
+        {
+            TaskItemComment? comment = _comments.FirstOrDefault(c => c.Id == commentId);
+            if (comment == null) throw new InvalidOperationException("Comment does not belong to this TaskItem");
+            comment.Edit(text);
+        }
+
         public void RemoveComment(TaskItemComment comment)
         {
             if (comment == null) throw new ArgumentNullException(nameof(comment), "Comment cannot be null");
-            if (comment.TaskItemId != Id) throw new InvalidOperationException(nameof(comment) + "Comment does not belong to this TaskItem");
+            if (comment.TaskItemId != Id) throw new InvalidOperationException("Comment does not belong to this TaskItem");
             if (_comments.Any(c => c.Id == comment.Id))
             {
                 _comments.Remove(comment);
             }
+        }
+
+        public void AddTag(Tag tag)
+        {
+            if (tag == null) throw new ArgumentNullException(nameof(tag));
+            if (!_tags.Any(t => t.Id == tag.Id)) _tags.Add(tag);
+        }
+
+        public void RemoveTag(Guid tagId)
+        {
+            Tag? tag = _tags.FirstOrDefault(t => t.Id == tagId);
+            if (tag == null)
+                throw new InvalidOperationException("Tag not found.");
+            _tags.Remove(tag);
         }
         #endregion Methods
     }

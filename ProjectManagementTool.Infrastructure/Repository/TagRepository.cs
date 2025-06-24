@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementTool.Application.Interfaces.Repositories;
 using ProjectManagementTool.Domain.Entities;
+using ProjectManagementTool.Domain.Interfaces.Repositories;
 using ProjectManagementTool.Infrastructure.Contexts;
 
 namespace ProjectManagementTool.Infrastructure.Repositories
@@ -16,16 +16,14 @@ namespace ProjectManagementTool.Infrastructure.Repositories
 
         public async Task<Tag> GetOrCreateAsync(string name)
         {
-            string cleaned = name.Trim().ToLower();    
+            name = name.Trim();
+            var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Name == name);
 
-            var existingTag = await _context.Tags
-                .FirstOrDefaultAsync(t => t.Name.ToLower() == cleaned);
-
-            if (existingTag != null)
-                return existingTag;
+            if (tag != null)
+                return tag;
 
             var newTag = new Tag(name);
-            _context.Tags.Add(newTag);
+            await _context.Tags.AddAsync(newTag);
             return newTag;
         }
 
@@ -41,15 +39,14 @@ namespace ProjectManagementTool.Infrastructure.Repositories
 
         public async Task<Tag?> GetByNameAsync(string name)
         {
-            string cleaned = name.Trim().ToLower();    
-            return await _context.Tags
-                .FirstOrDefaultAsync(t => t.Name.ToLower() == cleaned);
+            name = name.Trim();
+            return await _context.Tags.FirstOrDefaultAsync(t => t.Name == name);
         }
 
-        public async Task DeleteAsync(Tag tag)
+        public Task DeleteAsync(Tag tag)
         {
             _context.Tags.Remove(tag);
-            await Task.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }

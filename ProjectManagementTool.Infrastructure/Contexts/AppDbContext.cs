@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using ProjectManagementTool.Domain.Entities;
+using ProjectManagementTool.Domain.Entities.ChangeLogs;
 
 namespace ProjectManagementTool.Infrastructure.Contexts
 {

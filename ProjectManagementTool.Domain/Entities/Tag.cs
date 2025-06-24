@@ -9,8 +9,10 @@ namespace ProjectManagementTool.Domain.Entities
         public string Name
         {
             get => _name;
-            private set => _name = IsValidName(value) ? value : throw new Exception($"Invalid Tag Name - {value}");
+            private set => _name = ValidateAndGetName(value);
         }
+        private List<TaskItem> _tasks = new List<TaskItem>();
+        public IReadOnlyCollection<TaskItem> Tasks => _tasks.AsReadOnly();
         #endregion Fields
 
         #region Constructors
@@ -24,9 +26,11 @@ namespace ProjectManagementTool.Domain.Entities
         #endregion Constructors
 
         #region Methods
-        private static bool IsValidName(string name)
+        private static string ValidateAndGetName(string name)
         {
-            return !string.IsNullOrWhiteSpace(name);
+            name = name.Trim();
+            if (string.IsNullOrEmpty(name)) throw new ArgumentException("Name cannot be null or whitespace", nameof(name));
+            return name;
         }
         #endregion Methods
     }

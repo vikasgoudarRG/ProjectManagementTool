@@ -6,10 +6,10 @@ namespace ProjectManagementTool.Domain.Entities
         public Guid Id { get; init; }
 
         public Guid AuthorId { get; init; }
-        public User Author { get; private set; } = null!;   
+        public User Author { get; private set; } = null!; // navigation property
 
         public Guid TaskItemId { get; init; }
-        public TaskItem TaskItem { get; private set; } = null!;
+        public TaskItem TaskItem { get; private set; } = null!; // navigation property
 
         private string _text = null!;
         public string Text
@@ -39,13 +39,16 @@ namespace ProjectManagementTool.Domain.Entities
         #endregion Constructors
 
         #region Methods
+        // =============== static methods ===============
         private static string ValidateText(string text)
         {
             if (string.IsNullOrWhiteSpace(text))
-                throw new ArgumentException(nameof(text), "Task Item Comment text cannot be null or whitespace");
+                throw new ArgumentException("Comment cannot be null or whitespace", nameof(text));
 
             return text;
         }
+
+        // =============== methods ===============
         public void Edit(string newText)
         {
             if (newText == Text) return;

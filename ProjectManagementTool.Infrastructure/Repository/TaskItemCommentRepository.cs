@@ -1,15 +1,15 @@
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementTool.Application.Interfaces.Repositories;
 using ProjectManagementTool.Domain.Entities;
+using ProjectManagementTool.Domain.Interfaces.Repositories;
 using ProjectManagementTool.Infrastructure.Contexts;
 
-namespace ProjectManagementTool.Infrastructure.Repository
+namespace ProjectManagementTool.Infrastructure.Repositories
 {
-    public class CommentRepository : ITaskItemCommentRepository
+    public class TaskItemCommentRepository : ITaskItemCommentRepository
     {
         private readonly AppDbContext _context;
-        public CommentRepository(AppDbContext context)
+
+        public TaskItemCommentRepository(AppDbContext context)
         {
             _context = context;
         }
@@ -55,11 +55,6 @@ namespace ProjectManagementTool.Infrastructure.Repository
         {
             _context.TaskItemComments.Remove(comment);
             return Task.CompletedTask;
-        }
-
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
         }
     }
 }

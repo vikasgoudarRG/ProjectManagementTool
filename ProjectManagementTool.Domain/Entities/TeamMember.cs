@@ -5,10 +5,10 @@ namespace ProjectManagementTool.Domain.Entities
     {
         #region Fields
         public Guid TeamId { get; init; }
-        public Team Team { get; private set; } = null!;
+        public Team Team { get; private set; } = null!; // navigation property
 
         public Guid UserId { get; init; }
-        public User User { get; private set; } = null!;
+        public User User { get; private set; } = null!; // navigation property
 
         public TeamMemberRole Role { get; private set; }
         public DateTime JoinedOn { get; init; }
@@ -26,5 +26,11 @@ namespace ProjectManagementTool.Domain.Entities
         }
         #endregion Constructors
 
+        #region Methods
+        public void UpdateRole(TeamMemberRole role)
+        {
+            Role = role;
+        }
+        #endregion Methods
     }
 }

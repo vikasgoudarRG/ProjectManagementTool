@@ -7,30 +7,29 @@ namespace ProjectManagementTool.Domain.Entities
         #region Fields
         public Guid Id { get; init; }
         public Guid ProjectLeadId { get; init; }
-        public User ProjectLead { get; private set; } = null!;
-
+        public User ProjectLead { get; private set; } = null!; // Navigation property 
         private string _name = null!;
         public string Name
         {
             get => _name;
-            set => _name = ValidateName(value);
+            set => _name = ValidateAndGetName(value);
         }
 
         private string _description = null!;
         public string Description
         {
             get => _description;
-            set => _description = ValidateDescription(value);
+            set => _description = ValidateAndGetDescription(value);
         }
 
         public ProjectStatus Status { get; set; }
         public DateTime CreatedOn { get; init; }
 
         private readonly List<Team> _teams = new List<Team>();
-        public IReadOnlyCollection<Team> Teams => _teams.AsReadOnly();
+        public IReadOnlyCollection<Team> Teams => _teams.AsReadOnly(); // Navigation property 
 
         private readonly List<User> _developers = new List<User>();
-        public IReadOnlyCollection<User> Developers => _developers.AsReadOnly();
+        public IReadOnlyCollection<User> Developers => _developers.AsReadOnly(); // Navigation property
         #endregion Fields
 
         #region Constructors
@@ -48,30 +47,34 @@ namespace ProjectManagementTool.Domain.Entities
         #endregion Constructors
 
         #region Methods
-        private static string ValidateName(string name)
+        // =============== static methods ===============
+        private static string ValidateAndGetName(string name)
         {
+            name = name.Trim();
             if (string.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentException(nameof(name), "Project name cannot be null or empty.");
+                throw new ArgumentException("Project name cannot be null or empty", nameof(name));
             }
             return name;
         }
 
-        private static string ValidateDescription(string description)
+        private static string ValidateAndGetDescription(string description)
         {
+            description = description.Trim();
             if (string.IsNullOrWhiteSpace(description))
             {
-                throw new ArgumentException(nameof(description), "Project description cannot be null or empty.");
+                throw new ArgumentException("Project description cannot be null or empty", nameof(description));
             }
             return description;
         }
 
+        // =============== methods ===============
         public void AddTeam(Team team)
         {
-            if (team == null) throw new ArgumentNullException(nameof(team), "Team cannot be null.");
+            if (team == null) throw new ArgumentNullException(nameof(team));
             if (team.ProjectId != Id)
             {
-                throw new InvalidOperationException(nameof(team) + "Team is not associated with this project");
+                throw new InvalidOperationException("Team is not associated with this project");
             }
             if (!_teams.Any(t => t.Id == team.Id))
             {
@@ -80,10 +83,10 @@ namespace ProjectManagementTool.Domain.Entities
         }
         public void RemoveTeam(Team team)
         {
-            if (team == null) throw new ArgumentNullException(nameof(team), "Team cannot be null.");
+            if (team == null) throw new ArgumentNullException(nameof(team));
             if (team.ProjectId != Id)
             {
-                throw new InvalidOperationException(nameof(team) + "Team is not associated with this project");
+                throw new InvalidOperationException("Team is not associated with this project");
             }
             if (_teams.Any(t => t.Id == team.Id))
             {
@@ -93,7 +96,7 @@ namespace ProjectManagementTool.Domain.Entities
 
         public void AddDeveloper(User developer)
         {
-            if (developer == null) throw new ArgumentNullException(nameof(developer), "Developer cannot be null.");
+            if (developer == null) throw new ArgumentNullException(nameof(developer));
             if (!_developers.Any(d => d.Id == developer.Id))
             {
                 _developers.Add(developer);
@@ -101,7 +104,7 @@ namespace ProjectManagementTool.Domain.Entities
         }
         public void RemoveDeveloper(User developer)
         {
-            if (developer == null) throw new ArgumentNullException(nameof(developer), "Developer cannot be null");
+            if (developer == null) throw new ArgumentNullException(nameof(developer));
             if (_developers.Any(d => d.Id == developer.Id))
             {
                 _developers.Remove(developer);

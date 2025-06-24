@@ -1,91 +1,120 @@
-using ProjectManagementTool.Application.Interfaces.Common;
-using ProjectManagementTool.Application.Interfaces.Repositories;
+using ProjectManagementTool.Application.DTOs.User;
 using ProjectManagementTool.Application.Interfaces.Services;
 using ProjectManagementTool.Domain.Entities;
-using ProjectManageMentTool.Application.Interfaces.Repositories;
+using ProjectManagementTool.Domain.Interfaces.Repositories;
 
 namespace ProjectManagementTool.Application.Services
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        private readonly IProjectRepository _projectRepository;
-        private readonly ITeamRepository _teamRepository;
-        private readonly IUnitOfWork _unitOfWork;
 
-        public UserService(
-            IUserRepository userRepository,
-            IProjectRepository projectRepository,
-            ITeamRepository teamRepository,
-            IUnitOfWork unitOfWork)
+        public UserService(IUserRepository userRepository)
         {
             _userRepository = userRepository;
-            _projectRepository = projectRepository;
-            _teamRepository = teamRepository;
-            _unitOfWork = unitOfWork;
         }
 
-        public async Task AddAsync(User user)
+        public async Task AddAsync(CreateUserDTO dto)
         {
+            var user = new User(dto.Name, dto.Email, dto.Password);
             await _userRepository.AddAsync(user);
-            await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<User?> GetByIdAsync(Guid userId)
+        public async Task<UserDTO?> GetByIdAsync(Guid userId)
         {
-            return await _userRepository.GetByIdAsync(userId);
+            var user = await _userRepository.GetByIdAsync(userId);
+            return user == null ? null : new UserDTO
+            {
+                Id = user.Id,
+                Name = user.Username,
+                Email = user.Email
+            };
         }
 
-        public async Task<IEnumerable<User>> GetAllAsync()
+        public async Task<IEnumerable<UserDTO>> GetAllAsync()
         {
-            return await _userRepository.GetAllAsync();
+            var users = await _userRepository.GetAllAsync();
+            return users.Select(user => new UserDTO
+            {
+                Id = user.Id,
+                Name = user.Username,
+                Email = user.Email
+            });
         }
 
-        public async Task<IEnumerable<User>> SearchAsync(string keyword)
+        public async Task<IEnumerable<UserDTO>> SearchAsync(string keyword)
         {
-            return await _userRepository.SearchAsync(keyword);
+            var users = await _userRepository.SearchAsync(keyword);
+            return users.Select(user => new UserDTO
+            {
+                Id = user.Id,
+                Name = user.Username,
+                Email = user.Email
+            });
         }
 
-        public async Task<IEnumerable<User>> GetAllInProjectAsync(Guid projectId)
+        public async Task UpdateAsync(UpdateUserDTO dto)
         {
-            var project = await _projectRepository.GetByIdAsync(projectId);
-            if (project == null)
-                return Enumerable.Empty<User>();
+            var user = await _userRepository.GetByIdAsync(dto.Id);
+            if (user == null) return;
 
-            return project.Developers;
+            if (!string.IsNullOrWhiteSpace(dto.Name))
+                user.UpdateName(dto.Name);
+
+            if (!string.IsNullOrWhiteSpace(dto.Email))
+                user.UpdateEmail(dto.Email);
+
+            if (!string.IsNullOrWhiteSpace(dto.Password))
+                user.UpdatePassword(dto.Password);
+
+            await _userRepository.UpdateAsync(user);
         }
 
-        public async Task<IEnumerable<User>> GetAllInTeamAsync(Guid teamId)
+        public async Task DeleteAsync(Guid userId)
         {
-            var teamMembers = await _teamRepository.GetAllMembersAsync(teamId);
-            return teamMembers.Select(tm => tm.User);
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user != null)
+            {
+                await _userRepository.DeleteAsync(user);
+            }
+        }
+
+        public async Task<IEnumerable<UserDTO>> GetAllInProjectAsync(Guid projectId)
+        {
+            var users = await _userRepository.GetAllAsync(); // You can refactor this to query more efficiently
+            return users
+                .Where(u => u.Projects.Any(p => p.ProjectId == projectId))
+                .Select(user => new UserDTO
+                {
+                    Id = user.Id,
+                    Name = user.Username,
+                    Email = user.Email
+                });
+        }
+
+        public async Task<IEnumerable<UserDTO>> GetAllInTeamAsync(Guid teamId)
+        {
+            var users = await _userRepository.GetAllAsync(); // You can refactor this to query more efficiently
+            return users
+                .Where(u => u.TeamMemberships.Any(t => t.TeamId == teamId))
+                .Select(user => new UserDTO
+                {
+                    Id = user.Id,
+                    Name = user.Username,
+                    Email = user.Email
+                });
         }
 
         public async Task<bool> IsUserInProjectAsync(Guid userId, Guid projectId)
         {
-            var project = await _projectRepository.GetByIdAsync(projectId);
-            if (project == null)
-                return false;
-
-            return project.Developers.Any(u => u.Id == userId);
+            var user = await _userRepository.GetByIdAsync(userId);
+            return user?.Projects.Any(p => p.ProjectId == projectId) ?? false;
         }
 
         public async Task<bool> IsUserInTeamAsync(Guid userId, Guid teamId)
         {
-            var teamMember = await _teamRepository.GetMemberAsync(teamId, userId);
-            return teamMember != null;
-        }
-
-        public async Task UpdateAsync(User user)
-        {
-            await _userRepository.UpdateAsync(user);
-            await _unitOfWork.SaveChangesAsync();
-        }
-
-        public async Task DeleteAsync(User user)
-        {
-            await _userRepository.DeleteAsync(user);
-            await _unitOfWork.SaveChangesAsync();
+            var user = await _userRepository.GetByIdAsync(userId);
+            return user?.TeamMemberships.Any(t => t.TeamId == teamId) ?? false;
         }
     }
 }
