@@ -1,5 +1,4 @@
-using ProjectManagementTool.Application.DTOs.TaskItem;
-using ProjectManagementTool.Application.QueryModels;
+
 using ProjectManagementTool.Domain.Entities;
 
 namespace ProjectManagementTool.Domain.Interfaces.Repositories

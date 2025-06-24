@@ -3,16 +3,16 @@ using ProjectManagementTool.Domain.Interfaces.Repositories;
 using ProjectManagementTool.Domain.Entities;
 using ProjectManagementTool.Infrastructure.Contexts;
 
-namespace ProjectManagementTool.Infrastructure.Repository
+namespace ProjectManagementTool.Infrastructure.Repositories
 {
-    public class NotificationRepository : IUserNotificationRepository
+    public class UserNotificationRepository : IUserNotificationRepository
     {
         #region Fields
         private readonly AppDbContext _context;
         #endregion Fields
 
         #region Constructor
-        public NotificationRepository(AppDbContext context)
+        public UserNotificationRepository(AppDbContext context)
         {
             _context = context;
         }

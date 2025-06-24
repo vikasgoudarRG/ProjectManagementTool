@@ -1,15 +1,70 @@
 using Microsoft.EntityFrameworkCore;
 using ProjectManagementTool.Infrastructure.Contexts;
+using ProjectManagementTool.Domain.Interfaces.Repositories;
+using ProjectManagementTool.Application.Services;
+using ProjectManagementTool.Application.Interfaces.Services;
+using ProjectManagementTool.Infrastructure.Repositories;
+using ProjectManagementTool.Infrastructure.Common;
+using ProjectManagementTool.Domain.Interfaces.Repositories.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add AppDbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")
-    ));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add other services, repositories, etc.
-// builder.Services.AddScoped<IYourService, YourService>();
+builder.Services.AddScoped<IUserNotificationRepository, UserNotificationRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<ITeamRepository, TeamRepository>();
+builder.Services.AddScoped<ITaskItemRepository, TaskItemRepository>();
+builder.Services.AddScoped<ITaskItemCommentRepository, TaskItemCommentRepository>();
+builder.Services.AddScoped<ITaskItemChangeLogRepository, TaskItemChangeLogRepository>();
+builder.Services.AddScoped<IProjectChangeLogRepository, ProjectChangeLogRepository>();
+builder.Services.AddScoped<ITeamChangeLogRepository, TeamChangeLogRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddScoped<IUserNotificationService, UserNotificationService>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<ITeamService, TeamService>();
+builder.Services.AddScoped<ITaskItemService, TaskItemService>();
+builder.Services.AddScoped<ITaskItemCommentService, TaskItemCommentService>();
+builder.Services.AddScoped<IChangeLogService, ChangeLogService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.ContentType = "application/json";
+        Exception? exception = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>()?.Error;
+
+        context.Response.StatusCode = exception switch
+        {
+            UnauthorizedAccessException => StatusCodes.Status403Forbidden,
+            KeyNotFoundException => StatusCodes.Status404NotFound,
+            ArgumentException => StatusCodes.Status400BadRequest,
+            _ => StatusCodes.Status500InternalServerError
+        };
+
+        string? result = System.Text.Json.JsonSerializer.Serialize(new { error = exception?.Message });
+        await context.Response.WriteAsync(result);
+    });
+});
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.MapControllers();
+
+app.Run();

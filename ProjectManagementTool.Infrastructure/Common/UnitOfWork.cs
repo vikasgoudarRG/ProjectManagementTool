@@ -1,4 +1,4 @@
-using ProjectManagementTool.Application.Interfaces.Common;
+using ProjectManagementTool.Domain.Interfaces.Repositories.Common;
 using ProjectManagementTool.Infrastructure.Contexts;
 
 namespace ProjectManagementTool.Infrastructure.Common

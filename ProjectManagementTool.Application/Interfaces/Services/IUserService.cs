@@ -4,11 +4,18 @@ namespace ProjectManagementTool.Application.Interfaces.Services
 {
     public interface IUserService
     {
-        Task AddAsync(CreateUserDTO user);
-        Task<UserDTO?> GetByIdAsync(Guid userId);
+        // Create
+        Task<UserDTO> AddAsync(AddUserDTO user);
+
+        // Read
+        Task<UserDTO> GetByIdAsync(Guid userId);
         Task<IEnumerable<UserDTO>> GetAllAsync();
         Task<IEnumerable<UserDTO>> SearchAsync(string keyword);
+
+        // Update
         Task UpdateAsync(UpdateUserDTO user);
+
+        // Delete
         Task DeleteAsync(Guid userId);
     }
 }

@@ -40,11 +40,11 @@ namespace ProjectManagementTool.Application.Services
 
         public async Task<Guid> CreateTaskAsync(TaskItemCreateDTO dto, Guid creatorUserId)
         {
-            var team = await _teamRepository.GetByIdAsync(dto.TeamId) 
-                       ?? throw new ArgumentException("Team not found");
+            var team = await _teamRepository.GetByIdAsync(dto.TeamId)
+                ?? throw new ArgumentException("Team not found");
 
-            var project = await _projectRepository.GetByIdAsync(team.ProjectId) 
-                          ?? throw new ArgumentException("Project not found");
+            var project = await _projectRepository.GetByIdAsync(team.ProjectId)
+                ?? throw new ArgumentException("Project not found");
 
             if (project.ProjectLeadId != creatorUserId &&
                 !await _teamRepository.IsTeamLeadAsync(team.Id, creatorUserId))
@@ -61,8 +61,7 @@ namespace ProjectManagementTool.Application.Services
                 ParsePriority(dto.Priority),
                 ParseStatus(dto.Status),
                 dto.AssignedUserId,
-                dto.Deadline
-            )
+                dto.Deadline)
             {
                 TeamId = team.Id
             };
@@ -70,13 +69,7 @@ namespace ProjectManagementTool.Application.Services
             await _taskRepository.AddAsync(task);
 
             await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(
-                task.Id,
-                creatorUserId,
-                ChangeType.Created,
-                "TaskItem",
-                null,
-                dto.Title
-            ));
+                task.Id, creatorUserId, ChangeType.Created, "TaskItem", null, dto.Title));
 
             if (dto.AssignedUserId.HasValue)
             {
@@ -97,10 +90,10 @@ namespace ProjectManagementTool.Application.Services
             if (task == null) return null;
 
             var team = await _teamRepository.GetByIdAsync(task.TeamId)
-                       ?? throw new ArgumentException("Team not found");
+                ?? throw new ArgumentException("Team not found");
 
             var project = await _projectRepository.GetByIdAsync(team.ProjectId)
-                          ?? throw new ArgumentException("Project not found");
+                ?? throw new ArgumentException("Project not found");
 
             if (project.ProjectLeadId != requesterId &&
                 !await _teamRepository.IsTeamLeadAsync(team.Id, requesterId) &&
@@ -113,7 +106,7 @@ namespace ProjectManagementTool.Application.Services
         public async Task<IEnumerable<TaskItemDTO>> GetByProjectAsync(Guid projectId, Guid requesterId)
         {
             var project = await _projectRepository.GetByIdAsync(projectId)
-                          ?? throw new ArgumentException("Project not found");
+                ?? throw new ArgumentException("Project not found");
 
             if (project.ProjectLeadId != requesterId)
                 throw new UnauthorizedAccessException("Only the project lead can view all tasks.");
@@ -141,13 +134,13 @@ namespace ProjectManagementTool.Application.Services
         public async Task UpdateAsync(UpdateTaskItemDTO dto, Guid updaterUserId)
         {
             var task = await _taskRepository.GetByIdAsync(dto.Id)
-                       ?? throw new ArgumentException("Task not found");
+                ?? throw new ArgumentException("Task not found");
 
             var team = await _teamRepository.GetByIdAsync(task.TeamId)
-                       ?? throw new ArgumentException("Team not found");
+                ?? throw new ArgumentException("Team not found");
 
             var project = await _projectRepository.GetByIdAsync(team.ProjectId)
-                          ?? throw new ArgumentException("Project not found");
+                ?? throw new ArgumentException("Project not found");
 
             if (project.ProjectLeadId != updaterUserId &&
                 !await _teamRepository.IsTeamLeadAsync(team.Id, updaterUserId))
@@ -159,15 +152,13 @@ namespace ProjectManagementTool.Application.Services
 
             if (dto.Title != null && dto.Title != task.Title)
             {
-                await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(
-                    task.Id, updaterUserId, ChangeType.Updated, "Title", task.Title, dto.Title));
+                await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(task.Id, updaterUserId, ChangeType.Updated, "Title", task.Title, dto.Title));
                 task.Title = dto.Title;
             }
 
             if (dto.Description != null && dto.Description != task.Description)
             {
-                await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(
-                    task.Id, updaterUserId, ChangeType.Updated, "Description", task.Description, dto.Description));
+                await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(task.Id, updaterUserId, ChangeType.Updated, "Description", task.Description, dto.Description));
                 task.Description = dto.Description;
             }
 
@@ -176,8 +167,7 @@ namespace ProjectManagementTool.Application.Services
                 var parsed = ParseStatus(dto.Status);
                 if (parsed != task.Status)
                 {
-                    await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(
-                        task.Id, updaterUserId, ChangeType.Updated, "Status", task.Status.ToString(), dto.Status));
+                    await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(task.Id, updaterUserId, ChangeType.Updated, "Status", task.Status.ToString(), dto.Status));
                     task.Status = parsed;
                 }
             }
@@ -187,8 +177,7 @@ namespace ProjectManagementTool.Application.Services
                 var parsed = ParsePriority(dto.Priority);
                 if (parsed != task.Priority)
                 {
-                    await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(
-                        task.Id, updaterUserId, ChangeType.Updated, "Priority", task.Priority.ToString(), dto.Priority));
+                    await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(task.Id, updaterUserId, ChangeType.Updated, "Priority", task.Priority.ToString(), dto.Priority));
                     task.Priority = parsed;
                 }
             }
@@ -198,29 +187,47 @@ namespace ProjectManagementTool.Application.Services
                 var parsed = ParseType(dto.Type);
                 if (parsed != task.Type)
                 {
-                    await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(
-                        task.Id, updaterUserId, ChangeType.Updated, "Type", task.Type.ToString(), dto.Type));
+                    await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(task.Id, updaterUserId, ChangeType.Updated, "Type", task.Type.ToString(), dto.Type));
                     task.Type = parsed;
                 }
             }
 
             if (dto.Deadline != null && dto.Deadline != task.Deadline)
             {
-                await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(
-                    task.Id, updaterUserId, ChangeType.Updated, "Deadline", task.Deadline?.ToString(), dto.Deadline?.ToString()));
+                await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(task.Id, updaterUserId, ChangeType.Updated, "Deadline", task.Deadline?.ToString(), dto.Deadline?.ToString()));
                 task.Deadline = dto.Deadline;
             }
 
             if (dto.AssignedUserId != null && dto.AssignedUserId != task.AssignedUserId)
             {
+                var oldAssignee = task.AssignedUserId;
+
                 await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(
-                    task.Id, updaterUserId, ChangeType.Updated, "AssignedUserId", task.AssignedUserId?.ToString(), dto.AssignedUserId.ToString()));
+                    task.Id, updaterUserId, ChangeType.Updated, "AssignedUserId", oldAssignee?.ToString(), dto.AssignedUserId.ToString()));
+
                 task.AssignedUserId = dto.AssignedUserId;
+
+                if (oldAssignee.HasValue)
+                {
+                    await _notificationService.SendAsync(new SendNotificationDTO
+                    {
+                        UserId = oldAssignee.Value,
+                        Message = $"You have been unassigned from task: {task.Title}"
+                    });
+                }
 
                 await _notificationService.SendAsync(new SendNotificationDTO
                 {
                     UserId = dto.AssignedUserId.Value,
                     Message = $"You have been assigned to task: {task.Title}"
+                });
+            }
+            else if (task.AssignedUserId.HasValue)
+            {
+                await _notificationService.SendAsync(new SendNotificationDTO
+                {
+                    UserId = task.AssignedUserId.Value,
+                    Message = $"Task details have been updated: {task.Title}"
                 });
             }
 
@@ -231,13 +238,13 @@ namespace ProjectManagementTool.Application.Services
         public async Task DeleteAsync(Guid taskId, Guid requesterId)
         {
             var task = await _taskRepository.GetByIdAsync(taskId)
-                       ?? throw new ArgumentException("Task not found");
+                ?? throw new ArgumentException("Task not found");
 
             var team = await _teamRepository.GetByIdAsync(task.TeamId)
-                       ?? throw new ArgumentException("Team not found");
+                ?? throw new ArgumentException("Team not found");
 
             var project = await _projectRepository.GetByIdAsync(team.ProjectId)
-                          ?? throw new ArgumentException("Project not found");
+                ?? throw new ArgumentException("Project not found");
 
             if (project.ProjectLeadId != requesterId &&
                 !await _teamRepository.IsTeamLeadAsync(team.Id, requesterId))
@@ -254,13 +261,13 @@ namespace ProjectManagementTool.Application.Services
         public async Task AssignAsync(AssignTaskItemDTO dto)
         {
             var task = await _taskRepository.GetByIdAsync(dto.TaskItemId)
-                       ?? throw new ArgumentException("Task not found");
+                ?? throw new ArgumentException("Task not found");
 
             var team = await _teamRepository.GetByIdAsync(task.TeamId)
-                       ?? throw new ArgumentException("Team not found");
+                ?? throw new ArgumentException("Team not found");
 
             var project = await _projectRepository.GetByIdAsync(team.ProjectId)
-                          ?? throw new ArgumentException("Project not found");
+                ?? throw new ArgumentException("Project not found");
 
             if (project.ProjectLeadId != dto.RequesterId &&
                 !await _teamRepository.IsTeamLeadAsync(team.Id, dto.RequesterId))
@@ -268,6 +275,8 @@ namespace ProjectManagementTool.Application.Services
 
             if (!await _teamRepository.IsUserInTeamAsync(team.Id, dto.AssignedUserId))
                 throw new ArgumentException("Assigned user is not in the team.");
+
+            if (task.AssignedUserId == dto.AssignedUserId) return;
 
             var oldAssignee = task.AssignedUserId;
             task.AssignedUserId = dto.AssignedUserId;
@@ -283,13 +292,22 @@ namespace ProjectManagementTool.Application.Services
                 Message = $"You have been assigned to task: {task.Title}"
             });
 
+            if (oldAssignee.HasValue && oldAssignee != dto.AssignedUserId)
+            {
+                await _notificationService.SendAsync(new SendNotificationDTO
+                {
+                    UserId = oldAssignee.Value,
+                    Message = $"You have been unassigned from task: {task.Title}"
+                });
+            }
+
             await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task ChangeStatusAsync(ChangeTaskItemStatusDTO dto)
         {
             var task = await _taskRepository.GetByIdAsync(dto.TaskItemId)
-                       ?? throw new ArgumentException("Task not found");
+                ?? throw new ArgumentException("Task not found");
 
             if (task.AssignedUserId != dto.RequesterId)
                 throw new UnauthorizedAccessException("Only the assignee can change the task status.");
@@ -298,6 +316,7 @@ namespace ProjectManagementTool.Application.Services
             var oldStatus = task.Status;
 
             task.Status = newStatus;
+
             await _taskRepository.UpdateAsync(task);
 
             await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(
@@ -305,8 +324,6 @@ namespace ProjectManagementTool.Application.Services
 
             await _unitOfWork.SaveChangesAsync();
         }
-
-        // --- Helpers ---
 
         private TaskItemDTO MapToDTO(TaskItem task) => new TaskItemDTO
         {

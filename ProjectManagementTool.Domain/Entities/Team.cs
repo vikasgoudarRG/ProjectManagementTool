@@ -15,8 +15,7 @@ namespace ProjectManagementTool.Domain.Entities
             set => _name = ValidateAndGetName(value);
         }
 
-        private readonly List<TeamMember> _members = new List<TeamMember>();
-        public IReadOnlyCollection<TeamMember> TeamMembers => _members.AsReadOnly(); // navigation property
+        public ICollection<TeamMember> TeamMembers { get; private set; } = new List<TeamMember>(); // navigation property
 
         public DateTime CreatedOn { get; init; }
         #endregion Fields
@@ -50,8 +49,8 @@ namespace ProjectManagementTool.Domain.Entities
             if (member.TeamId != Id)
                 throw new InvalidOperationException("Member does not belong to this team");
 
-            if (!_members.Any(m => m.UserId == member.UserId))
-                _members.Add(member);
+            if (!TeamMembers.Any(m => m.UserId == member.UserId))
+                TeamMembers.Add(member);
         }
 
         public void RemoveMember(TeamMember member)
@@ -60,17 +59,17 @@ namespace ProjectManagementTool.Domain.Entities
             if (member.TeamId != Id)
                 throw new InvalidOperationException("Member does not belong to this team");
 
-            TeamMember? existing = _members.FirstOrDefault(m => m.UserId == member.UserId);
-            if (existing != null) _members.Remove(existing);
+            TeamMember? existing = TeamMembers.FirstOrDefault(m => m.UserId == member.UserId);
+            if (existing != null) TeamMembers.Remove(existing);
         }
 
         public void AssignTeamLead(Guid userId)
         {
-            TeamMember? member = _members.FirstOrDefault(m => m.UserId == userId);
+            TeamMember? member = TeamMembers.FirstOrDefault(m => m.UserId == userId);
             if (member == null)
                 throw new InvalidOperationException("User is not a member of this team");
 
-            if (_members.Any(m => m.Role == TeamMemberRole.Lead))
+            if (TeamMembers.Any(m => m.Role == TeamMemberRole.Lead))
                 throw new InvalidOperationException("This team already has a lead");
 
             member.UpdateRole(TeamMemberRole.Lead);
@@ -78,7 +77,7 @@ namespace ProjectManagementTool.Domain.Entities
 
         public void RemoveTeamLead(Guid userId)
         {
-            TeamMember? member = _members.FirstOrDefault(m => m.UserId == userId);
+            TeamMember? member = TeamMembers.FirstOrDefault(m => m.UserId == userId);
             if (member == null)
                 throw new InvalidOperationException("User is not a member of this team");
             if (member.Role != TeamMemberRole.Lead)

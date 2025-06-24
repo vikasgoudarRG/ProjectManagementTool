@@ -40,9 +40,9 @@ namespace ProjectManagementTool.Application.Services
 
             foreach (var n in notifications.Where(n => !n.IsRead))
             {
-                n.MarkAsRead();
-                await _notificationRepository.DeleteAsync(n);
+                await _notificationRepository.MarkAsReadAsync(n.Id);
             }
+            await _notificationRepository.DeleteAllReadByUserIdAsync(userId);
         }
     }
 }

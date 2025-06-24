@@ -22,58 +22,115 @@ namespace ProjectManagementTool.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.Comment", b =>
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.ChangeLogs.ProjectChangeLog", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AuthorId")
+                    b.Property<int>("ChangeType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ChangedByUserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Content")
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("NewValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OldValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PropertyChanged")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChangedByUserId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("ProjectChangeLogs");
+                });
+
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.ChangeLogs.TaskItemChangeLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ChangeType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ChangedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("NewValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OldValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PropertyChanged")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("TaskItemId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AuthorId");
+                    b.HasIndex("ChangedByUserId");
 
                     b.HasIndex("TaskItemId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("TaskItemChangeLogs");
                 });
 
-            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.Notification", b =>
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.ChangeLogs.TeamChangeLog", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<int>("ChangeType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ChangedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
+                    b.Property<string>("NewValue")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Message")
+                    b.Property<string>("OldValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PropertyChanged")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("TeamId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("ChangedByUserId");
 
-                    b.ToTable("Notification");
+                    b.HasIndex("TeamId");
+
+                    b.ToTable("TeamChangeLogs");
                 });
 
             modelBuilder.Entity("ProjectManagementTool.Domain.Entities.Project", b =>
@@ -82,25 +139,28 @@ namespace ProjectManagementTool.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("ManagerId")
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ProjectLeadId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("ManagerId");
+                    b.HasIndex("ProjectLeadId");
 
-                    b.ToTable("Project");
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("ProjectManagementTool.Domain.Entities.Tag", b =>
@@ -127,6 +187,9 @@ namespace ProjectManagementTool.Infrastructure.Migrations
                     b.Property<Guid?>("AssignedUserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -140,11 +203,11 @@ namespace ProjectManagementTool.Infrastructure.Migrations
                     b.Property<int>("Priority")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<Guid>("TeamId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -157,43 +220,87 @@ namespace ProjectManagementTool.Infrastructure.Migrations
 
                     b.HasIndex("AssignedUserId");
 
-                    b.HasIndex("ProjectId");
+                    b.HasIndex("TeamId");
 
                     b.ToTable("TaskItems");
                 });
 
-            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.TaskItemChangeLog", b =>
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.TaskItemComment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("ChangedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("ChangedByUserId")
+                    b.Property<Guid>("AuthorId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("NewValue")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("OldValue")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("Edited")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("PropertyChanged")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime?>("LastEditedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("TaskItemId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("ChangedByUserId");
+                    b.HasIndex("AuthorId");
 
                     b.HasIndex("TaskItemId");
 
-                    b.ToTable("TaskItemChangeLogs");
+                    b.ToTable("TaskItemComments");
+                });
+
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.Team", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("Teams");
+                });
+
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.TeamMember", b =>
+                {
+                    b.Property<Guid>("TeamId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("JoinedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.HasKey("TeamId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TeamMembers");
                 });
 
             modelBuilder.Entity("ProjectManagementTool.Domain.Entities.User", b =>
@@ -206,46 +313,155 @@ namespace ProjectManagementTool.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Username")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ProjectId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
 
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("ProjectUser", b =>
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.UserNotification", b =>
                 {
-                    b.Property<Guid>("DevelopersId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ProjectsId")
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ReadOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("DevelopersId", "ProjectsId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("ProjectsId");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("ProjectUser");
+                    b.ToTable("UserNotifications");
                 });
 
-            modelBuilder.Entity("TagTaskItem", b =>
+            modelBuilder.Entity("TaskItemTag", b =>
                 {
-                    b.Property<Guid>("TagsId")
+                    b.Property<Guid>("TaskItemId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("TaskItemsId")
+                    b.Property<Guid>("TagId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("TagsId", "TaskItemsId");
+                    b.HasKey("TaskItemId", "TagId");
 
-                    b.HasIndex("TaskItemsId");
+                    b.HasIndex("TagId");
 
-                    b.ToTable("TagTaskItem");
+                    b.ToTable("TaskItemTag");
                 });
 
-            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.Comment", b =>
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.ChangeLogs.ProjectChangeLog", b =>
+                {
+                    b.HasOne("ProjectManagementTool.Domain.Entities.User", "ChangedByUser")
+                        .WithMany()
+                        .HasForeignKey("ChangedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectManagementTool.Domain.Entities.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChangedByUser");
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.ChangeLogs.TaskItemChangeLog", b =>
+                {
+                    b.HasOne("ProjectManagementTool.Domain.Entities.User", "ChangedByUser")
+                        .WithMany()
+                        .HasForeignKey("ChangedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectManagementTool.Domain.Entities.TaskItem", "TaskItem")
+                        .WithMany()
+                        .HasForeignKey("TaskItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChangedByUser");
+
+                    b.Navigation("TaskItem");
+                });
+
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.ChangeLogs.TeamChangeLog", b =>
+                {
+                    b.HasOne("ProjectManagementTool.Domain.Entities.User", "ChangedByUser")
+                        .WithMany()
+                        .HasForeignKey("ChangedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectManagementTool.Domain.Entities.Team", "Team")
+                        .WithMany()
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChangedByUser");
+
+                    b.Navigation("Team");
+                });
+
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.Project", b =>
+                {
+                    b.HasOne("ProjectManagementTool.Domain.Entities.User", "ProjectLead")
+                        .WithMany()
+                        .HasForeignKey("ProjectLeadId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ProjectLead");
+                });
+
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.TaskItem", b =>
+                {
+                    b.HasOne("ProjectManagementTool.Domain.Entities.User", "AssignedUser")
+                        .WithMany()
+                        .HasForeignKey("AssignedUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ProjectManagementTool.Domain.Entities.Team", "Team")
+                        .WithMany()
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssignedUser");
+
+                    b.Navigation("Team");
+                });
+
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.TaskItemComment", b =>
                 {
                     b.HasOne("ProjectManagementTool.Domain.Entities.User", "Author")
                         .WithMany()
@@ -264,114 +480,82 @@ namespace ProjectManagementTool.Infrastructure.Migrations
                     b.Navigation("TaskItem");
                 });
 
-            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.Notification", b =>
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.Team", b =>
                 {
-                    b.HasOne("ProjectManagementTool.Domain.Entities.User", "User")
-                        .WithMany("Notifications")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.Project", b =>
-                {
-                    b.HasOne("ProjectManagementTool.Domain.Entities.User", "Manager")
-                        .WithMany("ManagedProjects")
-                        .HasForeignKey("ManagerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Manager");
-                });
-
-            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.TaskItem", b =>
-                {
-                    b.HasOne("ProjectManagementTool.Domain.Entities.User", "AssignedUser")
-                        .WithMany("AssignedTasks")
-                        .HasForeignKey("AssignedUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("ProjectManagementTool.Domain.Entities.Project", "Project")
-                        .WithMany("TaskItems")
+                        .WithMany("Teams")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AssignedUser");
-
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.TaskItemChangeLog", b =>
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.TeamMember", b =>
                 {
-                    b.HasOne("ProjectManagementTool.Domain.Entities.User", "ChangedByUser")
+                    b.HasOne("ProjectManagementTool.Domain.Entities.Team", "Team")
+                        .WithMany("TeamMembers")
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectManagementTool.Domain.Entities.User", "User")
                         .WithMany()
-                        .HasForeignKey("ChangedByUserId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ProjectManagementTool.Domain.Entities.TaskItem", "TaskItem")
-                        .WithMany("ChangeLogs")
-                        .HasForeignKey("TaskItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Team");
 
-                    b.Navigation("ChangedByUser");
-
-                    b.Navigation("TaskItem");
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ProjectUser", b =>
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.User", b =>
+                {
+                    b.HasOne("ProjectManagementTool.Domain.Entities.Project", null)
+                        .WithMany("Developers")
+                        .HasForeignKey("ProjectId");
+                });
+
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.UserNotification", b =>
                 {
                     b.HasOne("ProjectManagementTool.Domain.Entities.User", null)
                         .WithMany()
-                        .HasForeignKey("DevelopersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ProjectManagementTool.Domain.Entities.Project", null)
-                        .WithMany()
-                        .HasForeignKey("ProjectsId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TagTaskItem", b =>
+            modelBuilder.Entity("TaskItemTag", b =>
                 {
                     b.HasOne("ProjectManagementTool.Domain.Entities.Tag", null)
                         .WithMany()
-                        .HasForeignKey("TagsId")
+                        .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ProjectManagementTool.Domain.Entities.TaskItem", null)
                         .WithMany()
-                        .HasForeignKey("TaskItemsId")
+                        .HasForeignKey("TaskItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("ProjectManagementTool.Domain.Entities.Project", b =>
                 {
-                    b.Navigation("TaskItems");
+                    b.Navigation("Developers");
+
+                    b.Navigation("Teams");
                 });
 
             modelBuilder.Entity("ProjectManagementTool.Domain.Entities.TaskItem", b =>
                 {
-                    b.Navigation("ChangeLogs");
-
                     b.Navigation("Comments");
                 });
 
-            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.User", b =>
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.Team", b =>
                 {
-                    b.Navigation("AssignedTasks");
-
-                    b.Navigation("ManagedProjects");
-
-                    b.Navigation("Notifications");
+                    b.Navigation("TeamMembers");
                 });
 #pragma warning restore 612, 618
         }

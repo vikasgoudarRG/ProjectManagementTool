@@ -40,6 +40,8 @@ namespace ProjectManagementTool.Application.Services
         {
             var project = await _projectRepository.GetByIdAsync(dto.ProjectId)
                           ?? throw new ArgumentException("Project not found");
+            if (project.ProjectLeadId != dto.RequesterId)
+                throw new UnauthorizedAccessException("Only project leads can create teams.");
 
             var team = new Team(dto.Name, dto.ProjectId);
             await _teamRepository.AddAsync(team);
@@ -62,7 +64,10 @@ namespace ProjectManagementTool.Application.Services
             var team = await _teamRepository.GetByIdAsync(teamId);
             if (team == null) return null;
 
-            if (!await _teamRepository.IsUserInTeamAsync(teamId, requesterId))
+            var project = await _projectRepository.GetByIdAsync(team.ProjectId);
+            bool isProjectLead = project != null && project.ProjectLeadId == requesterId;
+
+            if (!isProjectLead && !await _teamRepository.IsUserInTeamAsync(teamId, requesterId))
                 throw new UnauthorizedAccessException("Access denied.");
 
             return new TeamDTO

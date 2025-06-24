@@ -1,17 +1,21 @@
 using ProjectManagementTool.Domain.Interfaces.Repositories.Common;
 using ProjectManagementTool.Infrastructure.Contexts;
-
-public class UnitOfWork : IUnitOfWork
+namespace ProjectManagementTool.Infrastructure.Repositories.Common
 {
-    private readonly AppDbContext _context;
-
-    public UnitOfWork(AppDbContext context)
+    public class UnitOfWork : IUnitOfWork
     {
-        _context = context;
-    }
+        private readonly AppDbContext _context;
 
-    public async Task SaveChangesAsync()
-    {
-        await _context.SaveChangesAsync();
+        public UnitOfWork(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }
+
+
