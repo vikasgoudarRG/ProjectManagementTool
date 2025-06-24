@@ -1,33 +1,39 @@
 {
   "format": 1,
   "restore": {
-    "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Infrastructure/ProjectManagementTool.Infrastructure.csproj": {}
+    "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Infrastructure\\ProjectManagementTool.Infrastructure.csproj": {}
   },
   "projects": {
-    "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Application/ProjectManagementTool.Application.csproj": {
+    "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Application\\ProjectManagementTool.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Application/ProjectManagementTool.Application.csproj",
+        "projectUniqueName": "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Application\\ProjectManagementTool.Application.csproj",
         "projectName": "ProjectManagementTool.Application",
-        "projectPath": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Application/ProjectManagementTool.Application.csproj",
-        "packagesPath": "/home/vikasgoudar/.nuget/packages/",
-        "outputPath": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Application/obj/",
+        "projectPath": "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Application\\ProjectManagementTool.Application.csproj",
+        "packagesPath": "C:\\Users\\VGOUDAR\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Application\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/vikasgoudar/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\VGOUDAR\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Domain/ProjectManagementTool.Domain.csproj": {
-                "projectPath": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Domain/ProjectManagementTool.Domain.csproj"
+              "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Domain\\ProjectManagementTool.Domain.csproj": {
+                "projectPath": "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Domain\\ProjectManagementTool.Domain.csproj"
               }
             }
           }
@@ -36,7 +42,13 @@
           "warnAsError": [
             "NU1605"
           ]
-        }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -57,26 +69,32 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/8.0.116/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Domain/ProjectManagementTool.Domain.csproj": {
+    "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Domain\\ProjectManagementTool.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Domain/ProjectManagementTool.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Domain\\ProjectManagementTool.Domain.csproj",
         "projectName": "ProjectManagementTool.Domain",
-        "projectPath": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Domain/ProjectManagementTool.Domain.csproj",
-        "packagesPath": "/home/vikasgoudar/.nuget/packages/",
-        "outputPath": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Domain/obj/",
+        "projectPath": "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Domain\\ProjectManagementTool.Domain.csproj",
+        "packagesPath": "C:\\Users\\VGOUDAR\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Domain\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/vikasgoudar/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\VGOUDAR\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -89,7 +107,13 @@
           "warnAsError": [
             "NU1605"
           ]
-        }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -110,37 +134,43 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/8.0.116/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Infrastructure/ProjectManagementTool.Infrastructure.csproj": {
+    "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Infrastructure\\ProjectManagementTool.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Infrastructure/ProjectManagementTool.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Infrastructure\\ProjectManagementTool.Infrastructure.csproj",
         "projectName": "ProjectManagementTool.Infrastructure",
-        "projectPath": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Infrastructure/ProjectManagementTool.Infrastructure.csproj",
-        "packagesPath": "/home/vikasgoudar/.nuget/packages/",
-        "outputPath": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Infrastructure/obj/",
+        "projectPath": "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Infrastructure\\ProjectManagementTool.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\VGOUDAR\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/vikasgoudar/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\VGOUDAR\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Application/ProjectManagementTool.Application.csproj": {
-                "projectPath": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Application/ProjectManagementTool.Application.csproj"
+              "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Application\\ProjectManagementTool.Application.csproj": {
+                "projectPath": "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Application\\ProjectManagementTool.Application.csproj"
               },
-              "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Domain/ProjectManagementTool.Domain.csproj": {
-                "projectPath": "/home/vikasgoudar/Documents/Depression/Github/programming/ProjectManagementTool/ProjectManagementTool.Domain/ProjectManagementTool.Domain.csproj"
+              "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Domain\\ProjectManagementTool.Domain.csproj": {
+                "projectPath": "C:\\Users\\VGOUDAR\\OneDrive - Bechtel Corporation\\Documents\\GitHub\\ProjectManagementTool\\ProjectManagementTool.Domain\\ProjectManagementTool.Domain.csproj"
               }
             }
           }
@@ -149,7 +179,13 @@
           "warnAsError": [
             "NU1605"
           ]
-        }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -182,7 +218,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/8.0.116/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

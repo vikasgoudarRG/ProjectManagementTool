@@ -110,6 +110,10 @@ namespace ProjectManagementTool.Domain.Entities
                 _developers.Remove(developer);
             }
         }
+        public bool IsMember(Guid userId)
+        {
+            return ProjectLeadId == userId || _developers.Any(d => d.Id == userId);
+        }
         #endregion Methods
     }
 }

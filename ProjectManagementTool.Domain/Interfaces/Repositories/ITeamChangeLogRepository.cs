@@ -15,5 +15,6 @@ namespace ProjectManagementTool.Domain.Interfaces.Repositories
             DateTime? to = null,
             ChangeType? type = null
         );
+
     }
 }

@@ -26,7 +26,7 @@ namespace ProjectManagementTool.Application.Services
             return user == null ? null : new UserDTO
             {
                 Id = user.Id,
-                Name = user.Username,
+                Name = user.Name,
                 Email = user.Email
             };
         }
@@ -37,7 +37,7 @@ namespace ProjectManagementTool.Application.Services
             return users.Select(user => new UserDTO
             {
                 Id = user.Id,
-                Name = user.Username,
+                Name = user.Name,
                 Email = user.Email
             });
         }
@@ -48,7 +48,7 @@ namespace ProjectManagementTool.Application.Services
             return users.Select(user => new UserDTO
             {
                 Id = user.Id,
-                Name = user.Username,
+                Name = user.Name,
                 Email = user.Email
             });
         }
@@ -59,13 +59,13 @@ namespace ProjectManagementTool.Application.Services
             if (user == null) return;
 
             if (!string.IsNullOrWhiteSpace(dto.Name))
-                user.UpdateName(dto.Name);
+                user.Name = dto.Name;
 
             if (!string.IsNullOrWhiteSpace(dto.Email))
-                user.UpdateEmail(dto.Email);
+                user.Email = dto.Email;
 
             if (!string.IsNullOrWhiteSpace(dto.Password))
-                user.UpdatePassword(dto.Password);
+                user.Password = dto.Password;
 
             await _userRepository.UpdateAsync(user);
         }

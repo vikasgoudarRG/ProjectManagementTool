@@ -1,10 +1,10 @@
 using ProjectManagementTool.Application.DTOs.Project;
 using ProjectManagementTool.Application.DTOs.User;
+using ProjectManagementTool.Application.DTOs.Notification;
 using ProjectManagementTool.Application.Interfaces.Services;
 using ProjectManagementTool.Domain.Entities;
 using ProjectManagementTool.Domain.Entities.ChangeLogs;
 using ProjectManagementTool.Domain.Enums.ChangeLog;
-using ProjectManagementTool.Domain.Exceptions;
 using ProjectManagementTool.Domain.Interfaces.Repositories;
 using ProjectManagementTool.Domain.Interfaces.Repositories.Common;
 
@@ -15,43 +15,49 @@ namespace ProjectManagementTool.Application.Services
         private readonly IProjectRepository _projectRepository;
         private readonly IUserRepository _userRepository;
         private readonly IProjectChangeLogRepository _changeLogRepository;
+        private readonly IUserNotificationService _notificationService;
         private readonly IUnitOfWork _unitOfWork;
 
         public ProjectService(
             IProjectRepository projectRepository,
             IUserRepository userRepository,
             IProjectChangeLogRepository changeLogRepository,
+            IUserNotificationService notificationService,
             IUnitOfWork unitOfWork)
         {
             _projectRepository = projectRepository;
             _userRepository = userRepository;
             _changeLogRepository = changeLogRepository;
+            _notificationService = notificationService;
             _unitOfWork = unitOfWork;
         }
 
         public async Task<Guid> CreateProjectAsync(CreateProjectDTO dto)
         {
             var user = await _userRepository.GetByIdAsync(dto.ProjectLeadId)
-                        ?? throw new NotFoundException("User not found");
+                ?? throw new ArgumentException("Project lead not found");
 
             var project = new Project(dto.Name, dto.Description, dto.ProjectLeadId);
-
             await _projectRepository.AddAsync(project);
             await _unitOfWork.SaveChangesAsync();
 
-            var log = new ProjectChangeLog(project.Id, "Project", null, project.Name, ChangeType.Created, dto.ProjectLeadId);
-            await _changeLogRepository.AddAsync(log);
-            await _unitOfWork.SaveChangesAsync();
+            await _changeLogRepository.AddAsync(new ProjectChangeLog(
+                project.Id, dto.ProjectLeadId, ChangeType.Created, "Project", null, project.Name));
 
+            await _notificationService.SendAsync(new SendNotificationDTO
+            {
+                UserId = dto.ProjectLeadId,
+                Message = $"You created a new project: '{project.Name}'"
+            });
+
+            await _unitOfWork.SaveChangesAsync();
             return project.Id;
         }
 
         public async Task<ProjectDTO?> GetByIdAsync(Guid projectId)
         {
             var project = await _projectRepository.GetByIdAsync(projectId);
-            if (project == null) return null;
-
-            return new ProjectDTO
+            return project == null ? null : new ProjectDTO
             {
                 Id = project.Id,
                 Name = project.Name,
@@ -65,7 +71,6 @@ namespace ProjectManagementTool.Application.Services
         public async Task<IEnumerable<ProjectDTO>> GetAllForUserAsync(Guid userId)
         {
             var projects = await _projectRepository.GetAllByUserIdAsync(userId);
-
             return projects.Select(p => new ProjectDTO
             {
                 Id = p.Id,
@@ -80,50 +85,73 @@ namespace ProjectManagementTool.Application.Services
         public async Task DeleteProjectAsync(Guid projectId, Guid requesterId)
         {
             var project = await _projectRepository.GetByIdAsync(projectId)
-                          ?? throw new NotFoundException("Project not found");
+                ?? throw new ArgumentException("Project not found");
 
             if (project.ProjectLeadId != requesterId)
                 throw new UnauthorizedAccessException("Only the project lead can delete the project.");
 
             await _projectRepository.DeleteAsync(project);
 
-            var log = new ProjectChangeLog(projectId, "Project", project.Name, null, ChangeType.Deleted, requesterId);
-            await _changeLogRepository.AddAsync(log);
+            await _changeLogRepository.AddAsync(new ProjectChangeLog(
+                projectId, requesterId, ChangeType.Deleted, "Project", project.Name, null));
+
+            await _notificationService.SendAsync(new SendNotificationDTO
+            {
+                UserId = requesterId,
+                Message = $"You deleted the project: '{project.Name}'"
+            });
 
             await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task AddDeveloperAsync(ProjectUserActionDTO dto)
         {
-            var project = await _projectRepository.GetByIdAsync(dto.ProjectId)
-                          ?? throw new NotFoundException("Project not found");
+            var user = await _userRepository.GetByIdAsync(dto.DeveloperId)
+                ?? throw new ArgumentException("Developer not found");
 
-            if (project.ProjectLeadId != dto.RequesterId)
+            var project = await _projectRepository.GetByIdAsync(dto.ProjectId)
+                ?? throw new ArgumentException("Project not found");
+
+            if (project.ProjectLeadId != dto.RequestingUserId)
                 throw new UnauthorizedAccessException("Only the project lead can add developers.");
 
-            await project.AddDeveloperAsync(dto.DeveloperId);
-
+            project.AddDeveloper(user);
             await _projectRepository.UpdateAsync(project);
 
-            var log = new ProjectChangeLog(dto.ProjectId, "DeveloperIds", null, dto.DeveloperId.ToString(), ChangeType.Added, dto.RequesterId);
-            await _changeLogRepository.AddAsync(log);
+            await _changeLogRepository.AddAsync(new ProjectChangeLog(
+                dto.ProjectId, dto.RequestingUserId, ChangeType.Created, "Developer", null, dto.DeveloperId.ToString()));
+
+            await _notificationService.SendAsync(new SendNotificationDTO
+            {
+                UserId = dto.DeveloperId,
+                Message = $"You have been added to project: '{project.Name}'"
+            });
 
             await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task RemoveDeveloperAsync(ProjectUserActionDTO dto)
         {
-            var project = await _projectRepository.GetByIdAsync(dto.ProjectId)
-                          ?? throw new NotFoundException("Project not found");
+            var user = await _userRepository.GetByIdAsync(dto.DeveloperId)
+                ?? throw new ArgumentException("Developer not found");
 
-            if (project.ProjectLeadId != dto.RequesterId)
+            var project = await _projectRepository.GetByIdAsync(dto.ProjectId)
+                ?? throw new ArgumentException("Project not found");
+
+            if (project.ProjectLeadId != dto.RequestingUserId)
                 throw new UnauthorizedAccessException("Only the project lead can remove developers.");
 
-            await project.RemoveDeveloperAsync(dto.DeveloperId);
+            project.RemoveDeveloper(user);
             await _projectRepository.UpdateAsync(project);
 
-            var log = new ProjectChangeLog(dto.ProjectId, "DeveloperIds", dto.DeveloperId.ToString(), null, ChangeType.Removed, dto.RequesterId);
-            await _changeLogRepository.AddAsync(log);
+            await _changeLogRepository.AddAsync(new ProjectChangeLog(
+                dto.ProjectId, dto.RequestingUserId, ChangeType.Deleted, "Developer", dto.DeveloperId.ToString(), null));
+
+            await _notificationService.SendAsync(new SendNotificationDTO
+            {
+                UserId = dto.DeveloperId,
+                Message = $"You have been removed from project: '{project.Name}'"
+            });
 
             await _unitOfWork.SaveChangesAsync();
         }
@@ -131,29 +159,17 @@ namespace ProjectManagementTool.Application.Services
         public async Task<IEnumerable<UserDTO>> GetAllDevelopersAsync(Guid projectId, Guid requesterId)
         {
             var project = await _projectRepository.GetByIdAsync(projectId)
-                          ?? throw new NotFoundException("Project not found");
+                ?? throw new ArgumentException("Project not found");
 
             if (project.ProjectLeadId != requesterId)
-                throw new UnauthorizedAccessException("Only the project lead can view developers.");
+                throw new UnauthorizedAccessException("Only the project lead can view project developers.");
 
-            var userIds = project.DeveloperIds;
-            var users = new List<UserDTO>();
-
-            foreach (var id in userIds)
+            return project.Developers.Select(d => new UserDTO
             {
-                var user = await _userRepository.GetByIdAsync(id);
-                if (user != null)
-                {
-                    users.Add(new UserDTO
-                    {
-                        Id = user.Id,
-                        Name = user.Name,
-                        Email = user.Email
-                    });
-                }
-            }
-
-            return users;
+                Id = d.Id,
+                Name = d.Name,
+                Email = d.Email
+            });
         }
     }
 }

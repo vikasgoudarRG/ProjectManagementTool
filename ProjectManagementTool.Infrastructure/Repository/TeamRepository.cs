@@ -93,11 +93,19 @@ namespace ProjectManagementTool.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<bool> IsTeamLeadAsync(Guid teamId, Guid userId)
+        {
+            return await _context.TeamMembers
+                .AnyAsync(m => m.TeamId == teamId && m.UserId == userId && m.Role == TeamMemberRole.Lead);
+        }
+
         public async Task UpdateMemberAsync(TeamMember teamMember)
         {
             _context.TeamMembers.Update(teamMember);
             await _context.SaveChangesAsync();
         }
+
+        
 
         public async Task RemoveMemberAsync(Guid teamId, Guid userId)
         {

@@ -25,6 +25,8 @@ namespace ProjectManagementTool.Domain.Interfaces.Repositories
         Task<TeamMember?> GetMemberAsync(Guid teamId, Guid userId);
         Task<IEnumerable<TeamMember>> GetAllMembersAsync(Guid teamId); // for project leads and team leads
 
+        Task<bool> IsTeamLeadAsync(Guid teamId, Guid userId);
+
         Task UpdateMemberAsync(TeamMember teamMember);
 
         Task RemoveMemberAsync(Guid teamId, Guid userId);
