@@ -22,6 +22,21 @@ namespace ProjectManagementTool.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("ProjectDeveloper", b =>
+                {
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ProjectId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ProjectDevelopers", (string)null);
+                });
+
             modelBuilder.Entity("ProjectManagementTool.Domain.Entities.ChangeLogs.ProjectChangeLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -321,12 +336,7 @@ namespace ProjectManagementTool.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("ProjectId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
 
                     b.ToTable("Users");
                 });
@@ -375,6 +385,21 @@ namespace ProjectManagementTool.Infrastructure.Migrations
                     b.ToTable("TaskItemTag");
                 });
 
+            modelBuilder.Entity("ProjectDeveloper", b =>
+                {
+                    b.HasOne("ProjectManagementTool.Domain.Entities.Project", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectManagementTool.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ProjectManagementTool.Domain.Entities.ChangeLogs.ProjectChangeLog", b =>
                 {
                     b.HasOne("ProjectManagementTool.Domain.Entities.User", "ChangedByUser")
@@ -384,7 +409,7 @@ namespace ProjectManagementTool.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("ProjectManagementTool.Domain.Entities.Project", "Project")
-                        .WithMany()
+                        .WithMany("ChangeLogs")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -403,7 +428,7 @@ namespace ProjectManagementTool.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("ProjectManagementTool.Domain.Entities.TaskItem", "TaskItem")
-                        .WithMany()
+                        .WithMany("ChangeLogs")
                         .HasForeignKey("TaskItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -422,7 +447,7 @@ namespace ProjectManagementTool.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("ProjectManagementTool.Domain.Entities.Team", "Team")
-                        .WithMany()
+                        .WithMany("ChangeLogs")
                         .HasForeignKey("TeamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -435,7 +460,7 @@ namespace ProjectManagementTool.Infrastructure.Migrations
             modelBuilder.Entity("ProjectManagementTool.Domain.Entities.Project", b =>
                 {
                     b.HasOne("ProjectManagementTool.Domain.Entities.User", "ProjectLead")
-                        .WithMany()
+                        .WithMany("LeadProjects")
                         .HasForeignKey("ProjectLeadId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -451,7 +476,7 @@ namespace ProjectManagementTool.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("ProjectManagementTool.Domain.Entities.Team", "Team")
-                        .WithMany()
+                        .WithMany("TaskItems")
                         .HasForeignKey("TeamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -500,7 +525,7 @@ namespace ProjectManagementTool.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("ProjectManagementTool.Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("TeamMemberships")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -510,20 +535,15 @@ namespace ProjectManagementTool.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.User", b =>
-                {
-                    b.HasOne("ProjectManagementTool.Domain.Entities.Project", null)
-                        .WithMany("Developers")
-                        .HasForeignKey("ProjectId");
-                });
-
             modelBuilder.Entity("ProjectManagementTool.Domain.Entities.UserNotification", b =>
                 {
-                    b.HasOne("ProjectManagementTool.Domain.Entities.User", null)
-                        .WithMany()
+                    b.HasOne("ProjectManagementTool.Domain.Entities.User", "User")
+                        .WithMany("Notifications")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TaskItemTag", b =>
@@ -543,19 +563,34 @@ namespace ProjectManagementTool.Infrastructure.Migrations
 
             modelBuilder.Entity("ProjectManagementTool.Domain.Entities.Project", b =>
                 {
-                    b.Navigation("Developers");
+                    b.Navigation("ChangeLogs");
 
                     b.Navigation("Teams");
                 });
 
             modelBuilder.Entity("ProjectManagementTool.Domain.Entities.TaskItem", b =>
                 {
+                    b.Navigation("ChangeLogs");
+
                     b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("ProjectManagementTool.Domain.Entities.Team", b =>
                 {
+                    b.Navigation("ChangeLogs");
+
+                    b.Navigation("TaskItems");
+
                     b.Navigation("TeamMembers");
+                });
+
+            modelBuilder.Entity("ProjectManagementTool.Domain.Entities.User", b =>
+                {
+                    b.Navigation("LeadProjects");
+
+                    b.Navigation("Notifications");
+
+                    b.Navigation("TeamMemberships");
                 });
 #pragma warning restore 612, 618
         }

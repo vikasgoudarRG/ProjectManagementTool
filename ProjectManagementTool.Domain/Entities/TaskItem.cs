@@ -1,3 +1,4 @@
+using ProjectManagementTool.Domain.Entities.ChangeLogs;
 using ProjectManagementTool.Domain.Enums.TaskItem;
 namespace ProjectManagementTool.Domain.Entities
 {
@@ -33,11 +34,9 @@ namespace ProjectManagementTool.Domain.Entities
         public DateTime? Deadline { get; set; }
         public DateTime? CompletedAt { get; set; }
 
-        private readonly List<TaskItemComment> _comments = new List<TaskItemComment>();
-        public IReadOnlyCollection<TaskItemComment> Comments => _comments.AsReadOnly(); // navigation property
-
-        private readonly List<Tag> _tags = new List<Tag>();
-        public IReadOnlyCollection<Tag> Tags => _tags.AsReadOnly();
+        public ICollection<TaskItemComment> Comments { get; private set; } = new List<TaskItemComment>();
+        public ICollection<Tag> Tags { get; private set; } = new List<Tag>();
+        public ICollection<TaskItemChangeLog> ChangeLogs { get; private set; } = new List<TaskItemChangeLog>();
         #endregion Fields
 
         #region Constructors        
@@ -84,15 +83,15 @@ namespace ProjectManagementTool.Domain.Entities
         {
             if (comment == null) throw new ArgumentNullException(nameof(comment));
             if (comment.TaskItemId != Id) throw new InvalidOperationException("Comment does not belong to this TaskItem");
-            if (!_comments.Any(c => c.Id == comment.Id))
+            if (!Comments.Any(c => c.Id == comment.Id))
             {
-                _comments.Add(comment);
+                Comments.Add(comment);
             }
         }
 
         public void Edit(Guid commentId, string text)
         {
-            TaskItemComment? comment = _comments.FirstOrDefault(c => c.Id == commentId);
+            TaskItemComment? comment = Comments.FirstOrDefault(c => c.Id == commentId);
             if (comment == null) throw new InvalidOperationException("Comment does not belong to this TaskItem");
             comment.Edit(text);
         }
@@ -101,24 +100,24 @@ namespace ProjectManagementTool.Domain.Entities
         {
             if (comment == null) throw new ArgumentNullException(nameof(comment), "Comment cannot be null");
             if (comment.TaskItemId != Id) throw new InvalidOperationException("Comment does not belong to this TaskItem");
-            if (_comments.Any(c => c.Id == comment.Id))
+            if (Comments.Any(c => c.Id == comment.Id))
             {
-                _comments.Remove(comment);
+                Comments.Remove(comment);
             }
         }
 
         public void AddTag(Tag tag)
         {
             if (tag == null) throw new ArgumentNullException(nameof(tag));
-            if (!_tags.Any(t => t.Id == tag.Id)) _tags.Add(tag);
+            if (!Tags.Any(t => t.Id == tag.Id)) Tags.Add(tag);
         }
 
         public void RemoveTag(Guid tagId)
         {
-            Tag? tag = _tags.FirstOrDefault(t => t.Id == tagId);
+            Tag? tag = Tags.FirstOrDefault(t => t.Id == tagId);
             if (tag == null)
                 throw new InvalidOperationException("Tag not found.");
-            _tags.Remove(tag);
+            Tags.Remove(tag);
         }
         #endregion Methods
     }

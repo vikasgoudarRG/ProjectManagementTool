@@ -1,3 +1,4 @@
+using ProjectManagementTool.Domain.Entities.ChangeLogs;
 using ProjectManagementTool.Domain.Enums.Project;
 
 namespace ProjectManagementTool.Domain.Entities
@@ -25,11 +26,9 @@ namespace ProjectManagementTool.Domain.Entities
         public ProjectStatus Status { get; set; }
         public DateTime CreatedOn { get; init; }
 
-        private readonly List<Team> _teams = new List<Team>();
-        public IReadOnlyCollection<Team> Teams => _teams.AsReadOnly(); // Navigation property 
-
-        private readonly List<User> _developers = new List<User>();
-        public IReadOnlyCollection<User> Developers => _developers.AsReadOnly(); // Navigation property
+        public ICollection<Team> Teams { get; private set; } = new List<Team>();
+        public ICollection<User> Developers { get; private set; } = new List<User>();
+        public ICollection<ProjectChangeLog> ChangeLogs { get; private set; } = new List<ProjectChangeLog>();
         #endregion Fields
 
         #region Constructors
@@ -76,9 +75,9 @@ namespace ProjectManagementTool.Domain.Entities
             {
                 throw new InvalidOperationException("Team is not associated with this project");
             }
-            if (!_teams.Any(t => t.Id == team.Id))
+            if (!Teams.Any(t => t.Id == team.Id))
             {
-                _teams.Add(team);
+                Teams.Add(team);
             }
         }
         public void RemoveTeam(Team team)
@@ -88,31 +87,31 @@ namespace ProjectManagementTool.Domain.Entities
             {
                 throw new InvalidOperationException("Team is not associated with this project");
             }
-            if (_teams.Any(t => t.Id == team.Id))
+            if (Teams.Any(t => t.Id == team.Id))
             {
-                _teams.Remove(team);
+                Teams.Remove(team);
             }
         }
 
         public void AddDeveloper(User developer)
         {
             if (developer == null) throw new ArgumentNullException(nameof(developer));
-            if (!_developers.Any(d => d.Id == developer.Id))
+            if (!Developers.Any(d => d.Id == developer.Id))
             {
-                _developers.Add(developer);
+                Developers.Add(developer);
             }
         }
         public void RemoveDeveloper(User developer)
         {
             if (developer == null) throw new ArgumentNullException(nameof(developer));
-            if (_developers.Any(d => d.Id == developer.Id))
+            if (Developers.Any(d => d.Id == developer.Id))
             {
-                _developers.Remove(developer);
+                Developers.Remove(developer);
             }
         }
         public bool IsMember(Guid userId)
         {
-            return ProjectLeadId == userId || _developers.Any(d => d.Id == userId);
+            return ProjectLeadId == userId || Developers.Any(d => d.Id == userId);
         }
         #endregion Methods
     }

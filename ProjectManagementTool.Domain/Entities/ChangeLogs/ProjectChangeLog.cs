@@ -11,8 +11,19 @@ namespace ProjectManagementTool.Domain.Entities.ChangeLogs
         #endregion Fields
 
         #region Constructors
-        public ProjectChangeLog(Guid projectId, Guid changedByUserId, ChangeType changeType, string propertyChanged, string? oldValue, string? newValue)
-        : base(changedByUserId, changeType, propertyChanged, oldValue, newValue)
+        public ProjectChangeLog(
+            Guid projectId,
+            Guid changedByUserId,
+            ChangeType changeType,
+            string propertyChanged,
+            string? oldValue,
+            string? newValue)
+        : base(
+            changedByUserId,
+            changeType,
+            propertyChanged,
+            oldValue,
+            newValue)
         {
             ProjectId = projectId;
         }

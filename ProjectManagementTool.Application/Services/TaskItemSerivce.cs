@@ -340,7 +340,12 @@ namespace ProjectManagementTool.Application.Services
             await _taskRepository.DeleteAsync(task);
 
             await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(
-                task.Id, requesterId, ChangeType.Deleted, "TaskItem", task.Title, null));
+                taskItemId: task.Id,
+                changedByUserId: requesterId,
+                changeType: ChangeType.Deleted,
+                propertyChanged: "TaskItem",
+                oldValue: task.Title,
+                newValue: null));
 
             await _unitOfWork.SaveChangesAsync();
         }

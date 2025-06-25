@@ -52,11 +52,20 @@ namespace ProjectManagementTool.Application.Services
             User user = await _userRepository.GetByIdAsync(createProjectDto.ProjectLeadId)
                 ?? throw new KeyNotFoundException("Project lead not found");
 
-            Project project = new Project(createProjectDto.Name, createProjectDto.Description, createProjectDto.ProjectLeadId);
+            Project project = new Project(
+                name: createProjectDto.Name,
+                description: createProjectDto.Description,
+                projectLeadId: createProjectDto.ProjectLeadId);
+
             await _projectRepository.AddAsync(project);
 
             await _changeLogRepository.AddAsync(new ProjectChangeLog(
-                project.Id, createProjectDto.ProjectLeadId, ChangeType.Created, "Project", null, project.Name));
+                projectId: project.Id,
+                changedByUserId: createProjectDto.ProjectLeadId,
+                changeType: ChangeType.Created,
+                propertyChanged: "Project",
+                oldValue: null,
+                newValue: project.Name));
 
             UserNotification userNotification = new UserNotification(
                 userId: createProjectDto.ProjectLeadId,
@@ -103,12 +112,21 @@ namespace ProjectManagementTool.Application.Services
 
             if (project.ProjectLeadId != requestorId)
                 throw new UnauthorizedAccessException("Not authorized to add developer");
-
+            if (project.Developers.Any(d => d.Id == user.Id))
+            {
+                return;
+            }
             project.AddDeveloper(user);
-            await _projectRepository.UpdateAsync(project);
+            // await _projectRepository.UpdateAsync(project);
+            await _unitOfWork.SaveChangesAsync();
 
             await _changeLogRepository.AddAsync(new ProjectChangeLog(
-                requestorId, addDeveloperDto.ProjectId, ChangeType.Created, "Developer", null, addDeveloperDto.UserId.ToString()));
+                projectId: addDeveloperDto.ProjectId,
+                changedByUserId: requestorId,
+                changeType: ChangeType.Created,
+                propertyChanged: "Developer",
+                oldValue: null,
+                newValue: addDeveloperDto.UserId.ToString()));
 
             UserNotification userNotification = new UserNotification(
                 userId: addDeveloperDto.UserId,
@@ -134,7 +152,12 @@ namespace ProjectManagementTool.Application.Services
             await _projectRepository.UpdateAsync(project);
 
             await _changeLogRepository.AddAsync(new ProjectChangeLog(
-                removeDeveloperDto.ProjectId, requestorId, ChangeType.Deleted, "Developer", removeDeveloperDto.UserId.ToString(), null));
+                projectId: removeDeveloperDto.ProjectId,
+                changedByUserId: requestorId,
+                changeType: ChangeType.Deleted,
+                propertyChanged: "Developer",
+                oldValue: removeDeveloperDto.UserId.ToString(),
+                newValue: null));
 
             UserNotification userNotification = new UserNotification(
                 userId: removeDeveloperDto.UserId,
@@ -153,16 +176,43 @@ namespace ProjectManagementTool.Application.Services
             if (project.ProjectLeadId != requestorId)
                 throw new UnauthorizedAccessException("Not authorized to delete project");
 
-            if (updateProjectDto.Name != null)
+            if (!string.IsNullOrWhiteSpace(updateProjectDto.Name))
+            {
+                await _changeLogRepository.AddAsync(new ProjectChangeLog(
+                        projectId: projectId,
+                        changedByUserId: requestorId,
+                        changeType: ChangeType.Updated,
+                        propertyChanged: "Name",
+                        oldValue: project.Name,
+                        newValue: updateProjectDto.Name));
                 project.Name = updateProjectDto.Name;
+            }
 
-            if (updateProjectDto.Description != null)
+
+
+            if (!string.IsNullOrWhiteSpace(updateProjectDto.Description))
+            {
+                await _changeLogRepository.AddAsync(new ProjectChangeLog(
+                        projectId:projectId,
+                        changedByUserId: requestorId,
+                        changeType: ChangeType.Updated,
+                        propertyChanged: "Description",
+                        oldValue: project.Description,
+                        newValue: updateProjectDto.Description));
                 project.Description = updateProjectDto.Description;
+            }
 
             if (updateProjectDto.Status != null)
             {
                 if (Enum.TryParse<ProjectStatus>(updateProjectDto.Status, ignoreCase: true, out ProjectStatus status))
                 {
+                    await _changeLogRepository.AddAsync(new ProjectChangeLog(
+                        projectId: projectId,
+                        changedByUserId: requestorId,
+                        changeType: ChangeType.Updated,
+                        propertyChanged: "Status",
+                        oldValue: project.Status.ToString(),
+                        newValue: updateProjectDto.Status));
                     project.Status = status;
                 }
                 else
@@ -186,7 +236,12 @@ namespace ProjectManagementTool.Application.Services
             await _projectRepository.DeleteAsync(project);
 
             await _changeLogRepository.AddAsync(new ProjectChangeLog(
-                projectId, requesterId, ChangeType.Deleted, "Project", project.Name, null));
+                projectId: projectId,
+                changedByUserId: requesterId,
+                changeType: ChangeType.Deleted,
+                propertyChanged: "Project",
+                oldValue: project.Name,
+                newValue: null));
 
             UserNotification userNotification = new UserNotification(
                 userId: requesterId,

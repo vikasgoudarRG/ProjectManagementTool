@@ -1,3 +1,4 @@
+using ProjectManagementTool.Domain.Entities.ChangeLogs;
 using ProjectManagementTool.Domain.Enums.Team;
 
 namespace ProjectManagementTool.Domain.Entities
@@ -15,7 +16,10 @@ namespace ProjectManagementTool.Domain.Entities
             set => _name = ValidateAndGetName(value);
         }
 
-        public ICollection<TeamMember> TeamMembers { get; private set; } = new List<TeamMember>(); // navigation property
+        public ICollection<TeamMember> TeamMembers { get; private set; } = new List<TeamMember>();
+        public ICollection<TaskItem> TaskItems { get; private set; } = new List<TaskItem>();
+
+        public ICollection<TeamChangeLog> ChangeLogs { get; private set; } = new List<TeamChangeLog>();
 
         public DateTime CreatedOn { get; init; }
         #endregion Fields

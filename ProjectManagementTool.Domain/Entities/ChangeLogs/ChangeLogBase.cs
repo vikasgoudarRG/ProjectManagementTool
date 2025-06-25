@@ -18,7 +18,12 @@ namespace ProjectManagementTool.Domain.Entities.ChangeLogs
         #region Constuctors
         protected ChangeLogBase() { }
 
-        protected ChangeLogBase(Guid changedByUserId, ChangeType changeType, string propertyChanged, string? oldValue, string? newValue)
+        protected ChangeLogBase(
+            Guid changedByUserId,
+            ChangeType changeType,
+            string propertyChanged,
+            string? oldValue, string?
+            newValue)
         {
             Id = Guid.NewGuid();
             ChangedByUserId = changedByUserId;

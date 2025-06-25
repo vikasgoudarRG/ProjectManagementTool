@@ -11,8 +11,7 @@ namespace ProjectManagementTool.Domain.Entities
             get => _name;
             private set => _name = ValidateAndGetName(value);
         }
-        private List<TaskItem> _tasks = new List<TaskItem>();
-        public IReadOnlyCollection<TaskItem> Tasks => _tasks.AsReadOnly();
+        public ICollection<TaskItem> Tasks { get; private set; } = new List<TaskItem>();
         #endregion Fields
 
         #region Constructors

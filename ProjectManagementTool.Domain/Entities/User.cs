@@ -28,6 +28,10 @@ namespace ProjectManagementTool.Domain.Entities
             set => _password = ValidateAndGetPassword(value);
         }
 
+        public ICollection<TeamMember> TeamMemberships { get; private set; } = new List<TeamMember>();
+        public ICollection<Project> LeadProjects { get; private set; } = new List<Project>();
+        public ICollection<UserNotification> Notifications { get; private set; } = new List<UserNotification>();
+
         // ==================== Constructors ==================== //
         private User() { }
 

@@ -53,12 +53,12 @@ namespace ProjectManagementTool.Application.Services
             await _commentRepository.AddAsync(comment);
 
             var log = new TaskItemChangeLog(
-                task.Id,
-                user.Id,
-                ChangeType.Created,
-                "Comment",
-                null,
-                dto.Text
+                taskItemId: task.Id,
+                changedByUserId: user.Id,
+                changeType: ChangeType.Created,
+                propertyChanged: "Comment",
+                oldValue: null,
+                newValue: dto.Text
             );
             await _logRepository.AddAsync(log);
 
@@ -99,12 +99,12 @@ namespace ProjectManagementTool.Application.Services
             await _commentRepository.UpdateAsync(comment);
 
             TaskItemChangeLog log = new TaskItemChangeLog(
-                comment.TaskItemId,
-                authorId,
-                ChangeType.Updated,
-                "Comment",
-                oldContent,
-                updatedContent
+                taskItemId: comment.TaskItemId,
+                changedByUserId: authorId,
+                changeType: ChangeType.Updated,
+                propertyChanged: "Comment",
+                oldValue: oldContent,
+                newValue: updatedContent
             );
             await _logRepository.AddAsync(log);
             await _unitOfWork.SaveChangesAsync();
@@ -123,12 +123,12 @@ namespace ProjectManagementTool.Application.Services
             await _commentRepository.DeleteAsync(comment);
 
             TaskItemChangeLog log = new TaskItemChangeLog(
-                comment.TaskItemId,
-                authorId,
-                ChangeType.Deleted,
-                "Comment",
-                oldContent,
-                null
+                taskItemId: comment.TaskItemId,
+                changedByUserId: authorId,
+                changeType: ChangeType.Deleted,
+                propertyChanged: "Comment",
+                oldValue: oldContent,
+                newValue: null
             );
             await _logRepository.AddAsync(log);
             await _unitOfWork.SaveChangesAsync();
