@@ -1,1 +1,53 @@
+# Ignore build outputs
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Visual Studio
+.vscode/
 .vs/
+*.code-workspace
+
+# Rider
+.idea/
+
+# ASP.NET secrets & settings
+secrets.json
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.json
+
+# Logs
+*.log
+logs/
+
+# Dotnet artifacts
+project.lock.json
+project.fragment.lock.json
+*.nupkg
+*.snupkg
+*.tsbuildinfo
+
+# Coverage and test results
+coverage/
+TestResults/
+*.coverage
+*.coveragexml
+
+# Packages
+packages/
+.nuget/
+
+# Others
+*.db
+.env
+.env.*
