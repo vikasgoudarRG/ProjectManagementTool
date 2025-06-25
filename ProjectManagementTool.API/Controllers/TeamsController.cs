@@ -2,85 +2,74 @@ using Microsoft.AspNetCore.Mvc;
 using ProjectManagementTool.Application.Interfaces.Services;
 using ProjectManagementTool.Application.DTOs.Team;
 
-[ApiController]
-[Route("api/teams")]
-public class TeamController : ControllerBase
+namespace ProjectManagementTool.API.Controllers
 {
-    // ======================= Fields ======================= //
-    private readonly ITeamService _teamService;
-
-    // ==================== Constructors ==================== //
-    public TeamController(ITeamService teamService)
+    [ApiController]
+    [Route("api/teams")]
+    public class TeamController : ControllerBase
     {
-        _teamService = teamService;
-    }
+        private readonly ITeamService _teamService;
 
-    // ======================= Methods ====================== //
-    // Create
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateTeamDTO createTeamDto)
-    {
-        Guid teamId = await _teamService.CreateTeamAsync(dto);
-        return Ok(teamId);
-    }
+        public TeamController(ITeamService teamService)
+        {
+            _teamService = teamService;
+        }
 
-    [HttpPost("{teamId}/add-member")]
-    public async Task<IActionResult> AddMember(Guid teamId, [FromBody] TeamMemberActionDTO dto)
-    {
-        dto.TeamId = teamId;
-        await _teamService.AddMemberAsync(dto);
-        return NoContent();
-    }
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CreateTeamDTO createTeamDto)
+        {
+            TeamDTO teamDto = await _teamService.CreateTeamAsync(createTeamDto);
+            return CreatedAtAction(nameof(Get), new { teamId = teamDto.Id, requesterId = createTeamDto.RequesterId }, teamDto);
+        }
 
-    [HttpPost("{teamId}/assign-lead")]
-    public async Task<IActionResult> AssignLead(Guid teamId, [FromBody] TeamMemberActionDTO dto)
-    {
-        dto.TeamId = teamId;
-        await _teamService.AssignTeamLeadAsync(dto);
-        return NoContent();
-    }
+        [HttpPost("{teamId:guid}/members")]
+        public async Task<IActionResult> AddMember(Guid teamId, [FromBody] AddMemberDTO dto)
+        {
+            await _teamService.AddMemberAsync(teamId, dto);
+            return NoContent();
+        }
 
-    // Read
-    [HttpGet("{teamId}")]
-    public async Task<IActionResult> Get(Guid teamId, [FromQuery] Guid requesterId)
-    {
-        var team = await _teamService.GetByIdAsync(teamId, requesterId);
-        return team is null ? NotFound() : Ok(team);
-    }
+        [HttpGet("{teamId:guid}")]
+        public async Task<IActionResult> Get(Guid teamId, [FromQuery] Guid requesterId)
+        {
+            TeamDTO team = await _teamService.GetByIdAsync(teamId, requesterId);
+            return Ok(team);
+        }
 
-    [HttpGet("project/{projectId}")]
-    public async Task<IActionResult> GetAllByProject(Guid projectId, [FromQuery] Guid requesterId)
-    {
-        var teams = await _teamService.GetAllByProjectIdAsync(projectId, requesterId);
-        return Ok(teams);
-    }
+        [HttpGet("/api/projects/{projectId:guid}/teams")]
+        public async Task<IActionResult> GetAllByProject(Guid projectId, [FromQuery] Guid requesterId)
+        {
+            IEnumerable<TeamDTO> teams = await _teamService.GetAllByProjectIdAsync(projectId, requesterId);
+            return Ok(teams);
+        }
 
-    // Update
-    
+        [HttpPut("{teamId:guid}/lead")]
+        public async Task<IActionResult> AssignLead(Guid teamId, [FromBody] AssignLeadDTO dto)
+        {
+            await _teamService.AssignTeamLeadAsync(teamId, dto);
+            return NoContent();
+        }
 
-    // Delete
-    [HttpDelete("{teamId}/remove-member/{userId}")]
-    public async Task<IActionResult> RemoveMember(Guid teamId, Guid userId, [FromQuery] Guid requesterId)
-    {
-        var dto = new TeamMemberActionDTO { TeamId = teamId, UserId = userId, RequesterId = requesterId };
-        await _teamService.RemoveMemberAsync(dto);
-        return NoContent();
-    }
-    
-    // Remove team lead
-    [HttpDelete("{teamId}/remove-lead")]
-    public async Task<IActionResult> RemoveLead(Guid teamId, [FromQuery] Guid requesterId)
-    {
-        var dto = new TeamMemberActionDTO { TeamId = teamId, RequesterId = requesterId };
-        await _teamService.RemoveTeamLeadAsync(dto);
-        return NoContent();
-    }
+        [HttpDelete("{teamId:guid}/members/{userId:guid}")]
+        public async Task<IActionResult> RemoveMember(Guid teamId, Guid userId, [FromQuery] Guid requesterId)
+        {
+            await _teamService.RemoveMemberAsync(teamId, userId, requesterId);
+            return NoContent();
+        }
 
-    // Delete team
-    [HttpDelete("{teamId}")]
-    public async Task<IActionResult> Delete(Guid teamId, [FromQuery] Guid requesterId)
-    {
-        await _teamService.DeleteTeamAsync(teamId, requesterId);
-        return NoContent();
+        [HttpDelete("{teamId:guid}/lead")]
+        public async Task<IActionResult> RemoveLead(Guid teamId, [FromQuery] Guid requesterId, [FromQuery] Guid userId)
+        {
+            AssignLeadDTO dto = new AssignLeadDTO { RequesterId = requesterId, UserId = userId };
+            await _teamService.RemoveTeamLeadAsync(teamId, dto);
+            return NoContent();
+        }
+
+        [HttpDelete("{teamId:guid}")]
+        public async Task<IActionResult> Delete(Guid teamId, [FromQuery] Guid requesterId)
+        {
+            await _teamService.DeleteTeamAsync(teamId, requesterId);
+            return NoContent();
+        }
     }
 }

@@ -4,15 +4,15 @@ namespace ProjectManagementTool.Application.Interfaces.Services
 {
     public interface ITeamService
     {
-        Task<Guid> CreateTeamAsync(CreateTeamDTO dto);
-        Task<TeamDTO?> GetByIdAsync(Guid teamId, Guid requesterId);
+        Task<TeamDTO> CreateTeamAsync(CreateTeamDTO dto);
+        Task<TeamDTO> GetByIdAsync(Guid teamId, Guid requesterId);
         Task<IEnumerable<TeamDTO>> GetAllByProjectIdAsync(Guid projectId, Guid requesterId);
 
-        Task AddMemberAsync(TeamMemberActionDTO dto);
-        Task RemoveMemberAsync(TeamMemberActionDTO dto);
+        Task AddMemberAsync(Guid teamId, AddMemberDTO dto);
+        Task RemoveMemberAsync(Guid teamId, Guid userId, Guid requesterIdo);
 
-        Task AssignTeamLeadAsync(TeamMemberActionDTO dto);
-        Task RemoveTeamLeadAsync(TeamMemberActionDTO dto);
+        Task AssignTeamLeadAsync(Guid teamId, AssignLeadDTO dto);
+        Task RemoveTeamLeadAsync(Guid teamId, AssignLeadDTO dto);
 
         Task<bool> IsUserInTeamAsync(Guid teamId, Guid userId);
         Task<bool> IsTeamLeadAsync(Guid teamId, Guid userId);

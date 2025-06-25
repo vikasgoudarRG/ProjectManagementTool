@@ -8,103 +8,65 @@ using ProjectManagementTool.Domain.Enums.ChangeLog;
 using ProjectManagementTool.Domain.Enums.Team;
 using ProjectManagementTool.Domain.Interfaces.Repositories;
 using ProjectManagementTool.Domain.Interfaces.Repositories.Common;
+using ProjectManagementTool.Application.Interfaces.Mappers;
 
 namespace ProjectManagementTool.Application.Services
 {
     public class TeamService : ITeamService
     {
+        // ======================= Fields ======================= //
         private readonly ITeamRepository _teamRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IChangeLogService _changeLogService;
+        private readonly ITeamMapper _teamMapper;
         private readonly IUserNotificationService _notificationService;
 
+        // ==================== Constructors ==================== //
         public TeamService(
             ITeamRepository teamRepository,
             IProjectRepository projectRepository,
             IUserRepository userRepository,
             IUnitOfWork unitOfWork,
             IChangeLogService changeLogService,
+            ITeamMapper teamMapper,
             IUserNotificationService notificationService)
         {
             _teamRepository = teamRepository;
             _projectRepository = projectRepository;
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
+            _teamMapper = teamMapper;
             _changeLogService = changeLogService;
             _notificationService = notificationService;
         }
 
-        public async Task<Guid> CreateTeamAsync(CreateTeamDTO dto)
+        // ======================= Methods ====================== //
+        // Create
+        public async Task<TeamDTO> CreateTeamAsync(CreateTeamDTO dto)
         {
-            var project = await _projectRepository.GetByIdAsync(dto.ProjectId)
-                          ?? throw new ArgumentException("Project not found");
+            Project project = await _projectRepository.GetByIdAsync(dto.ProjectId)
+                          ?? throw new KeyNotFoundException("Project not found");
             if (project.ProjectLeadId != dto.RequesterId)
-                throw new UnauthorizedAccessException("Only project leads can create teams.");
+                throw new UnauthorizedAccessException("Access denied");
 
-            var team = new Team(dto.Name, dto.ProjectId);
+            Team team = new Team(dto.Name, dto.ProjectId);
             await _teamRepository.AddAsync(team);
 
             await _changeLogService.AddTeamLogAsync(new TeamChangeLog(
-                team.Id,
-                project.ProjectLeadId,
-                ChangeType.Created,
-                "Team",
-                null,
-                team.Name
-            ));
+                team.Id, dto.RequesterId, ChangeType.Created, "Team Entity", null, team.Name));
 
             await _unitOfWork.SaveChangesAsync();
-            return team.Id;
+            return _teamMapper.ToDTO(team);
         }
 
-        public async Task<TeamDTO?> GetByIdAsync(Guid teamId, Guid requesterId)
+        public async Task AddMemberAsync(Guid teamId, AddMemberDTO dto)
         {
-            var team = await _teamRepository.GetByIdAsync(teamId);
-            if (team == null) return null;
-
-            var project = await _projectRepository.GetByIdAsync(team.ProjectId);
-            bool isProjectLead = project != null && project.ProjectLeadId == requesterId;
-
-            if (!isProjectLead && !await _teamRepository.IsUserInTeamAsync(teamId, requesterId))
-                throw new UnauthorizedAccessException("Access denied.");
-
-            return new TeamDTO
-            {
-                Id = team.Id,
-                Name = team.Name,
-                ProjectId = team.ProjectId,
-                CreatedOn = team.CreatedOn
-            };
-        }
-
-        public async Task<IEnumerable<TeamDTO>> GetAllByProjectIdAsync(Guid projectId, Guid requesterId)
-        {
-            var project = await _projectRepository.GetByIdAsync(projectId)
-                          ?? throw new ArgumentException("Project not found");
-
-            if (!project.IsMember(requesterId))
-                throw new UnauthorizedAccessException("Access denied.");
-
-            var teams = await _teamRepository.GetAllByProjectIdAsync(projectId);
-
-            return teams.Select(team => new TeamDTO
-            {
-                Id = team.Id,
-                Name = team.Name,
-                ProjectId = team.ProjectId,
-                CreatedOn = team.CreatedOn
-            });
-        }
-
-        public async Task AddMemberAsync(TeamMemberActionDTO dto)
-        {
-            var team = await _teamRepository.GetByIdAsync(dto.TeamId)
-                       ?? throw new ArgumentException("Team not found");
-
-            var project = await _projectRepository.GetByIdAsync(team.ProjectId)
-                          ?? throw new ArgumentException("Project not found");
+            Team team = await _teamRepository.GetByIdAsync(teamId)
+                       ?? throw new KeyNotFoundException("Team not found");
+            Project project = await _projectRepository.GetByIdAsync(team.ProjectId)
+                         ?? throw new KeyNotFoundException("Project not found");
 
             if (project.ProjectLeadId != dto.RequesterId)
                 throw new UnauthorizedAccessException("Only project leads can add team members.");
@@ -112,126 +74,38 @@ namespace ProjectManagementTool.Application.Services
             if (!project.IsMember(dto.UserId))
                 throw new ArgumentException("User must first be part of the project.");
 
-            await _teamRepository.AddMemberAsync(dto.TeamId, dto.UserId, ParseRole(dto.Role));
-
             await _changeLogService.AddTeamLogAsync(new TeamChangeLog(
-                team.Id,
-                dto.RequesterId,
-                ChangeType.Added,
-                "TeamMember",
-                null,
-                $"{dto.UserId} as {dto.Role}"
-            ));
+                teamId, dto.RequesterId, ChangeType.Added, "TeamMember", null, $"{dto.UserId} as Developer"));
 
-            await _notificationService.SendAsync(new SendNotificationDTO
-            {
-                UserId = dto.UserId,
-                Message = $"You have been added to Team '{team.Name}' as {dto.Role}."
-            });
-
+            UserNotification userNotification = new UserNotification(
+                userId: dto.UserId,
+                message: $"You have been added to Team '{team.Name}' as Developer."
+            );
+            await _notificationService.SendUserNotification(userNotification);
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task RemoveMemberAsync(TeamMemberActionDTO dto)
+        // Read
+        public async Task<TeamDTO> GetByIdAsync(Guid teamId, Guid requesterId)
         {
-            var team = await _teamRepository.GetByIdAsync(dto.TeamId)
-                       ?? throw new ArgumentException("Team not found");
-
-            var project = await _projectRepository.GetByIdAsync(team.ProjectId)
-                          ?? throw new ArgumentException("Project not found");
-
-            if (project.ProjectLeadId != dto.RequesterId)
-                throw new UnauthorizedAccessException("Only project leads can remove team members.");
-
-            await _teamRepository.RemoveMemberAsync(dto.TeamId, dto.UserId);
-
-            await _changeLogService.AddTeamLogAsync(new TeamChangeLog(
-                team.Id,
-                dto.RequesterId,
-                ChangeType.Removed,
-                "TeamMember",
-                dto.UserId.ToString(),
-                null
-            ));
-
-            await _notificationService.SendAsync(new SendNotificationDTO
-            {
-                UserId = dto.UserId,
-                Message = $"You have been removed from Team '{team.Name}'."
-            });
-
-            await _unitOfWork.SaveChangesAsync();
+            Team team = await _teamRepository.GetByIdAsync(teamId) ?? throw new KeyNotFoundException("Team does not exist");
+            Project project = await _projectRepository.GetByIdAsync(team.ProjectId) ?? throw new KeyNotFoundException("Project does not exist");
+            bool isLead = project.ProjectLeadId == requesterId;
+            if (!isLead && !await _teamRepository.IsUserInTeamAsync(teamId, requesterId))
+                throw new UnauthorizedAccessException("Access denied.");
+            return _teamMapper.ToDTO(team);
         }
 
-        public async Task AssignTeamLeadAsync(TeamMemberActionDTO dto)
+        public async Task<IEnumerable<TeamDTO>> GetAllByProjectIdAsync(Guid projectId, Guid requesterId)
         {
-            await ChangeTeamLeadAsync(dto, assign: true);
-        }
+            Project project = await _projectRepository.GetByIdAsync(projectId)
+                          ?? throw new KeyNotFoundException("Project not found");
 
-        public async Task RemoveTeamLeadAsync(TeamMemberActionDTO dto)
-        {
-            await ChangeTeamLeadAsync(dto, assign: false);
-        }
+            if (!project.IsMember(requesterId))
+                throw new UnauthorizedAccessException("Access denied.");
 
-        private async Task ChangeTeamLeadAsync(TeamMemberActionDTO dto, bool assign)
-        {
-            var team = await _teamRepository.GetByIdAsync(dto.TeamId)
-                       ?? throw new ArgumentException("Team not found");
-
-            var project = await _projectRepository.GetByIdAsync(team.ProjectId)
-                          ?? throw new ArgumentException("Project not found");
-
-            if (project.ProjectLeadId != dto.RequesterId)
-                throw new UnauthorizedAccessException("Only project leads can modify team leads.");
-
-            var newRole = assign ? TeamMemberRole.Lead : TeamMemberRole.Developer;
-
-            var updatedMember = new TeamMember(dto.TeamId, dto.UserId, newRole);
-            await _teamRepository.UpdateMemberAsync(updatedMember);
-
-            await _changeLogService.AddTeamLogAsync(new TeamChangeLog(
-                team.Id,
-                dto.RequesterId,
-                ChangeType.Updated,
-                "TeamLead",
-                assign ? null : dto.UserId.ToString(),
-                assign ? dto.UserId.ToString() : null
-            ));
-
-            await _notificationService.SendAsync(new SendNotificationDTO
-            {
-                UserId = dto.UserId,
-                Message = assign
-                    ? $"You have been assigned as Team Lead for '{team.Name}'."
-                    : $"You have been removed as Team Lead for '{team.Name}'."
-            });
-
-            await _unitOfWork.SaveChangesAsync();
-        }
-
-        public async Task DeleteTeamAsync(Guid teamId, Guid requesterId)
-        {
-            var team = await _teamRepository.GetByIdAsync(teamId)
-                       ?? throw new ArgumentException("Team not found");
-
-            var project = await _projectRepository.GetByIdAsync(team.ProjectId)
-                          ?? throw new ArgumentException("Project not found");
-
-            if (project.ProjectLeadId != requesterId)
-                throw new UnauthorizedAccessException("Only project leads can delete teams.");
-
-            await _teamRepository.DeleteAsync(team);
-
-            await _changeLogService.AddTeamLogAsync(new TeamChangeLog(
-                team.Id,
-                requesterId,
-                ChangeType.Deleted,
-                "Team",
-                team.Name,
-                null
-            ));
-
-            await _unitOfWork.SaveChangesAsync();
+            IEnumerable<Team> teams = await _teamRepository.GetAllByProjectIdAsync(projectId);
+            return teams.Select(t => _teamMapper.ToDTO(t));
         }
 
         public async Task<bool> IsUserInTeamAsync(Guid teamId, Guid userId)
@@ -241,15 +115,91 @@ namespace ProjectManagementTool.Application.Services
 
         public async Task<bool> IsTeamLeadAsync(Guid teamId, Guid userId)
         {
-            var member = await _teamRepository.GetMemberAsync(teamId, userId);
-            return member?.Role == TeamMemberRole.Lead;
+            TeamMember member = await _teamRepository.GetMemberAsync(teamId, userId) ?? throw new KeyNotFoundException("User not in team");
+            return member.Role == TeamMemberRole.Lead;
         }
 
-        private TeamMemberRole ParseRole(string role)
+        // Update
+        public async Task AssignTeamLeadAsync(Guid teamId, AssignLeadDTO dto)
         {
-            return Enum.TryParse<TeamMemberRole>(role, true, out var parsed)
-                ? parsed
-                : throw new ArgumentException($"Invalid role: {role}");
+            await ChangeTeamLeadAsync(teamId, dto, true);
+        }
+
+        public async Task RemoveTeamLeadAsync(Guid teamId, AssignLeadDTO dto)
+        {
+            await ChangeTeamLeadAsync(teamId, dto, false);
+        }
+
+        private async Task ChangeTeamLeadAsync(Guid teamId, AssignLeadDTO dto, bool assign)
+        {
+            Team team = await _teamRepository.GetByIdAsync(teamId)
+                       ?? throw new KeyNotFoundException("Team not found");
+            Project project = await _projectRepository.GetByIdAsync(team.ProjectId)
+                         ?? throw new KeyNotFoundException("Project not found");
+            TeamMember member = await _teamRepository.GetMemberAsync(team.Id, dto.UserId) ?? throw new KeyNotFoundException("User not in team");
+
+            if (project.ProjectLeadId != dto.RequesterId)
+                throw new UnauthorizedAccessException("Only project leads can modify team leads.");
+
+            member.UpdateRole(assign ? TeamMemberRole.Lead : TeamMemberRole.Developer);
+            await _teamRepository.UpdateMemberAsync(member);
+
+            await _changeLogService.AddTeamLogAsync(new TeamChangeLog(
+                team.Id, dto.RequesterId, ChangeType.Updated, "TeamLead",
+                assign ? null : dto.UserId.ToString(),
+                assign ? dto.UserId.ToString() : null));
+
+
+            UserNotification userNotification = new UserNotification(
+                userId: dto.UserId,
+                message: assign
+                    ? $"You have been assigned as Team Lead for '{team.Name}'."
+                    : $"You have been removed as Team Lead for '{team.Name}'."
+            );
+            await _notificationService.SendUserNotification(userNotification);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        // Delete
+        public async Task RemoveMemberAsync(Guid teamId, Guid userId, Guid requesterId)
+        {
+            Team team = await _teamRepository.GetByIdAsync(teamId)
+                       ?? throw new KeyNotFoundException("Team not found");
+            Project project = await _projectRepository.GetByIdAsync(team.ProjectId)
+                         ?? throw new KeyNotFoundException("Project not found");
+
+            if (project.ProjectLeadId != requesterId)
+                throw new UnauthorizedAccessException("Only project leads can remove team members.");
+
+            await _teamRepository.RemoveMemberAsync(teamId, userId);
+
+            await _changeLogService.AddTeamLogAsync(new TeamChangeLog(
+                team.Id, requesterId, ChangeType.Removed, "TeamMember", userId.ToString(), null));
+
+
+            UserNotification userNotification = new UserNotification(
+                userId: userId,
+                message: $"You have been removed from Team: {team.Id}"
+            );
+            await _notificationService.SendUserNotification(userNotification);
+            await _unitOfWork.SaveChangesAsync();
+        }
+        public async Task DeleteTeamAsync(Guid teamId, Guid requesterId)
+        {
+            Team team = await _teamRepository.GetByIdAsync(teamId)
+                       ?? throw new KeyNotFoundException("Team not found");
+            Project project = await _projectRepository.GetByIdAsync(team.ProjectId)
+                         ?? throw new KeyNotFoundException("Project not found");
+
+            if (project.ProjectLeadId != requesterId)
+                throw new UnauthorizedAccessException("Only project leads can delete teams.");
+
+            await _teamRepository.DeleteAsync(team);
+
+            await _changeLogService.AddTeamLogAsync(new TeamChangeLog(
+                team.Id, requesterId, ChangeType.Deleted, "Team", team.Name, null));
+
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

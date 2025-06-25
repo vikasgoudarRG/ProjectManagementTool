@@ -20,22 +20,26 @@ namespace ProjectManagementTool.API.Controllers
 
         // ======================= Methods ====================== //
         // Create
-        [HttpPost("add")]
+        [HttpPost]
         public async Task<IActionResult> Add([FromBody] AddUserDTO addUserDto)
         {
             UserDTO userDto = await _userService.AddAsync(addUserDto);
-            return Ok(userDto);
+            return CreatedAtAction(
+                nameof(GetById),
+                new { userId = userDto.Id },
+                userDto
+            );
         }
 
         // Read
-        [HttpGet("get")]
-        public async Task<IActionResult> GetById([FromQuery] Guid userId)
+        [HttpGet("{userId:guid}")]
+        public async Task<IActionResult> GetById([FromRoute] Guid userId)
         {
             UserDTO userDto = await _userService.GetByIdAsync(userId);
             return Ok(userDto);
         }
 
-        [HttpGet("get/all")]
+        [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             IEnumerable<UserDTO> users = await _userService.GetAllAsync();
@@ -50,16 +54,16 @@ namespace ProjectManagementTool.API.Controllers
         }
 
         // Update
-        [HttpPut("update")]
-        public async Task<IActionResult> Update(UpdateUserDTO updateUserDto)
+        [HttpPut("{userId:guid}")]
+        public async Task<IActionResult> Update([FromRoute] Guid userId, [FromQuery] UpdateUserDTO updateUserDto)
         {
-            await _userService.UpdateAsync(updateUserDto);
+            await _userService.UpdateAsync(userId, updateUserDto);
             return NoContent();
         }
 
         // Delete
-        [HttpDelete("delete")]
-        public async Task<IActionResult> Delete(Guid userId)
+        [HttpDelete("{userId:guid}")]
+        public async Task<IActionResult> Delete([FromRoute] Guid userId)
         {
             await _userService.DeleteAsync(userId);
             return NoContent();

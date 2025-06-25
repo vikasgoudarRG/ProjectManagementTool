@@ -8,7 +8,7 @@ namespace ProjectManagementTool.Domain.Interfaces.Repositories
         // TaskIteam Operations
         Task AddAsync(TaskItem taskItem);
 
-        Task<TaskItem?> GetByIdAsync(Guid taskItemId);
+        Task<TaskItem> GetByIdAsync(Guid taskItemId);
         Task<IEnumerable<TaskItem>> GetAllByProjectId(Guid projectId); // for project leads
         Task<IEnumerable<TaskItem>> GetAllByTeamId(Guid teamId); // for project leads and team memebers
         Task<IEnumerable<TaskItem>> GetAllByAssignedUserId(Guid userId);

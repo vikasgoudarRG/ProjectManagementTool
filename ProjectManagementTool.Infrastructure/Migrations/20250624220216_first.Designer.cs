@@ -12,8 +12,8 @@ using ProjectManagementTool.Infrastructure.Contexts;
 namespace ProjectManagementTool.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250624063058_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250624220216_first")]
+    partial class first
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

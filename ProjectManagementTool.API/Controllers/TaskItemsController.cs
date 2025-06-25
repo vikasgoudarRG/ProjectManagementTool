@@ -1,79 +1,89 @@
 using Microsoft.AspNetCore.Mvc;
 using ProjectManagementTool.Application.Interfaces.Services;
-using ProjectManagementTool.Application.DTOs.Team;
 using ProjectManagementTool.Application.DTOs.TaskItem;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-[ApiController]
-[Route("api/tasks")]
-public class TaskItemController : ControllerBase
+namespace ProjectManagementTool.API.Controllers
 {
-    private readonly ITaskItemService _taskService;
-
-    public TaskItemController(ITaskItemService taskService)
+    [ApiController]
+    [Route("api/tasks")]
+    public class TaskItemController : ControllerBase
     {
-        _taskService = taskService;
-    }
+        private readonly ITaskItemService _taskService;
 
-    [HttpPost("{creatorId}")]
-    public async Task<IActionResult> Create([FromBody] TaskItemCreateDTO dto, Guid creatorId)
-    {
-        var id = await _taskService.CreateTaskAsync(dto, creatorId);
-        return Ok(id);
-    }
+        public TaskItemController(ITaskItemService taskService)
+        {
+            _taskService = taskService;
+        }
 
-    [HttpGet("{id}/user/{requesterId}")]
-    public async Task<IActionResult> Get(Guid id, Guid requesterId)
-    {
-        var task = await _taskService.GetByIdAsync(id, requesterId);
-        return task is null ? NotFound() : Ok(task);
-    }
+        // === Create ===
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] TaskItemCreateDTO dto)
+        {
+            TaskItemDTO task = await _taskService.CreateTaskAsync(dto);
+            return CreatedAtAction(nameof(Get), new { id = task.Id, requesterId = dto.RequestorId }, task);
+        }
 
-    [HttpGet("project/{projectId}/user/{requesterId}")]
-    public async Task<IActionResult> ByProject(Guid projectId, Guid requesterId)
-    {
-        var tasks = await _taskService.GetByProjectAsync(projectId, requesterId);
-        return Ok(tasks);
-    }
+        // === Read ===
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> Get([FromRoute] Guid id, [FromQuery] Guid requesterId)
+        {
+            TaskItemDTO? task = await _taskService.GetByIdAsync(id, requesterId);
+            return task is null ? NotFound() : Ok(task);
+        }
 
-    [HttpGet("team/{teamId}/user/{requesterId}")]
-    public async Task<IActionResult> ByTeam(Guid teamId, Guid requesterId)
-    {
-        var tasks = await _taskService.GetByTeamAsync(teamId, requesterId);
-        return Ok(tasks);
-    }
+        [HttpGet("project/{projectId:guid}")]
+        public async Task<IActionResult> GetByProject([FromRoute] Guid projectId, [FromQuery] Guid requesterId)
+        {
+            IEnumerable<TaskItemDTO> tasks = await _taskService.GetByProjectAsync(projectId, requesterId);
+            return Ok(tasks);
+        }
 
-    [HttpGet("user/{userId}")]
-    public async Task<IActionResult> ByUser(Guid userId)
-    {
-        var tasks = await _taskService.GetByUserAsync(userId);
-        return Ok(tasks);
-    }
+        [HttpGet("team/{teamId:guid}")]
+        public async Task<IActionResult> GetByTeam([FromRoute] Guid teamId, [FromQuery] Guid requesterId)
+        {
+            IEnumerable<TaskItemDTO> tasks = await _taskService.GetByTeamAsync(teamId, requesterId);
+            return Ok(tasks);
+        }
 
-    [HttpPut("{updaterId}")]
-    public async Task<IActionResult> Update([FromBody] UpdateTaskItemDTO dto, Guid updaterId)
-    {
-        await _taskService.UpdateAsync(dto, updaterId);
-        return NoContent();
-    }
+        [HttpGet("user/{userId:guid}")]
+        public async Task<IActionResult> GetByUser([FromRoute] Guid userId)
+        {
+            IEnumerable<TaskItemDTO> tasks = await _taskService.GetByUserAsync(userId);
+            return Ok(tasks);
+        }
 
-    [HttpDelete("{taskId}/delete-by/{requesterId}")]
-    public async Task<IActionResult> Delete(Guid taskId, Guid requesterId)
-    {
-        await _taskService.DeleteAsync(taskId, requesterId);
-        return NoContent();
-    }
+        // === Update ===
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromQuery] Guid updaterId, [FromBody] UpdateTaskItemDTO dto)
+        {
+            TaskItemDTO updated = await _taskService.UpdateAsync(id, dto, updaterId);
+            return Ok(updated);
+        }
 
-    [HttpPost("assign")]
-    public async Task<IActionResult> Assign([FromBody] AssignTaskItemDTO dto)
-    {
-        await _taskService.AssignAsync(dto);
-        return NoContent();
-    }
+        [HttpPost("{id:guid}/assign")]
+        public async Task<IActionResult> Assign([FromRoute] Guid id, [FromBody] AssignTaskItemDTO dto)
+        {
+            dto.TaskItemId = id;
+            TaskItemDTO updated = await _taskService.AssignAsync(dto);
+            return Ok(updated);
+        }
 
-    [HttpPost("status")]
-    public async Task<IActionResult> ChangeStatus([FromBody] ChangeTaskItemStatusDTO dto)
-    {
-        await _taskService.ChangeStatusAsync(dto);
-        return NoContent();
+        [HttpPost("{id:guid}/status")]
+        public async Task<IActionResult> ChangeStatus([FromRoute] Guid id, [FromBody] ChangeTaskItemStatusDTO dto)
+        {
+            TaskItemDTO updated = await _taskService.ChangeStatusAsync(id, dto);
+            return Ok(updated);
+        }
+
+        // === Delete ===
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete([FromRoute] Guid id, [FromQuery] Guid requesterId)
+        {
+            await _taskService.DeleteAsync(id, requesterId);
+            return NoContent();
+        }
     }
 }

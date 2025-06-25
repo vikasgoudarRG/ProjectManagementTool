@@ -1,5 +1,6 @@
 using ProjectManagementTool.Application.DTOs.Notification;
 using ProjectManagementTool.Application.DTOs.TaskItem;
+using ProjectManagementTool.Application.Interfaces.Mappers;
 using ProjectManagementTool.Application.Interfaces.Services;
 using ProjectManagementTool.Domain.Entities;
 using ProjectManagementTool.Domain.Entities.ChangeLogs;
@@ -12,14 +13,17 @@ namespace ProjectManagementTool.Application.Services
 {
     public class TaskItemService : ITaskItemService
     {
+        // ======================= Fields ======================= //
         private readonly ITaskItemRepository _taskRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly ITeamRepository _teamRepository;
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IChangeLogService _changeLogService;
+        private readonly ITaskItemMapper _taskItemMapper;
         private readonly IUserNotificationService _notificationService;
 
+        // ==================== Constructors ==================== //
         public TaskItemService(
             ITaskItemRepository taskRepository,
             IProjectRepository projectRepository,
@@ -27,6 +31,7 @@ namespace ProjectManagementTool.Application.Services
             IUserRepository userRepository,
             IChangeLogService changeLogService,
             IUserNotificationService notificationService,
+            ITaskItemMapper taskItemMapper,
             IUnitOfWork unitOfWork)
         {
             _taskRepository = taskRepository;
@@ -35,10 +40,13 @@ namespace ProjectManagementTool.Application.Services
             _userRepository = userRepository;
             _changeLogService = changeLogService;
             _notificationService = notificationService;
+            _taskItemMapper = taskItemMapper;
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Guid> CreateTaskAsync(TaskItemCreateDTO dto, Guid creatorUserId)
+        // ======================= Methods ====================== //
+        // Create
+        public async Task<TaskItemDTO> CreateTaskAsync(TaskItemCreateDTO dto)
         {
             var team = await _teamRepository.GetByIdAsync(dto.TeamId)
                 ?? throw new ArgumentException("Team not found");
@@ -46,8 +54,8 @@ namespace ProjectManagementTool.Application.Services
             var project = await _projectRepository.GetByIdAsync(team.ProjectId)
                 ?? throw new ArgumentException("Project not found");
 
-            if (project.ProjectLeadId != creatorUserId &&
-                !await _teamRepository.IsTeamLeadAsync(team.Id, creatorUserId))
+            if (project.ProjectLeadId != dto.RequestorId &&
+                !await _teamRepository.IsTeamLeadAsync(team.Id, dto.RequestorId))
                 throw new UnauthorizedAccessException("Only leads can create tasks.");
 
             if (dto.AssignedUserId.HasValue &&
@@ -69,25 +77,25 @@ namespace ProjectManagementTool.Application.Services
             await _taskRepository.AddAsync(task);
 
             await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(
-                task.Id, creatorUserId, ChangeType.Created, "TaskItem", null, dto.Title));
+                task.Id, dto.RequestorId, ChangeType.Created, "TaskItem", null, dto.Title));
 
             if (dto.AssignedUserId.HasValue)
             {
-                await _notificationService.SendAsync(new SendNotificationDTO
-                {
-                    UserId = dto.AssignedUserId.Value,
-                    Message = $"You have been assigned a new task: {dto.Title}"
-                });
+                UserNotification userNotification = new UserNotification(
+                    userId: dto.AssignedUserId.Value,
+                    message: $"You have been assigned a new task: {dto.Title}"
+                );
+                await _notificationService.SendUserNotification(userNotification);
             }
 
             await _unitOfWork.SaveChangesAsync();
-            return task.Id;
+            return _taskItemMapper.ToDTO(task);
         }
 
+        // Read
         public async Task<TaskItemDTO?> GetByIdAsync(Guid taskId, Guid requesterId)
         {
-            var task = await _taskRepository.GetByIdAsync(taskId);
-            if (task == null) return null;
+            var task = await _taskRepository.GetByIdAsync(taskId) ?? throw new KeyNotFoundException("Task not found");
 
             var team = await _teamRepository.GetByIdAsync(task.TeamId)
                 ?? throw new ArgumentException("Team not found");
@@ -100,7 +108,7 @@ namespace ProjectManagementTool.Application.Services
                 task.AssignedUserId != requesterId)
                 throw new UnauthorizedAccessException("You are not authorized to view this task.");
 
-            return MapToDTO(task);
+            return _taskItemMapper.ToDTO(task);
         }
 
         public async Task<IEnumerable<TaskItemDTO>> GetByProjectAsync(Guid projectId, Guid requesterId)
@@ -112,7 +120,7 @@ namespace ProjectManagementTool.Application.Services
                 throw new UnauthorizedAccessException("Only the project lead can view all tasks.");
 
             var tasks = await _taskRepository.GetAllByProjectId(projectId);
-            return tasks.Select(MapToDTO);
+            return tasks.Select(t => _taskItemMapper.ToDTO(t));
         }
 
         public async Task<IEnumerable<TaskItemDTO>> GetByTeamAsync(Guid teamId, Guid requesterId)
@@ -122,18 +130,19 @@ namespace ProjectManagementTool.Application.Services
                 throw new UnauthorizedAccessException("Not authorized.");
 
             var tasks = await _taskRepository.GetAllByTeamId(teamId);
-            return tasks.Select(MapToDTO);
+            return tasks.Select(t => _taskItemMapper.ToDTO(t));
         }
 
         public async Task<IEnumerable<TaskItemDTO>> GetByUserAsync(Guid userId)
         {
             var tasks = await _taskRepository.GetAllByAssignedUserId(userId);
-            return tasks.Select(MapToDTO);
+            return tasks.Select(t => _taskItemMapper.ToDTO(t));
         }
 
-        public async Task UpdateAsync(UpdateTaskItemDTO dto, Guid updaterUserId)
+        // Update
+        public async Task<TaskItemDTO> UpdateAsync(Guid id, UpdateTaskItemDTO dto, Guid updaterUserId)
         {
-            var task = await _taskRepository.GetByIdAsync(dto.Id)
+            var task = await _taskRepository.GetByIdAsync(id)
                 ?? throw new ArgumentException("Task not found");
 
             var team = await _teamRepository.GetByIdAsync(task.TeamId)
@@ -209,32 +218,110 @@ namespace ProjectManagementTool.Application.Services
 
                 if (oldAssignee.HasValue)
                 {
-                    await _notificationService.SendAsync(new SendNotificationDTO
+                    if (dto.AssignedUserId.HasValue)
                     {
-                        UserId = oldAssignee.Value,
-                        Message = $"You have been unassigned from task: {task.Title}"
-                    });
+                        UserNotification userNotification = new UserNotification(
+                            userId: dto.AssignedUserId.Value,
+                            message: $"You have been unassigned a new task: {dto.Title}"
+                        );
+                        await _notificationService.SendUserNotification(userNotification);
+                    }
                 }
 
-                await _notificationService.SendAsync(new SendNotificationDTO
                 {
-                    UserId = dto.AssignedUserId.Value,
-                    Message = $"You have been assigned to task: {task.Title}"
-                });
+                    UserNotification userNotification = new UserNotification(
+                        userId: dto.AssignedUserId.Value,
+                        message: $"You have been assigned a new task: {dto.Title}"
+                    );
+                    await _notificationService.SendUserNotification(userNotification);
+                }
             }
-            else if (task.AssignedUserId.HasValue)
+
+            else if (task.AssignedUserId != null)
             {
-                await _notificationService.SendAsync(new SendNotificationDTO
-                {
-                    UserId = task.AssignedUserId.Value,
-                    Message = $"Task details have been updated: {task.Title}"
-                });
+                UserNotification userNotification = new UserNotification(
+                    userId: task.AssignedUserId.Value,
+                    message: $"Task details have been updated: {task.Title}"
+                );
+                await _notificationService.SendUserNotification(userNotification);
             }
 
             await _taskRepository.UpdateAsync(task);
             await _unitOfWork.SaveChangesAsync();
+            return _taskItemMapper.ToDTO(task);
         }
 
+        public async Task<TaskItemDTO> AssignAsync(AssignTaskItemDTO dto)
+        {
+            var task = await _taskRepository.GetByIdAsync(dto.TaskItemId)
+                ?? throw new ArgumentException("Task not found");
+
+            var team = await _teamRepository.GetByIdAsync(task.TeamId)
+                ?? throw new ArgumentException("Team not found");
+
+            var project = await _projectRepository.GetByIdAsync(team.ProjectId)
+                ?? throw new ArgumentException("Project not found");
+
+            if (project.ProjectLeadId != dto.RequesterId &&
+                !await _teamRepository.IsTeamLeadAsync(team.Id, dto.RequesterId))
+                throw new UnauthorizedAccessException("Only leads can assign tasks.");
+
+            if (!await _teamRepository.IsUserInTeamAsync(team.Id, dto.AssignedUserId))
+                throw new ArgumentException("Assigned user is not in the team.");
+
+            if (task.AssignedUserId == dto.AssignedUserId) return _taskItemMapper.ToDTO(task);
+
+            var oldAssignee = task.AssignedUserId;
+            task.AssignedUserId = dto.AssignedUserId;
+
+            await _taskRepository.UpdateAsync(task);
+
+            await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(
+                task.Id, dto.RequesterId, ChangeType.Updated, "AssignedUserId", oldAssignee?.ToString(), dto.AssignedUserId.ToString()));
+
+
+            UserNotification userNotification = new UserNotification(
+                userId: dto.AssignedUserId,
+                message: $"You have been assigned to task: {task.Title}"
+            );
+            await _notificationService.SendUserNotification(userNotification);
+
+            if (oldAssignee.HasValue && oldAssignee != dto.AssignedUserId)
+            {
+                userNotification = new UserNotification(
+                    userId: dto.AssignedUserId,
+                    message: $"You have been unassigned from task: {task.Title}"
+                );
+                await _notificationService.SendUserNotification(userNotification);
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+            return _taskItemMapper.ToDTO(task);
+        }
+
+        public async Task<TaskItemDTO> ChangeStatusAsync(Guid id, ChangeTaskItemStatusDTO dto)
+        {
+            var task = await _taskRepository.GetByIdAsync(id)
+                ?? throw new ArgumentException("Task not found");
+
+            if (task.AssignedUserId != dto.RequesterId)
+                throw new UnauthorizedAccessException("Only the assignee can change the task status.");
+
+            var newStatus = ParseStatus(dto.NewStatus);
+            var oldStatus = task.Status;
+
+            task.Status = newStatus;
+
+            await _taskRepository.UpdateAsync(task);
+
+            await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(
+                task.Id, dto.RequesterId, ChangeType.Updated, "Status", oldStatus.ToString(), dto.NewStatus));
+
+            await _unitOfWork.SaveChangesAsync();
+            return _taskItemMapper.ToDTO(task);
+        }
+
+        // Delete
         public async Task DeleteAsync(Guid taskId, Guid requesterId)
         {
             var task = await _taskRepository.GetByIdAsync(taskId)
@@ -257,88 +344,6 @@ namespace ProjectManagementTool.Application.Services
 
             await _unitOfWork.SaveChangesAsync();
         }
-
-        public async Task AssignAsync(AssignTaskItemDTO dto)
-        {
-            var task = await _taskRepository.GetByIdAsync(dto.TaskItemId)
-                ?? throw new ArgumentException("Task not found");
-
-            var team = await _teamRepository.GetByIdAsync(task.TeamId)
-                ?? throw new ArgumentException("Team not found");
-
-            var project = await _projectRepository.GetByIdAsync(team.ProjectId)
-                ?? throw new ArgumentException("Project not found");
-
-            if (project.ProjectLeadId != dto.RequesterId &&
-                !await _teamRepository.IsTeamLeadAsync(team.Id, dto.RequesterId))
-                throw new UnauthorizedAccessException("Only leads can assign tasks.");
-
-            if (!await _teamRepository.IsUserInTeamAsync(team.Id, dto.AssignedUserId))
-                throw new ArgumentException("Assigned user is not in the team.");
-
-            if (task.AssignedUserId == dto.AssignedUserId) return;
-
-            var oldAssignee = task.AssignedUserId;
-            task.AssignedUserId = dto.AssignedUserId;
-
-            await _taskRepository.UpdateAsync(task);
-
-            await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(
-                task.Id, dto.RequesterId, ChangeType.Updated, "AssignedUserId", oldAssignee?.ToString(), dto.AssignedUserId.ToString()));
-
-            await _notificationService.SendAsync(new SendNotificationDTO
-            {
-                UserId = dto.AssignedUserId,
-                Message = $"You have been assigned to task: {task.Title}"
-            });
-
-            if (oldAssignee.HasValue && oldAssignee != dto.AssignedUserId)
-            {
-                await _notificationService.SendAsync(new SendNotificationDTO
-                {
-                    UserId = oldAssignee.Value,
-                    Message = $"You have been unassigned from task: {task.Title}"
-                });
-            }
-
-            await _unitOfWork.SaveChangesAsync();
-        }
-
-        public async Task ChangeStatusAsync(ChangeTaskItemStatusDTO dto)
-        {
-            var task = await _taskRepository.GetByIdAsync(dto.TaskItemId)
-                ?? throw new ArgumentException("Task not found");
-
-            if (task.AssignedUserId != dto.RequesterId)
-                throw new UnauthorizedAccessException("Only the assignee can change the task status.");
-
-            var newStatus = ParseStatus(dto.NewStatus);
-            var oldStatus = task.Status;
-
-            task.Status = newStatus;
-
-            await _taskRepository.UpdateAsync(task);
-
-            await _changeLogService.AddTaskItemLogAsync(new TaskItemChangeLog(
-                task.Id, dto.RequesterId, ChangeType.Updated, "Status", oldStatus.ToString(), dto.NewStatus));
-
-            await _unitOfWork.SaveChangesAsync();
-        }
-
-        private TaskItemDTO MapToDTO(TaskItem task) => new TaskItemDTO
-        {
-            Id = task.Id,
-            Title = task.Title,
-            Description = task.Description,
-            Type = task.Type.ToString(),
-            Priority = task.Priority.ToString(),
-            Status = task.Status.ToString(),
-            AssignedUserId = task.AssignedUserId,
-            TeamId = task.TeamId,
-            CreatedAt = task.CreatedAt,
-            Deadline = task.Deadline,
-            CompletedAt = task.CompletedAt
-        };
 
         private TaskItemPriority ParsePriority(string str) =>
             Enum.TryParse(str, true, out TaskItemPriority result)

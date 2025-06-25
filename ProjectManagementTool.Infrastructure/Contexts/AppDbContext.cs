@@ -78,6 +78,12 @@ namespace ProjectManagementTool.Infrastructure.Contexts
                 .WithMany()
                 .HasForeignKey(n => n.UserId);
 
+            modelBuilder.Entity<ProjectChangeLog>()
+            .HasOne(pcl => pcl.Project)
+            .WithMany()
+            .HasForeignKey(pcl => pcl.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<TaskItem>()
                 .HasMany(t => t.Tags)
                 .WithMany(t => t.Tasks)

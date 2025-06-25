@@ -13,7 +13,7 @@ namespace ProjectManagementTool.Application.Interfaces.Services
         Task<IEnumerable<UserDTO>> SearchAsync(string keyword);
 
         // Update
-        Task UpdateAsync(UpdateUserDTO user);
+        Task UpdateAsync(Guid userId, UpdateUserDTO user);
 
         // Delete
         Task DeleteAsync(Guid userId);

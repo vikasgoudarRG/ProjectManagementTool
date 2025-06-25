@@ -1,5 +1,6 @@
 using ProjectManagementTool.Application.DTOs.Comment;
 using ProjectManagementTool.Application.DTOs.Notification;
+using ProjectManagementTool.Application.Interfaces.Mappers;
 using ProjectManagementTool.Application.Interfaces.Services;
 using ProjectManagementTool.Domain.Entities;
 using ProjectManagementTool.Domain.Entities.ChangeLogs;
@@ -11,19 +12,23 @@ namespace ProjectManagementTool.Application.Services
 {
     public class TaskItemCommentService : ITaskItemCommentService
     {
+        // ======================= Fields ======================= //
         private readonly ITaskItemRepository _taskRepository;
         private readonly ITaskItemCommentRepository _commentRepository;
         private readonly IUserRepository _userRepository;
         private readonly ITaskItemChangeLogRepository _logRepository;
         private readonly IUserNotificationService _notificationService;
+        private readonly ITaskItemCommentMapper _taskItemCommentMapper;
         private readonly IUnitOfWork _unitOfWork;
 
+        // ==================== Constructors ==================== //
         public TaskItemCommentService(
             ITaskItemRepository taskRepository,
             ITaskItemCommentRepository commentRepository,
             IUserRepository userRepository,
             ITaskItemChangeLogRepository logRepository,
             IUserNotificationService notificationService,
+            ITaskItemCommentMapper taskItemCommentMapper,
             IUnitOfWork unitOfWork)
         {
             _taskRepository = taskRepository;
@@ -31,17 +36,20 @@ namespace ProjectManagementTool.Application.Services
             _userRepository = userRepository;
             _logRepository = logRepository;
             _notificationService = notificationService;
+            _taskItemCommentMapper = taskItemCommentMapper;
             _unitOfWork = unitOfWork;
         }
 
+        // ======================= Methods ====================== //
+        // Create
         public async Task AddAsync(CreateCommentDTO dto)
         {
-            var task = await _taskRepository.GetByIdAsync(dto.TaskItemId)
-                        ?? throw new ArgumentException("Task not found");
-            var user = await _userRepository.GetByIdAsync(dto.AuthorId)
-                        ?? throw new ArgumentException("User not found");
+            TaskItem task = await _taskRepository.GetByIdAsync(dto.TaskItemId)
+                        ?? throw new KeyNotFoundException("Task not found");
+            User user = await _userRepository.GetByIdAsync(dto.AuthorId)
+                        ?? throw new KeyNotFoundException("User not found");
 
-            var comment = new TaskItemComment(dto.TaskItemId, dto.AuthorId, dto.Text);
+            TaskItemComment comment = new TaskItemComment(dto.TaskItemId, dto.AuthorId, dto.Text);
             await _commentRepository.AddAsync(comment);
 
             var log = new TaskItemChangeLog(
@@ -57,29 +65,40 @@ namespace ProjectManagementTool.Application.Services
             // Notify assignee if different from commenter
             if (task.AssignedUserId.HasValue && task.AssignedUserId != dto.AuthorId)
             {
-                await _notificationService.SendAsync(new SendNotificationDTO
-                {
-                    UserId = task.AssignedUserId.Value,
-                    Message = $"New comment on your task: '{task.Title}'"
-                });
+                UserNotification userNotification = new UserNotification(
+                    userId: task.AssignedUserId.Value,
+                    message: $"New comment on your task: {task.Title}"
+                );
+                await _notificationService.SendUserNotification(userNotification);
             }
 
             await _unitOfWork.SaveChangesAsync();
         }
 
+        // Read
+        public async Task<IEnumerable<TaskItemCommentDTO>> GetAllForTaskAsync(Guid taskId)
+        {
+            if (await _taskRepository.GetByIdAsync(taskId) is null)
+                throw new KeyNotFoundException("Task not found");
+
+            IEnumerable<TaskItemComment> comments = await _commentRepository.GetAllByTaskIdAsync(taskId);
+            return comments.Select(c => _taskItemCommentMapper.ToDTO(c));
+        }
+
+        // Update
         public async Task UpdateAsync(Guid commentId, Guid authorId, string updatedContent)
         {
-            var comment = await _commentRepository.GetByIdAsync(commentId)
-                           ?? throw new ArgumentException("Comment not found");
+            TaskItemComment comment = await _commentRepository.GetByIdAsync(commentId)
+                           ?? throw new KeyNotFoundException("Comment not found");
 
             if (comment.AuthorId != authorId)
-                throw new UnauthorizedAccessException("You can only edit your own comment.");
+                throw new UnauthorizedAccessException("Not authorized to edit this comment");
 
-            var oldContent = comment.Text;
+            string oldContent = comment.Text;
             comment.Edit(updatedContent);
             await _commentRepository.UpdateAsync(comment);
 
-            var log = new TaskItemChangeLog(
+            TaskItemChangeLog log = new TaskItemChangeLog(
                 comment.TaskItemId,
                 authorId,
                 ChangeType.Updated,
@@ -91,18 +110,19 @@ namespace ProjectManagementTool.Application.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
+        // Delete
         public async Task DeleteAsync(Guid commentId, Guid authorId)
         {
-            var comment = await _commentRepository.GetByIdAsync(commentId)
-                           ?? throw new ArgumentException("Comment not found");
+            TaskItemComment comment = await _commentRepository.GetByIdAsync(commentId)
+                           ?? throw new KeyNotFoundException("Comment not found");
 
             if (comment.AuthorId != authorId)
-                throw new UnauthorizedAccessException("You can only delete your own comment.");
+                throw new UnauthorizedAccessException("Not authorized to delete this comment");
 
-            var oldContent = comment.Text;
+            string oldContent = comment.Text;
             await _commentRepository.DeleteAsync(comment);
 
-            var log = new TaskItemChangeLog(
+            TaskItemChangeLog log = new TaskItemChangeLog(
                 comment.TaskItemId,
                 authorId,
                 ChangeType.Deleted,
@@ -113,24 +133,5 @@ namespace ProjectManagementTool.Application.Services
             await _logRepository.AddAsync(log);
             await _unitOfWork.SaveChangesAsync();
         }
-
-        public async Task<IEnumerable<TaskItemCommentDTO>> GetAllForTaskAsync(Guid taskId)
-        {
-            if (await _taskRepository.GetByIdAsync(taskId) is null)
-                throw new ArgumentException("Task not found");
-
-            var comments = await _commentRepository.GetAllByTaskIdAsync(taskId);
-            return comments.Select(MapToDTO);
-        }
-
-        private static TaskItemCommentDTO MapToDTO(TaskItemComment comment) => new TaskItemCommentDTO
-        {
-            Id = comment.Id,
-            AuthorId = comment.AuthorId,
-            Text = comment.Text,
-            CreatedOn = comment.CreatedOn,
-            Edited = comment.Edited,
-            LastEditedOn = comment.LastEditedOn
-        };
     }
 }

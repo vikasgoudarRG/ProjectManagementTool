@@ -6,6 +6,8 @@ using ProjectManagementTool.Application.Interfaces.Services;
 using ProjectManagementTool.Infrastructure.Repositories;
 using ProjectManagementTool.Infrastructure.Common;
 using ProjectManagementTool.Domain.Interfaces.Repositories.Common;
+using ProjectManagementTool.Application.Interfaces.Mappers;
+using ProjectManagementTool.Application.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,13 @@ builder.Services.AddScoped<ITaskItemService, TaskItemService>();
 builder.Services.AddScoped<ITaskItemCommentService, TaskItemCommentService>();
 builder.Services.AddScoped<IChangeLogService, ChangeLogService>();
 builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddScoped<IUserMapper, UserMapper>();
+builder.Services.AddScoped<IProjectMapper, ProjectMapper>();
+builder.Services.AddScoped<IUserNotificationMapper, UserNotificationMapper>();
+builder.Services.AddScoped<ITaskItemCommentMapper, TaskItemCommentMapper>();
+builder.Services.AddScoped<ITaskItemMapper, TaskItemMapper>();
+builder.Services.AddScoped<ITeamMapper, TeamMapper>();
 
 
 builder.Services.AddControllers();

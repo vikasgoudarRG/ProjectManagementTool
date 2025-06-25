@@ -9,60 +9,77 @@ namespace ProjectManagementTool.API.Controllers;
 [Route("api/projects")]
 public class ProjectController : ControllerBase
 {
+    // ======================= Fields ======================= //
     private readonly IProjectService _projectService;
 
+    // ==================== Constructors ==================== //
     public ProjectController(IProjectService projectService)
     {
         _projectService = projectService;
     }
 
+    // ======================= Methods ====================== //
+    // Create
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateProjectDTO dto)
+    public async Task<IActionResult> Create([FromBody] CreateProjectDTO createProjectDto)
     {
-        var id = await _projectService.CreateProjectAsync(dto);
-        return Ok(id);
+        ProjectDTO projectDto = await _projectService.CreateProjectAsync(createProjectDto);
+        return CreatedAtAction(
+            nameof(GetById),
+            new {projectId = projectDto.Id},
+            projectDto
+        );
     }
 
+    // Update
+    [HttpPost("add-developer")]
+    public async Task<IActionResult> AddDeveloper([FromQuery] Guid requestorId, [FromBody] ProjectDeveloperDTO dto)
+    {
+        await _projectService.AddDeveloperAsync(requestorId, dto);
+        return NoContent();
+    }
+
+    [HttpPost("remove-developer")]
+    public async Task<IActionResult> RemoveDeveloper([FromQuery] Guid requestorId, [FromBody] ProjectDeveloperDTO dto)
+    {
+        await _projectService.RemoveDeveloperAsync(requestorId, dto);
+        return NoContent();
+    }
+
+    [HttpPut("{projectId}")]
+    public async Task<IActionResult> GetById([FromQuery] Guid requestorId, [FromRoute] Guid projectId, [FromBody] UpdateProjectDTO dto)
+    {
+        await _projectService.UpdateAsync(requestorId, projectId, dto);
+        return NoContent();
+    }
+
+    // Read
     [HttpGet("{projectId}")]
     public async Task<IActionResult> GetById(Guid projectId)
     {
-        var project = await _projectService.GetByIdAsync(projectId);
-        return project == null ? NotFound() : Ok(project);
+        ProjectDTO project = await _projectService.GetByIdAsync(projectId);
+        return Ok(project);
     }
 
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetAllForUser(Guid userId)
     {
-        var projects = await _projectService.GetAllForUserAsync(userId);
+        IEnumerable<ProjectDTO> projects = await _projectService.GetAllForUserAsync(userId);
         return Ok(projects);
-    }
-
-    [HttpDelete("{projectId}/by/{requesterId}")]
-    public async Task<IActionResult> Delete(Guid projectId, Guid requesterId)
-    {
-        await _projectService.DeleteProjectAsync(projectId, requesterId);
-        return NoContent();
-    }
-
-    
-    [HttpPost("add-developer")]
-    public async Task<IActionResult> AddDeveloper([FromBody] ProjectUserActionDTO dto)
-    {
-        await _projectService.AddDeveloperAsync(dto);
-        return NoContent();
-    }
-
-    [HttpPost("remove-developer")]
-    public async Task<IActionResult> RemoveDeveloper([FromBody] ProjectUserActionDTO dto)
-    {
-        await _projectService.RemoveDeveloperAsync(dto);
-        return NoContent();
     }
 
     [HttpGet("{projectId}/developers/{requesterId}")]
     public async Task<IActionResult> GetAllDevelopers(Guid projectId, Guid requesterId)
     {
-        var developers = await _projectService.GetAllDevelopersAsync(projectId, requesterId);
+        IEnumerable<UserDTO> developers = await _projectService.GetAllDevelopersAsync(projectId, requesterId);
         return Ok(developers);
+    }
+
+    // Delete
+    [HttpDelete("{projectId}/by/{requesterId}")]
+    public async Task<IActionResult> Delete(Guid projectId, Guid requesterId)
+    {
+        await _projectService.DeleteProjectAsync(projectId, requesterId);
+        return NoContent();
     }
 }

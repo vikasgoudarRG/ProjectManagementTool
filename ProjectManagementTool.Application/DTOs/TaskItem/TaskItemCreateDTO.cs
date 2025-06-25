@@ -2,6 +2,7 @@ namespace ProjectManagementTool.Application.DTOs.TaskItem
 {
     public class TaskItemCreateDTO
     {
+        public Guid RequestorId { get; set; }
         public string Title { get; set; } = null!;
 
         public string Description { get; set; } = null!;

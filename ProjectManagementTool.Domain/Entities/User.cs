@@ -4,7 +4,7 @@ namespace ProjectManagementTool.Domain.Entities
 {
     public class User
     {
-        #region Fields
+        // ======================= Fields ======================= //
         public Guid Id { get; init; }
 
         private string _name = null!;
@@ -27,9 +27,8 @@ namespace ProjectManagementTool.Domain.Entities
             get => _password;
             set => _password = ValidateAndGetPassword(value);
         }
-        #endregion Fields
 
-        #region Constructors
+        // ==================== Constructors ==================== //
         private User() { }
 
         public User(string name, string email, string password)
@@ -39,10 +38,8 @@ namespace ProjectManagementTool.Domain.Entities
             Email = email;
             Password = password;
         }
-        #endregion Constructors
 
-        #region Methods
-        // =============== static methods ===============
+        // ======================= Methods ====================== //
         public static string ValidateAndGetName(string name)
         {
             name = name.Trim();
@@ -65,6 +62,5 @@ namespace ProjectManagementTool.Domain.Entities
             if (string.IsNullOrEmpty(password)) throw new ArgumentException("Password cannot be null or white space", nameof(password));
             return password;
         }
-        #endregion Methods
     }
 }

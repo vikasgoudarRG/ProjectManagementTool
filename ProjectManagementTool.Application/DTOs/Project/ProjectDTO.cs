@@ -1,3 +1,5 @@
+using ProjectManagementTool.Application.DTOs.User;
+
 namespace ProjectManagementTool.Application.DTOs.Project
 {
     public class ProjectDTO
@@ -8,5 +10,6 @@ namespace ProjectManagementTool.Application.DTOs.Project
         public string Status { get; set; } = null!;
         public Guid ProjectLeadId { get; set; }
         public DateTime CreatedOn { get; set; }
+        public IEnumerable<UserDTO> Developers { get; set; } = null!;
     }
 }

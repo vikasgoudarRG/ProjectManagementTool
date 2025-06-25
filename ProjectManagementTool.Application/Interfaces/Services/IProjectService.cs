@@ -5,14 +5,20 @@ namespace ProjectManagementTool.Application.Interfaces.Services
 {
     public interface IProjectService
     {
-        Task<Guid> CreateProjectAsync(CreateProjectDTO dto);
-        Task<ProjectDTO?> GetByIdAsync(Guid projectId);
+        // Create
+        Task<ProjectDTO> CreateProjectAsync(CreateProjectDTO dto);
+        // Read
+        Task<ProjectDTO> GetByIdAsync(Guid projectId);
         Task<IEnumerable<ProjectDTO>> GetAllForUserAsync(Guid userId);
+        Task<IEnumerable<UserDTO>> GetAllDevelopersAsync(Guid projectId, Guid requesterId);
+        // Update
+        Task AddDeveloperAsync(Guid requestorId, ProjectDeveloperDTO dto);
+        Task RemoveDeveloperAsync(Guid requestorId, ProjectDeveloperDTO dto);
+        Task UpdateAsync(Guid requestorId, Guid projectId, UpdateProjectDTO dto);
+        // Remove
         Task DeleteProjectAsync(Guid projectId, Guid requesterId);
 
-        Task AddDeveloperAsync(ProjectUserActionDTO dto);
-        Task RemoveDeveloperAsync(ProjectUserActionDTO dto);
-        Task<IEnumerable<UserDTO>> GetAllDevelopersAsync(Guid projectId, Guid requesterId);
+
     }
 
 }

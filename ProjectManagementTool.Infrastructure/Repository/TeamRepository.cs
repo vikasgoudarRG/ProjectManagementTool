@@ -8,21 +8,24 @@ namespace ProjectManagementTool.Infrastructure.Repositories
 {
     public class TeamRepository : ITeamRepository
     {
+        // ======================= Fields ======================= //
         private readonly AppDbContext _context;
 
+        // ==================== Constructors ==================== //
         public TeamRepository(AppDbContext context)
         {
             _context = context;
         }
 
-        // ========== Team Operations ==========
-
+        // ======================= Methods ====================== //
+        // =========== Team ===========
+        // Create
         public async Task AddAsync(Team team)
         {
             await _context.Teams.AddAsync(team);
-            await _context.SaveChangesAsync();
         }
 
+        // Read
         public async Task<Team?> GetByIdAsync(Guid teamId)
         {
             return await _context.Teams
@@ -57,27 +60,29 @@ namespace ProjectManagementTool.Infrastructure.Repositories
                 m.TeamId == teamId && m.UserId == userId);
         }
 
-        public async Task UpdateAsync(Team team)
+        // Update
+        public Task UpdateAsync(Team team)
         {
             _context.Teams.Update(team);
-            await _context.SaveChangesAsync();
+            return Task.CompletedTask;
         }
 
-        public async Task DeleteAsync(Team team)
+        // Delete
+        public Task DeleteAsync(Team team)
         {
             _context.Teams.Remove(team);
-            await _context.SaveChangesAsync();
+            return Task.CompletedTask;
         }
 
-        // ========== Team Member Operations ==========
-
+        // =========== Team Member ===========
+        // Create
         public async Task AddMemberAsync(Guid teamId, Guid userId, TeamMemberRole role)
         {
             var member = new TeamMember(teamId, userId, role);
             await _context.TeamMembers.AddAsync(member);
-            await _context.SaveChangesAsync();
         }
 
+        // Read
         public async Task<TeamMember?> GetMemberAsync(Guid teamId, Guid userId)
         {
             return await _context.TeamMembers
@@ -99,14 +104,14 @@ namespace ProjectManagementTool.Infrastructure.Repositories
                 .AnyAsync(m => m.TeamId == teamId && m.UserId == userId && m.Role == TeamMemberRole.Lead);
         }
 
-        public async Task UpdateMemberAsync(TeamMember teamMember)
+        // Update
+        public Task UpdateMemberAsync(TeamMember teamMember)
         {
             _context.TeamMembers.Update(teamMember);
-            await _context.SaveChangesAsync();
+            return Task.CompletedTask;
         }
 
-        
-
+        // Delete
         public async Task RemoveMemberAsync(Guid teamId, Guid userId)
         {
             var member = await _context.TeamMembers
@@ -114,7 +119,6 @@ namespace ProjectManagementTool.Infrastructure.Repositories
             if (member != null)
             {
                 _context.TeamMembers.Remove(member);
-                await _context.SaveChangesAsync();
             }
         }
     }

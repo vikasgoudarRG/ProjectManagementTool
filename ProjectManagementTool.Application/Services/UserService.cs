@@ -1,5 +1,7 @@
 using ProjectManagementTool.Application.DTOs.User;
+using ProjectManagementTool.Application.Interfaces.Mappers;
 using ProjectManagementTool.Application.Interfaces.Services;
+using ProjectManagementTool.Application.Mappers;
 using ProjectManagementTool.Domain.Entities;
 using ProjectManagementTool.Domain.Interfaces.Repositories;
 using ProjectManagementTool.Domain.Interfaces.Repositories.Common;
@@ -10,35 +12,25 @@ namespace ProjectManagementTool.Application.Services
     {
         // ======================= Fields ======================= //
         private readonly IUserRepository _userRepository;
+        private readonly IUserMapper _userMapper;
         private readonly IUnitOfWork _unitOfWork;
 
         // ==================== Constructors ==================== //
-        public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork)
+        public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork, IUserMapper userMapper)
         {
             _userRepository = userRepository;
+            _userMapper = userMapper;
             _unitOfWork = unitOfWork;
         }
 
         // ======================= Methods ====================== //
-
-        // Helper Methods
-        public static UserDTO ToDTO(User user)
-        {
-            return new UserDTO
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email
-            };
-        }
-
         // Create
         public async Task<UserDTO> AddAsync(AddUserDTO addUserDto)
         {
             var user = new User(addUserDto.Name, addUserDto.Email, addUserDto.Password);
             await _userRepository.AddAsync(user);
             await _unitOfWork.SaveChangesAsync();
-            return ToDTO(user);
+            return _userMapper.ToDTO(user);
         }
 
         // Read
@@ -47,25 +39,25 @@ namespace ProjectManagementTool.Application.Services
             User? user = await _userRepository.GetByIdAsync(userId);
             return user == null
                     ? throw new KeyNotFoundException("Id not found")
-                    : ToDTO(user);
+                    : _userMapper.ToDTO(user);
         }
 
         public async Task<IEnumerable<UserDTO>> GetAllAsync()
         {
             IEnumerable<User> users = await _userRepository.GetAllAsync();
-            return users.Select(user => ToDTO(user));
+            return users.Select(user => _userMapper.ToDTO(user));
         }
 
         public async Task<IEnumerable<UserDTO>> SearchAsync(string keyword)
         {
             IEnumerable<User> users = await _userRepository.SearchAsync(keyword);
-            return users.Select(user => ToDTO(user));
+            return users.Select(user => _userMapper.ToDTO(user));
         }
 
         // Update
-        public async Task UpdateAsync(UpdateUserDTO updateUserDto)
+        public async Task UpdateAsync(Guid userId, UpdateUserDTO updateUserDto)
         {
-            User? user = await _userRepository.GetByIdAsync(updateUserDto.Id);
+            User? user = await _userRepository.GetByIdAsync(userId);
             if (user == null) throw new KeyNotFoundException("User not found");
 
             if (!string.IsNullOrWhiteSpace(updateUserDto.Name))
@@ -87,6 +79,7 @@ namespace ProjectManagementTool.Application.Services
             User? user = await _userRepository.GetByIdAsync(userId);
             if (user == null) throw new KeyNotFoundException("User not found");
             await _userRepository.DeleteAsync(user);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

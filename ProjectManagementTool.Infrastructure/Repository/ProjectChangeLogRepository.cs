@@ -18,7 +18,6 @@ namespace ProjectManagementTool.Infrastructure.Repositories
         public async Task AddAsync(ProjectChangeLog log)
         {
             await _context.ProjectChangeLogs.AddAsync(log);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<ProjectChangeLog?> GetByIdAsync(Guid logId)

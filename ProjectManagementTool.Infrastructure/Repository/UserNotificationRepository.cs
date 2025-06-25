@@ -48,7 +48,6 @@ namespace ProjectManagementTool.Infrastructure.Repositories
             if (!notification.IsRead)
             {
                 notification.MarkAsRead();
-                await _context.SaveChangesAsync();
             }
         }
 
@@ -68,7 +67,6 @@ namespace ProjectManagementTool.Infrastructure.Repositories
             if (readNotifications.Any())
             {
                 _context.UserNotifications.RemoveRange(readNotifications);
-                await _context.SaveChangesAsync();
             }
         }
         #endregion Methods

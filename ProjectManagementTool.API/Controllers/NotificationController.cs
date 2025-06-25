@@ -28,10 +28,4 @@ public class NotificationController : ControllerBase
         await _notificationService.MarkAllAsReadAsync(userId);
         return NoContent();
     }
-    [HttpPost("send")]
-    public async Task<IActionResult> Send([FromBody] SendNotificationDTO dto)
-    {
-        await _notificationService.SendAsync(dto);
-        return NoContent();
-    }
 }
