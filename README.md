@@ -9,7 +9,7 @@ A scalable and modular **Project Management System API**, built using **.NET Cor
 ## Tech Stack
 
 | Layer             | Technologies Used                         |
-|------------------|--------------------------------------------|
+|------------------ |-------------------------------------------|
 | **Framework**     | ASP.NET Core Web API                      |
 | **ORM**           | Entity Framework Core                     |
 | **Database**      | SQL Server                                |
@@ -19,7 +19,7 @@ A scalable and modular **Project Management System API**, built using **.NET Cor
 ---
 
 ## Clean Architecture Structure
-├── Domain // Entity Models, Enums, Interfaces
+ Domain // Entity Models, Enums, Interfaces
 ├── Application // DTOs, Interfaces, Services
 ├── Infrastructure // EF Core DbContext, Repositories
 ├── API (Presentation) // Controllers, Swagger setup
