@@ -19,9 +19,12 @@ A scalable and modular **Project Management System API**, built using **.NET Cor
 ---
 
 ## Clean Architecture Structure
- Domain // Entity Models, Enums, Interfaces
-├── Application // DTOs, Interfaces, Services
-├── Infrastructure // EF Core DbContext, Repositories
-├── API (Presentation) // Controllers, Swagger setup
+| Layer             | Technologies Used                         |
+|------------------ |-------------------------------------------|
+| **Domain**        | Entity Models, Enums, Interfaces          |
+| **Application**   | DTOs, Interfaces, Services, Mappers       |
+| **Infrastructure**| Core DbContext, Repositories              |
+| **Architecture**  | Clean Architecture                        |
+| **API**           | Controllers, Swagger setup                |
 
 Each layer is decoupled and communicates via interfaces using Dependency Injection.
